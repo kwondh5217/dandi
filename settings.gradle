@@ -1,0 +1,6 @@
+rootProject.name = 'dandi'
+include 'module-api'
+include 'module-member'
+include 'module-route'
+include 'module-item'
+include 'module-noti'
