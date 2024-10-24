@@ -4,3 +4,5 @@ include 'module-member'
 include 'module-route'
 include 'module-item'
 include 'module-noti'
+include 'module-common'
+
