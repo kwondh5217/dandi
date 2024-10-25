@@ -1,6 +1,6 @@
-package com.e205.dto;
+package com.e205.command;
 
-import com.e205.entity.LostItem;
+import com.e205.commands.Command;
 import java.util.List;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.core.io.Resource;
@@ -11,13 +11,10 @@ public record LostItemSaveCommand(
     LineString route,
     String situationDesc,
     String itemDesc
-) {
-  public LostItem toEntity() {
-    return LostItem.builder()
-        .memberId(lostMemberId)
-        .route(route)
-        .situationDescription(situationDesc)
-        .itemDescription(itemDesc)
-        .build();
+) implements Command {
+
+  @Override
+  public String getType() {
+    return "lostItemSaveCommand";
   }
 }

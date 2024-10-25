@@ -1,11 +1,11 @@
-package com.e205.message;
+package com.e205.event;
 
-import com.e205.entity.LostItem;
 import com.e205.events.Event;
+import com.e205.payload.LostItemPayload;
 import java.time.LocalDateTime;
 
 public record LostItemSaveEvent(
-    LostItem saved,
+    LostItemPayload saved,
     LocalDateTime publishedAt
 ) implements Event {
 

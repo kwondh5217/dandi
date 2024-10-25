@@ -1,6 +1,8 @@
 package com.e205.entity;
 
+import com.e205.command.LostItemSaveCommand;
 import com.e205.log.LoggableEntity;
+import com.e205.payload.LostItemPayload;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -34,5 +36,25 @@ public class LostItem implements LoggableEntity {
     this.situationDescription = situationDescription;
     this.itemDescription = itemDescription;
     this.createdAt = LocalDateTime.now();
+  }
+
+  public LostItem(LostItemSaveCommand command) {
+    this.memberId = command.lostMemberId();
+    this.route = command.route();
+    this.situationDescription = command.situationDesc();
+    this.itemDescription = command.itemDesc();
+    this.createdAt = LocalDateTime.now();
+  }
+
+  public LostItemPayload toPayload() {
+    return LostItemPayload.builder()
+        .id(id)
+        .memberId(memberId)
+        .route(route)
+        .situationDescription(situationDescription)
+        .itemDescription(itemDescription)
+        .createdAt(createdAt)
+        .endedAt(endedAt)
+        .build();
   }
 }

@@ -7,10 +7,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.e205.dto.LostItemSaveCommand;
+import com.e205.command.LostItemSaveCommand;
 import com.e205.entity.LostItem;
+import com.e205.event.LostItemSaveEvent;
 import com.e205.events.EventPublisher;
-import com.e205.message.LostItemSaveEvent;
 import com.e205.repository.LostItemRepository;
 import java.util.List;
 import java.util.Optional;

@@ -1,10 +1,10 @@
 package com.e205.service;
 
-import com.e205.dto.LostItemSaveCommand;
 import com.e205.entity.LostItem;
 import com.e205.events.EventPublisher;
-import com.e205.message.LostItemSaveEvent;
 import com.e205.repository.LostItemRepository;
+import com.e205.command.LostItemSaveCommand;
+import com.e205.event.LostItemSaveEvent;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,8 +36,8 @@ public class DefaultLostItemService implements LostItemService {
           throw new RuntimeException("제한 시간 내에 재등록했을 때");
         });
 
-    LostItem lostItem = command.toEntity();
+    LostItem lostItem = new LostItem(command);
     lostItemRepository.save(lostItem);
-    eventPublisher.publish(new LostItemSaveEvent(lostItem, LocalDateTime.now()));
+    eventPublisher.publish(new LostItemSaveEvent(lostItem.toPayload(), LocalDateTime.now()));
   }
 }
