@@ -2,6 +2,7 @@ dependencies {
     implementation project(':module-item')
     implementation project(':module-common')
     implementation project(':module-noti')
+    implementation project(':module-member')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 }
