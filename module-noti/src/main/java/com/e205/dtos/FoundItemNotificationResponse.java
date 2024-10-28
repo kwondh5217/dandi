@@ -1,4 +1,4 @@
-package com.e205.communication.dtos;
+package com.e205.dtos;
 
 import java.time.LocalDateTime;
 import lombok.Builder;

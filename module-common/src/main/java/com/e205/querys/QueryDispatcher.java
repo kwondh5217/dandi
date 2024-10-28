@@ -1,7 +1,6 @@
 package com.e205.querys;
 
-public interface QueryDispatcher<R> {
+public interface QueryDispatcher {
 
-  R dispatch(Query query);
-
+  Object dispatch(Query query);
 }
