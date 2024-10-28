@@ -1,0 +1,10 @@
+firebase:
+  file:
+    name: dandi-4158a-firebase-adminsdk-h61xd-7ec9de5fad.json
+
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true

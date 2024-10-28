@@ -1,4 +1,4 @@
-package com.e205.dtos;
+package com.e205.dto;
 
 import java.time.LocalDateTime;
 import lombok.Getter;
