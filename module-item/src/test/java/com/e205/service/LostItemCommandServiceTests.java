@@ -11,7 +11,7 @@ import com.e205.command.LostItemSaveCommand;
 import com.e205.entity.LostItem;
 import com.e205.event.LostItemSaveEvent;
 import com.e205.events.EventPublisher;
-import com.e205.repository.LostItemRepository;
+import com.e205.repository.LostItemCommandRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -24,26 +24,25 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 
 @ExtendWith(MockitoExtension.class)
-class LostItemServiceTests {
+class LostItemCommandServiceTests {
 
-  LostItemService service;
+  LostItemCommandService service;
   EventPublisher eventPublisher;
-  LostItemRepository repository;
+  LostItemCommandRepository repository;
 
   @BeforeEach
   void setUp() {
     eventPublisher = mock(EventPublisher.class);
-    repository = mock(LostItemRepository.class);
-    service = new DefaultLostItemService(repository, eventPublisher);
+    repository = mock(LostItemCommandRepository.class);
+    service = new DefaultLostItemCommandService(repository, eventPublisher);
   }
 
   @DisplayName("분실물을 저장할 수 있다.")
   @Test
   void saveLostItem() {
     // given
-    List<Resource> images = Stream.generate(this::generateImages).limit(3)
-        .toList();
-    LostItemSaveCommand command = new LostItemSaveCommand(1, images, mock(), "상황 묘사", "물건 묘사");
+    List<Resource> images = Stream.generate(this::generateImages).limit(3).toList();
+    LostItemSaveCommand command = new LostItemSaveCommand(1, images, 1, 2, "상황 묘사", "물건 묘사");
 
     // when
     service.save(command);
@@ -56,9 +55,8 @@ class LostItemServiceTests {
   @Test
   void When_ImageCountGreaterThan3_Then_FailToSaveLostItem() {
     // given
-    List<Resource> images = Stream.generate(this::generateImages).limit(5)
-        .toList();
-    LostItemSaveCommand command = new LostItemSaveCommand(1, images, mock(), "상황 묘사", "물건 묘사");
+    List<Resource> images = Stream.generate(this::generateImages).limit(5).toList();
+    LostItemSaveCommand command = new LostItemSaveCommand(1, images, 1, 2, "상황 묘사", "물건 묘사");
 
     // when
     ThrowingCallable expectThrow = () -> service.save(command);
@@ -71,10 +69,9 @@ class LostItemServiceTests {
   @Test
   void When_SaveAgainInCoolTime_Then_FailToSaveLostItem() {
     // given
-    List<Resource> images = Stream.generate(this::generateImages).limit(3)
-        .toList();
-    LostItem lastSaved = new LostItem(1, mock(), "상황묘사", "물건묘사");
-    LostItemSaveCommand command = new LostItemSaveCommand(1, images, mock(), "상황묘사", "물건묘사");
+    List<Resource> images = Stream.generate(this::generateImages).limit(3).toList();
+    LostItem lastSaved = new LostItem(1, 1, 2, "상황묘사", "물건묘사");
+    LostItemSaveCommand command = new LostItemSaveCommand(1, images, 1, 2, "상황묘사", "물건묘사");
     when(repository.findFirstByMemberIdOrderByCreatedAtDesc(1)).thenReturn(Optional.of(lastSaved));
 
     // when
@@ -88,9 +85,8 @@ class LostItemServiceTests {
   @Test
   void When_SaveSuccess_Then_PublishEvent() {
     // given
-    List<Resource> images = Stream.generate(this::generateImages).limit(3)
-        .toList();
-    LostItemSaveCommand command = new LostItemSaveCommand(1, images, mock(), "상황 묘사", "물건 묘사");
+    List<Resource> images = Stream.generate(this::generateImages).limit(3).toList();
+    LostItemSaveCommand command = new LostItemSaveCommand(1, images, 1, 2, "상황 묘사", "물건 묘사");
 
     // when
     service.save(command);
@@ -103,9 +99,8 @@ class LostItemServiceTests {
   @Test
   void When_SaveFail_Then_NotPublishEvent() {
     // given
-    List<Resource> images = Stream.generate(this::generateImages).limit(5)
-        .toList();
-    LostItemSaveCommand command = new LostItemSaveCommand(1, images, mock(), "상황 묘사", "물건 묘사");
+    List<Resource> images = Stream.generate(this::generateImages).limit(5).toList();
+    LostItemSaveCommand command = new LostItemSaveCommand(1, images, 1, 2, "상황 묘사", "물건 묘사");
 
     // when
     ThrowingCallable expectThrow = () -> service.save(command);

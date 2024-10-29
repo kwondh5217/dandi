@@ -11,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.locationtech.jts.geom.LineString;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -22,17 +21,19 @@ public class LostItem implements LoggableEntity {
   @Id
   private Integer id;
   private Integer memberId;
-  private LineString route;
+  private Integer startRouteId;
+  private Integer endRouteId;
   private String situationDescription;
   private String itemDescription;
   private LocalDateTime createdAt;
   private LocalDateTime endedAt;
 
   @Builder
-  public LostItem(Integer memberId, LineString route, String situationDescription,
-      String itemDescription) {
+  public LostItem(Integer memberId, Integer startRouteId, Integer endRouteId,
+      String situationDescription, String itemDescription) {
     this.memberId = memberId;
-    this.route = route;
+    this.startRouteId = startRouteId;
+    this.endRouteId = endRouteId;
     this.situationDescription = situationDescription;
     this.itemDescription = itemDescription;
     this.createdAt = LocalDateTime.now();
@@ -40,7 +41,6 @@ public class LostItem implements LoggableEntity {
 
   public LostItem(LostItemSaveCommand command) {
     this.memberId = command.lostMemberId();
-    this.route = command.route();
     this.situationDescription = command.situationDesc();
     this.itemDescription = command.itemDesc();
     this.createdAt = LocalDateTime.now();
@@ -50,11 +50,18 @@ public class LostItem implements LoggableEntity {
     return LostItemPayload.builder()
         .id(id)
         .memberId(memberId)
-        .route(route)
         .situationDescription(situationDescription)
         .itemDescription(itemDescription)
         .createdAt(createdAt)
         .endedAt(endedAt)
         .build();
+  }
+
+  public void end() {
+    endedAt = LocalDateTime.now();
+  }
+
+  public boolean isEnded() {
+    return endedAt != null;
   }
 }

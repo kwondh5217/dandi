@@ -2,13 +2,13 @@ package com.e205.command;
 
 import com.e205.commands.Command;
 import java.util.List;
-import org.locationtech.jts.geom.LineString;
 import org.springframework.core.io.Resource;
 
 public record LostItemSaveCommand(
     Integer lostMemberId,
     List<Resource> images,
-    LineString route,
+    Integer startRouteId,
+    Integer endRouteId,
     String situationDesc,
     String itemDesc
 ) implements Command {

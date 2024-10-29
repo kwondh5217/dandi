@@ -2,7 +2,7 @@ package com.e205.service;
 
 import com.e205.entity.LostItem;
 import com.e205.events.EventPublisher;
-import com.e205.repository.LostItemRepository;
+import com.e205.repository.LostItemCommandRepository;
 import com.e205.command.LostItemSaveCommand;
 import com.e205.event.LostItemSaveEvent;
 import java.time.LocalDateTime;
@@ -12,12 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-public class DefaultLostItemService implements LostItemService {
+public class DefaultLostItemCommandService implements LostItemCommandService {
 
   private static final int MAX_IMAGE_COUNT = 3;
   private static final int LOST_ITEM_COOL_TIME = 24;
 
-  private final LostItemRepository lostItemRepository;
+  private final LostItemCommandRepository lostItemCommandRepository;
   private final EventPublisher eventPublisher;
 
   @Transactional
@@ -28,7 +28,7 @@ public class DefaultLostItemService implements LostItemService {
       throw new RuntimeException("최대 이미지 개수를 초과했을 때");
     }
 
-    lostItemRepository.findFirstByMemberIdOrderByCreatedAtDesc(command.lostMemberId())
+    lostItemCommandRepository.findFirstByMemberIdOrderByCreatedAtDesc(command.lostMemberId())
         .filter(recent -> recent.getCreatedAt()
             .isAfter(LocalDateTime.now().minusHours(LOST_ITEM_COOL_TIME)))
         .ifPresent(recent -> {
@@ -37,7 +37,7 @@ public class DefaultLostItemService implements LostItemService {
         });
 
     LostItem lostItem = new LostItem(command);
-    lostItemRepository.save(lostItem);
+    lostItemCommandRepository.save(lostItem);
     eventPublisher.publish(new LostItemSaveEvent(lostItem.toPayload(), LocalDateTime.now()));
   }
 }
