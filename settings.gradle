@@ -7,3 +7,5 @@ include 'module-noti'
 include 'module-common'
 include 'base-item'
 include 'base-noti'
+include 'module-navigator'
+

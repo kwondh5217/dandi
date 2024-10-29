@@ -9,6 +9,8 @@ import com.e205.entity.Notification;
 import com.e205.entity.RouteNotification;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,28 +32,33 @@ class NotificationRepositoryTest {
     lostItemNotification.setLostItemId(101);
     lostItemNotification.setCreatedAt(LocalDateTime.now().minusDays(1));
     lostItemNotification.setTitle("Lost Item Notification");
-    notificationRepository.save(lostItemNotification);
+    this.notificationRepository.save(lostItemNotification);
 
     FoundItemNotification foundItemNotification = new FoundItemNotification();
     foundItemNotification.setMemberId(1);
     foundItemNotification.setFoundItemId(102);
     foundItemNotification.setCreatedAt(LocalDateTime.now());
     foundItemNotification.setTitle("Found Item Notification");
-    notificationRepository.save(foundItemNotification);
+    this.notificationRepository.save(foundItemNotification);
 
     CommentNotification commentNotification = new CommentNotification();
     commentNotification.setMemberId(2);
     commentNotification.setCommentId(201);
     commentNotification.setCreatedAt(LocalDateTime.now().minusHours(2));
     commentNotification.setTitle("Comment Notification");
-    notificationRepository.save(commentNotification);
+    this.notificationRepository.save(commentNotification);
 
     RouteNotification routeNotification = new RouteNotification();
     routeNotification.setMemberId(1);
     routeNotification.setRouteId(301);
     routeNotification.setCreatedAt(LocalDateTime.now().minusHours(3));
     routeNotification.setTitle("Route Notification");
-    notificationRepository.save(routeNotification);
+    this.notificationRepository.save(routeNotification);
+  }
+
+  @AfterEach
+  void tearDown() {
+    this.notificationRepository.deleteAll();
   }
 
   @Test
@@ -61,7 +68,7 @@ class NotificationRepositoryTest {
     int limit = 3;
     Pageable pageable = PageRequest.of(0, limit);
 
-    List<Notification> notifications = notificationRepository.findByMemberIdWithCursor(
+    List<Notification> notifications = this.notificationRepository.findByMemberIdWithCursor(
         memberId, lastResourceId, pageable);
 
     assertThat(notifications).isNotEmpty();
@@ -73,5 +80,19 @@ class NotificationRepositoryTest {
 
     assertThat(notifications).extracting(Notification::getId)
         .isSortedAccordingTo(Integer::compareTo);
+  }
+
+  @Test
+  void deleteAllByIdInBatch() {
+    List<Integer> notificationIds = this.notificationRepository.findAll()
+        .stream()
+        .map(Notification::getId)
+        .collect(Collectors.toList());
+    assertThat(notificationIds.size()).isEqualTo(4);
+
+    this.notificationRepository.deleteAllByIdInBatch(notificationIds);
+
+    List<Notification> notifications = this.notificationRepository.findAll();
+    assertThat(notifications).isEmpty();
   }
 }

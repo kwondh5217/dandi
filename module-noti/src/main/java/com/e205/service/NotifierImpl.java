@@ -4,11 +4,13 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NotifierImpl implements Notifier {
 
+  @Async("fcmPushTaskExecutor")
   @Override
   public void notify(String deviceToken) {
     Message message = Message.builder()

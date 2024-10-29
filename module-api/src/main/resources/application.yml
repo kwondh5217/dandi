@@ -1,0 +1,4 @@
+app:
+  push:
+    waitTime: 150
+    computeTime: 20
