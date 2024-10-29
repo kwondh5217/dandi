@@ -3,6 +3,8 @@ package com.e205.service;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -143,11 +145,11 @@ class LostItemQueryServiceTests {
     service.find(query);
 
     // then
-    verify(eventPublisher, times(0)).publish(any(LostItemReadEvent.class));
+    verify(eventPublisher, never()).publish(any(LostItemReadEvent.class));
   }
 
   private void setValidPosition(boolean valid) {
-    when(routeQueryService.isReadableRange(any(LostItemValidRangeQuery.class))).thenReturn(valid);
+    given(routeQueryService.isReadableRange(any(LostItemValidRangeQuery.class))).willReturn(valid);
   }
 
   private void setRead(LostItem lostItem, boolean read) {
@@ -155,8 +157,8 @@ class LostItemQueryServiceTests {
     if (read) {
       lostItemAuth.read();
     }
-    when(lostItemAuthRepository.findLostItemAuthByMemberIdAndLostItemId(memberId,
-        lostItemId)).thenReturn(Optional.of(lostItemAuth));
+    given(lostItemAuthRepository.findLostItemAuthByMemberIdAndLostItemId(memberId,
+        lostItemId)).willReturn(Optional.of(lostItemAuth));
   }
 
   private LostItem generateLostItem(Integer memberId) {
