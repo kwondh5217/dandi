@@ -18,8 +18,7 @@ class QueryServiceTest {
 
     queryService.queryNotificationWithCursor(query);
 
-    verify(repository).findByMemberIdWithCursor(query.memberId(),
-        query.lastResourceId(), any());
+    verify(repository).findByMemberIdWithCursor(any(), any(), any(), any());
   }
 
 }

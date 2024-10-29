@@ -7,10 +7,13 @@ import com.e205.entity.FoundItemNotification;
 import com.e205.entity.LostItemNotification;
 import com.e205.entity.Notification;
 import com.e205.entity.RouteNotification;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,19 +70,21 @@ class NotificationRepositoryTest {
     int lastResourceId = 1;
     int limit = 3;
     Pageable pageable = PageRequest.of(0, limit);
+    List<Class<? extends Notification>> classes = List.of(LostItemNotification.class,
+        FoundItemNotification.class, CommentNotification.class, RouteNotification.class);
 
     List<Notification> notifications = this.notificationRepository.findByMemberIdWithCursor(
-        memberId, lastResourceId, pageable);
+        memberId, lastResourceId, classes, pageable);
 
-    assertThat(notifications).isNotEmpty();
-    assertThat(notifications.size()).isLessThanOrEqualTo(limit);
-
-    notifications.forEach(
-        notification -> assertThat(notification.getMemberId()).isEqualTo(memberId)
+    Assertions.assertAll(
+        () -> assertThat(notifications).isNotEmpty(),
+        () -> assertThat(notifications.size()).isLessThanOrEqualTo(limit),
+        () -> assertThat(notifications).extracting(Notification::getId)
+            .isSortedAccordingTo(Integer::compareTo),
+        () -> notifications.forEach(
+            notification -> assertThat(notification.getMemberId()).isEqualTo(memberId)
+        )
     );
-
-    assertThat(notifications).extracting(Notification::getId)
-        .isSortedAccordingTo(Integer::compareTo);
   }
 
   @Test

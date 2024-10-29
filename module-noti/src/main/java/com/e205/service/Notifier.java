@@ -2,6 +2,6 @@ package com.e205.service;
 
 public interface Notifier {
 
-  public void notify(String deviceToken);
+  void notify(String deviceToken);
 
 }

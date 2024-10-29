@@ -2,7 +2,10 @@ package com.e205.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.e205.MemberWithFcm;
 import com.e205.MembersInRouteQuery;
@@ -62,7 +65,7 @@ class EventServiceTest {
   void handleLostItemSaveEvent() {
     // given
     LostItemSaveEvent lostItemSaveEvent = mock(LostItemSaveEvent.class);
-    when(lostItemSaveEvent.saved()).thenReturn(lostItemPayload);
+    given(lostItemSaveEvent.saved()).willReturn(lostItemPayload);
 
     List<MemberWithFcm> memberWithFcms = List.of(
         new MemberWithFcm(1, "1"),

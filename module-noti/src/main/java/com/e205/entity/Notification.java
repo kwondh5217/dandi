@@ -17,13 +17,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+@Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(callSuper = true)
-@Setter
-@Getter
-@DiscriminatorColumn(name = "TYPE", discriminatorType = DiscriminatorType.STRING)
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "TYPE", discriminatorType = DiscriminatorType.STRING)
 public class Notification implements LoggableEntity {
 
   @Id
@@ -35,4 +35,8 @@ public class Notification implements LoggableEntity {
   private char confirmation = 'N';
   @Column(length = 30)
   private String title;
+
+  public void confirmRead() {
+    this.confirmation = 'Y';
+  }
 }
