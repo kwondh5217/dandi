@@ -6,4 +6,6 @@ import java.util.List;
 public interface ItemQueryService {
 
   List<ItemDataResponse> readAllItems(Integer memberId);
+
+  List<ItemDataResponse> readItemsNotInBag(Integer memberId, Integer bagId);
 }

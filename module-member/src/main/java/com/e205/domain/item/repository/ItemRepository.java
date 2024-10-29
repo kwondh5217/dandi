@@ -12,4 +12,12 @@ public interface ItemRepository extends CrudRepository<Item, Integer> {
   byte findMaxItemOrderByMemberId(@Param("memberId") Integer memberId);
 
   List<Item> findAllByMemberId(Integer memberId);
+
+  boolean existsByNameAndMemberId(String name, Integer memberId);
+
+  boolean existsByNameAndMemberIdAndIdNot(String name, Integer memberId, Integer id);
+
+  @Query("SELECT i FROM Item i WHERE i.memberId = :memberId AND i.id NOT IN " +
+      "(SELECT bi.itemId FROM BagItem bi WHERE bi.bagId = :bagId)")
+  List<Item> findItemsNotInBag(@Param("memberId") Integer memberId, @Param("bagId") Integer bagId);
 }

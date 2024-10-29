@@ -1,18 +1,19 @@
 package com.e205.domain.item.service;
 
+import com.e205.domain.bag.entity.BagItem;
+import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.item.dto.CreateItemCommand;
-import com.e205.domain.item.dto.ItemOrder;
 import com.e205.domain.item.dto.UpdateItemCommand;
 import com.e205.domain.item.dto.UpdateItemOrderCommand;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
 
 @RequiredArgsConstructor
 @Transactional
@@ -20,11 +21,35 @@ import jakarta.transaction.Transactional;
 public class ItemCommandServiceDefault implements ItemCommandService {
 
   private final ItemRepository itemRepository;
+  private final BagItemRepository bagItemRepository;
+  private static final int MAX_ITEM_COUNT = 50;
+  private static final int MAX_BAG_ITEM_COUNT = 20;
 
   @Override
   public void save(CreateItemCommand createItemCommand) {
     Integer memberId = createItemCommand.memberId();
-    byte maxItemOrder = itemRepository.findMaxItemOrderByMemberId(memberId);
+    Integer bagId = createItemCommand.bagId();
+
+    boolean isDuplicateName = itemRepository.existsByNameAndMemberId(createItemCommand.name(), memberId);
+    if (isDuplicateName) {
+      throw new RuntimeException();
+    }
+
+    List<Item> userItems = itemRepository.findAllByMemberId(memberId);
+    if (userItems.size() >= MAX_ITEM_COUNT) {
+      throw new RuntimeException();
+    }
+
+    List<BagItem> bagItems = bagItemRepository.findAllByBagId(bagId);
+    if (bagItems.size() >= MAX_BAG_ITEM_COUNT) {
+      throw new RuntimeException();
+    }
+
+    // 새로운 아이템 순서 설정
+    byte maxItemOrder = (byte) (userItems.stream()
+        .mapToInt(Item::getItemOrder)
+        .max()
+        .orElse(0) + 1);
 
     Item item = Item.builder()
         .name(createItemCommand.name())
@@ -35,13 +60,30 @@ public class ItemCommandServiceDefault implements ItemCommandService {
         .build();
 
     itemRepository.save(item);
+
+    BagItem bagItem = BagItem.builder()
+        .bagId(bagId)
+        .itemId(item.getId())
+        .itemOrder(maxItemOrder)
+        .build();
+    bagItemRepository.save(bagItem);
   }
 
   @Override
   public void update(UpdateItemCommand updateCommand) {
-    // TODO: <홍성우> Exception 상세화
-    Item item = itemRepository.findById(updateCommand.currentMemberId())
+    Item item = itemRepository.findById(updateCommand.itemId())
         .orElseThrow(RuntimeException::new);
+
+    if(item.getMemberId() != updateCommand.memberId()) {
+      throw new RuntimeException();
+    }
+
+    boolean isDuplicateName = itemRepository.existsByNameAndMemberIdAndIdNot(
+        updateCommand.name(), item.getMemberId(), item.getId());
+
+    if (isDuplicateName) {
+      throw new RuntimeException();
+    }
 
     item.updateName(updateCommand.name());
     item.updateEmoticon(updateCommand.emoticon());
@@ -57,9 +99,10 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     Map<Integer, Item> itemMap = userItems.stream()
         .collect(Collectors.toMap(Item::getId, Function.identity()));
 
-    for (ItemOrder itemOrder : updateItemOrderCommand.items()) {
+    updateItemOrderCommand.items().forEach(itemOrder -> {
       Item item = itemMap.get(itemOrder.itemId());
       item.updateOrder(itemOrder.order());
-    }
+    });
   }
+
 }

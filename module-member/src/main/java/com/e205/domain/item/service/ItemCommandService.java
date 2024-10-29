@@ -3,7 +3,6 @@ package com.e205.domain.item.service;
 import com.e205.domain.item.dto.CreateItemCommand;
 import com.e205.domain.item.dto.UpdateItemCommand;
 import com.e205.domain.item.dto.UpdateItemOrderCommand;
-import java.util.List;
 
 public interface ItemCommandService {
 

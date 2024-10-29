@@ -2,15 +2,12 @@ package com.e205.domain.item.entity;
 
 import com.e205.common.audit.BaseTime;
 import com.e205.domain.item.dto.ItemDataResponse;
-import com.e205.domain.item.dto.UpdateItemOrderCommand;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.util.List;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Entity
 public class Item extends BaseTime implements LoggableEntity {
 
@@ -30,7 +27,7 @@ public class Item extends BaseTime implements LoggableEntity {
   @Column(nullable = false)
   private Integer memberId;
 
-  @Column(nullable = false, length = 1)
+  @Column(nullable = false, length = 2)
   private String emoticon;
 
   @Column(nullable = false, length = 20)
