@@ -35,6 +35,14 @@ public class Route implements LoggableEntity {
   private LocalDateTime createdAt;
   private LocalDateTime endedAt;
 
+  public void updateSkip(char skip) {
+    this.skip = skip;
+  }
+
+  public void updateSnapshot(String snapshot) {
+    this.snapshot = snapshot;
+  }
+
   public static Route toEntity(Integer memberId, RouteCreateCommand request, String snapshot) {
     return Route.builder()
         .memberId(memberId)
