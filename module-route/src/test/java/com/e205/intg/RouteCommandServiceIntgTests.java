@@ -8,7 +8,7 @@ import com.e205.TestConfiguration;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
-import com.e205.interaction.commands.RouteCreateCommand;
+import com.e205.command.RouteCreateCommand;
 import com.e205.interaction.queries.BagItemQueryService;
 import com.e205.repository.RouteRepository;
 import com.e205.service.RouteCommandService;

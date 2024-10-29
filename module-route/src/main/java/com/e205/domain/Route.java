@@ -1,7 +1,7 @@
 package com.e205.domain;
 
 import com.e205.dto.Snapshot;
-import com.e205.interaction.commands.RouteCreateCommand;
+import com.e205.command.RouteCreateCommand;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

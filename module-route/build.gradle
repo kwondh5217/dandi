@@ -1,5 +1,6 @@
 dependencies {
     implementation project(':module-common')
+    implementation project(':base-route')
 
     // Geo
     implementation 'org.hibernate.orm:hibernate-spatial:6.5.3.Final'

@@ -1,4 +1,4 @@
-package com.e205.interaction.queries;
+package com.e205.query;
 
 public record BagItemsOfMemberQuery(
     Integer memberId,

@@ -1,4 +1,4 @@
-package com.e205.interaction.commands;
+package com.e205.command;
 
 import java.time.LocalDateTime;
 

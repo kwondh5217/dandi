@@ -1,6 +1,7 @@
 package com.e205.interaction.queries;
 
 import com.e205.dto.SnapshotItem;
+import com.e205.query.BagItemsOfMemberQuery;
 import java.util.List;
 
 public interface BagItemQueryService {

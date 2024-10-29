@@ -4,7 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import com.e205.domain.Route;
-import com.e205.interaction.commands.RouteCreateCommand;
+import com.e205.command.RouteCreateCommand;
 import com.e205.interaction.queries.BagItemQueryService;
 import com.e205.repository.RouteRepository;
 import java.time.LocalDateTime;
