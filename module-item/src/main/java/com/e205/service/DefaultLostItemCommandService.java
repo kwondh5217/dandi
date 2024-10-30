@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,9 +38,9 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
     try {
       command.images().stream().map(imageService::save).forEach(savedImages::add);
       LostItem lostItem = saveLostItem(command);
+
       savedImages.stream()
-          .map(name -> name.split("\\."))
-          .map(name -> new LostImage(UUID.fromString(name[0]), name[1], lostItem))
+          .map(name -> toLostImage(name, lostItem))
           .forEach(itemImageRepository::save);
 
       eventPublisher.publish(new LostItemSaveEvent(lostItem.toPayload(), LocalDateTime.now()));
@@ -47,6 +48,12 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
       savedImages.forEach(imageService::delete);
       throw e;
     }
+  }
+
+  private LostImage toLostImage(String imageName, LostItem lostItem) {
+    String baseName = FilenameUtils.getBaseName(imageName);
+    String type = FilenameUtils.getExtension(imageName);
+    return new LostImage(UUID.fromString(baseName), type, lostItem);
   }
 
   private LostItem saveLostItem(LostItemSaveCommand command) {

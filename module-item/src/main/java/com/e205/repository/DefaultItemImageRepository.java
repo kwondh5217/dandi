@@ -2,6 +2,7 @@ package com.e205.repository;
 
 import static com.e205.entity.QLostImage.lostImage;
 
+import com.e205.entity.FoundImage;
 import com.e205.entity.LostImage;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -25,6 +26,12 @@ public class DefaultItemImageRepository implements ItemImageRepository {
   public LostImage save(LostImage lostImage) {
     entityManager.persist(lostImage);
     return lostImage;
+  }
+
+  @Override
+  public FoundImage save(FoundImage foundImage) {
+    entityManager.persist(foundImage);
+    return foundImage;
   }
 
   @Override

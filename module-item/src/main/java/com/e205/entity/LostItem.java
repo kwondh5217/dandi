@@ -50,6 +50,8 @@ public class LostItem implements LoggableEntity {
     return LostItemPayload.builder()
         .id(id)
         .memberId(memberId)
+        .startRouteId(startRouteId)
+        .endRouteId(endRouteId)
         .situationDescription(situationDescription)
         .itemDescription(itemDescription)
         .createdAt(createdAt)

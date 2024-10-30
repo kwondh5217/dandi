@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@DiscriminatorValue("lost_item")
-public class LostImage extends Image {
+@DiscriminatorValue("found_item")
+public class FoundImage extends Image {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "lost_id")
-  private LostItem lostItem;
+  @JoinColumn(name = "found_id")
+  private FoundItem foundItem;
 
-  public LostImage(UUID name, String type, LostItem lostItem) {
-    super(name, type);
-    this.lostItem = lostItem;
+  public FoundImage(UUID id, String type, FoundItem foundItem) {
+    super(id, type);
+    this.foundItem = foundItem;
   }
 }
