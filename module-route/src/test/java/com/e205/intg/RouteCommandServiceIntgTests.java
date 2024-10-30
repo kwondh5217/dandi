@@ -6,13 +6,16 @@ import static org.mockito.BDDMockito.given;
 
 import com.e205.TestConfiguration;
 import com.e205.command.RouteCreateCommand;
+import com.e205.command.RouteEndCommand;
 import com.e205.command.SnapshotUpdateCommand;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
+import com.e205.dto.TrackPointPayload;
 import com.e205.interaction.queries.BagItemQueryService;
 import com.e205.repository.RouteRepository;
 import com.e205.service.RouteCommandService;
+import com.e205.util.GeometryUtils;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -142,6 +145,30 @@ public class RouteCommandServiceIntgTests {
     assertThat(updatedRoute.getSkip()).isEqualTo('N');
     assertThat(updatedRoute.getSnapshot()).isNotEqualTo(Snapshot.toJson(initSnapshot));
     assertThat(updatedRoute.getSnapshot()).isEqualTo(command.snapshot());
+  }
+
+  @Test
+  @DisplayName("이동 종료 테스트")
+  @Transactional
+  void 이동_종료_테스트() {
+    // given
+    Snapshot snapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
+    Route route = routeRepository.save(Route.toEntity(1, requestBagId1, Snapshot.toJson(snapshot)));
+    List<TrackPointPayload> trackPoints = List.of(
+        TrackPointPayload.builder().lat(37.7749).lon(-122.4194).build(),
+        TrackPointPayload.builder().lat(34.0522).lon(-118.2437).build()
+    );
+    RouteEndCommand command = new RouteEndCommand(route.getId(), LocalDateTime.now(), trackPoints);
+
+    // when
+    routeCommandService.endRoute(command);
+    Route endedRoute = routeRepository.findById(route.getId()).orElseThrow();
+    List<TrackPointPayload> savedTrackPoints = GeometryUtils.getPoints(endedRoute.getTrack());
+
+    // then
+    assertThat(endedRoute.getEndedAt()).isNotNull();
+    assertThat(savedTrackPoints).isNotNull();
+    assertThat(savedTrackPoints).containsExactlyElementsOf(trackPoints);
   }
 
   private void assignSnapshotItem() {

@@ -1,23 +1,27 @@
 package com.e205.service;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.ThrowableAssert.*;
+import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.e205.command.RouteCreateCommand;
+import com.e205.command.RouteEndCommand;
 import com.e205.command.SnapshotUpdateCommand;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
+import com.e205.exception.RouteError;
 import com.e205.exception.RouteException;
 import com.e205.interaction.queries.BagItemQueryService;
 import com.e205.repository.RouteRepository;
+import com.e205.service.validator.RouteValidator;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.assertj.core.api.Assertions;
-import org.assertj.core.api.ThrowableAssert;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +35,8 @@ public class RouteCommandServiceTests {
 
   private static final Integer MEMBER_ID = 1;
   private static final Integer BAG_ID = 1;
-  private static final Integer ROUTE_ID = 1;
+  private static final Integer INVALID_ROUTE_ID = 0;
+  private static final Integer VALID_ROUTE_ID = 1;
 
   @InjectMocks
   private RouteCommandService commandService;
@@ -41,6 +46,9 @@ public class RouteCommandServiceTests {
 
   @Mock
   private BagItemQueryService bagItemQueryService;
+
+  @Mock
+  private RouteValidator validator;
 
   List<SnapshotItem> basedBagItems;
   Snapshot snapshot;
@@ -74,11 +82,28 @@ public class RouteCommandServiceTests {
   @DisplayName("존재하지 않는 이동 실패 테스트")
   void 존재하지_않는_이동_실패_테스트() {
     // given
-    Integer notExistRouteId = 0;
-    SnapshotUpdateCommand command = new SnapshotUpdateCommand(notExistRouteId, Snapshot.toJson(snapshot));
+    SnapshotUpdateCommand command = new SnapshotUpdateCommand(INVALID_ROUTE_ID, "test");
+    given(routeRepository.findById(any(Integer.class))).willReturn(Optional.empty());
 
     // when
     ThrowingCallable expectThrow = () -> commandService.updateSnapshot(command);
+
+    // then
+    assertThatThrownBy(expectThrow).isInstanceOf(RouteException.class);
+    verify(routeRepository, never()).save(any(Route.class));
+  }
+
+  @Test
+  @DisplayName("이미 종료 된 이동 실패 테스트")
+  void 이미_종료_된_이동_실패_테스트() {
+    // given
+    Route route = new Route();
+    RouteEndCommand command = new RouteEndCommand(VALID_ROUTE_ID, LocalDateTime.now(), null);
+    given(routeRepository.findById(VALID_ROUTE_ID)).willReturn(Optional.of(route));
+    doThrow(new RouteException(RouteError.ENDED_ROUTE)).when(validator).validateEndedRoute(route);
+
+    // when
+    ThrowingCallable expectThrow = () -> commandService.endRoute(command);
 
     // then
     assertThatThrownBy(expectThrow).isInstanceOf(RouteException.class);

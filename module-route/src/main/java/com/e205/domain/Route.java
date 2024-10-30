@@ -1,7 +1,7 @@
 package com.e205.domain;
 
-import com.e205.dto.Snapshot;
 import com.e205.command.RouteCreateCommand;
+import com.e205.dto.Snapshot;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,11 +35,13 @@ public class Route implements LoggableEntity {
   private LocalDateTime createdAt;
   private LocalDateTime endedAt;
 
-  public void updateSkip(char skip) {
-    this.skip = skip;
+  public void endRoute(LineString track, LocalDateTime endedAt) {
+    this.track = track;
+    this.endedAt = endedAt;
   }
 
   public void updateSnapshot(String snapshot) {
+    this.skip = 'N';
     this.snapshot = snapshot;
   }
 
@@ -48,12 +50,11 @@ public class Route implements LoggableEntity {
         .memberId(memberId)
         .skip('Y')
         .snapshot(snapshot)
-        .createdAt(request.startTime())
+        .createdAt(request.createdAt())
         .build();
   }
 
-  public static String determineSnapshot(RouteCreateCommand request,
-      Snapshot ss, Snapshot currentSs
+  public static String determineSnapshot(RouteCreateCommand request, Snapshot ss, Snapshot currentSs
   ) {
     if (Objects.equals(request.bagId(), currentSs.bagId())) {
       return Snapshot.toJson(currentSs);

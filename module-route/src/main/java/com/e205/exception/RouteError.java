@@ -7,7 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum RouteError {
 
-  NOT_FOUNT_ROUTE("E201", "존재하지 않는 이동입니다.");
+  NOT_FOUND_ROUTE("E201", "존재하지 않는 이동입니다."),
+  ENDED_ROUTE("E202", "이미 종료된 이동입니다.");
 
   private String errorCode;
   private String message;

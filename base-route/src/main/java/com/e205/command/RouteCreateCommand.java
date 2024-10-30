@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public record RouteCreateCommand(
     Integer bagId,
-    LocalDateTime startTime
+    LocalDateTime createdAt
 ) {
 
 }
