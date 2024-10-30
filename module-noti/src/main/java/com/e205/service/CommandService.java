@@ -10,10 +10,11 @@ import com.e205.repository.FoundItemNotificationRepository;
 import com.e205.repository.LostItemNotificationRepository;
 import com.e205.repository.NotificationRepository;
 import com.e205.util.NotificationFactory;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional
@@ -32,28 +33,29 @@ public class CommandService {
     notification.setTitle(command.getTitle());
     notification.setCreatedAt(command.getCreatedAt());
 
-    this.notificationRepository.save(notification);
+    notificationRepository.save(notification);
   }
 
   public void deleteNotifications(DeleteNotificationsCommand command) {
-    this.notificationRepository.deleteAllByIdInBatch(command.notificationIds());
+    notificationRepository.deleteAllByIdInBatch(command.notificationIds());
   }
 
   public void notifiedMembersCommand(List<NotifiedMembersCommand> command) {
-    this.itemCommandService.saveNotifiedMembers(command);
+    itemCommandService.saveNotifiedMembers(command);
   }
 
   public void confirmItemNotification(ConfirmItemCommand command) {
-    Notification notification;
-    if(command.type().equals("lostItem")) {
-      notification = this.lostItemNotificationRepository.findById(command.itemId())
-          .orElseThrow(() -> new RuntimeException("존재하지 않는 알림입니다."));
-    } else {
-      notification = this.foundItemNotificationRepository.findById(command.itemId())
-          .orElseThrow(() -> new RuntimeException("존재하지 않는 알림입니다."));
-    }
-
+    Notification notification = findNotificationByTypeAndId(command.type(), command.itemId());
     notification.confirmRead();
   }
 
+  private Notification findNotificationByTypeAndId(String type, Integer itemId) {
+    return switch (type) {
+      case "lostItem" -> lostItemNotificationRepository.findById(itemId)
+          .orElseThrow(() -> new RuntimeException("존재하지 않는 알림입니다."));
+      case "foundItem" -> foundItemNotificationRepository.findById(itemId)
+          .orElseThrow(() -> new RuntimeException("존재하지 않는 알림입니다."));
+      default -> throw new IllegalArgumentException("지원하지 않는 알림 유형입니다.");
+    };
+  }
 }

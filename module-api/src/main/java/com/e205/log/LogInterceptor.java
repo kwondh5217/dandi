@@ -1,10 +1,5 @@
-package com.e205.config;
+package com.e205.log;
 
-import com.e205.log.DeleteLog;
-import com.e205.log.LoggableEntity;
-import com.e205.log.SaveLog;
-import com.e205.log.TransactionSynchronizationRegistry;
-import com.e205.log.UpdateLog;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
