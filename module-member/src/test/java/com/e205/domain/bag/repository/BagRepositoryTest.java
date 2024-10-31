@@ -8,8 +8,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 
 @DataJpaTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class BagRepositoryTest {
 
   @Autowired
@@ -20,9 +22,12 @@ class BagRepositoryTest {
   void findMaxBagOrderByMemberId_ShouldReturnMaxOrder() {
     // Given
     Integer memberId = 1;
-    bagRepository.save(Bag.builder().name("bag1").memberId(memberId).bagOrder((byte) 1).enabled('Y').build());
-    bagRepository.save(Bag.builder().name("bag2").memberId(memberId).bagOrder((byte) 3).enabled('Y').build());
-    bagRepository.save(Bag.builder().name("bag3").memberId(memberId).bagOrder((byte) 2).enabled('Y').build());
+    bagRepository.save(
+        Bag.builder().name("bag1").memberId(memberId).bagOrder((byte) 1).enabled('Y').build());
+    bagRepository.save(
+        Bag.builder().name("bag2").memberId(memberId).bagOrder((byte) 3).enabled('Y').build());
+    bagRepository.save(
+        Bag.builder().name("bag3").memberId(memberId).bagOrder((byte) 2).enabled('Y').build());
 
     // When
     Byte maxOrder = bagRepository.findMaxBagOrderByMemberId(memberId);
@@ -36,9 +41,12 @@ class BagRepositoryTest {
   void findAllByMemberId_ShouldReturnAllBagsForMember() {
     // Given
     Integer memberId = 1;
-    bagRepository.save(Bag.builder().name("bag1").memberId(memberId).bagOrder((byte) 1).enabled('Y').build());
-    bagRepository.save(Bag.builder().name("bag1").memberId(memberId).bagOrder((byte) 2).enabled('Y').build());
-    bagRepository.save(Bag.builder().name("bag1").memberId(2).bagOrder((byte) 1).enabled('Y').build());
+    bagRepository.save(
+        Bag.builder().name("bag1").memberId(memberId).bagOrder((byte) 1).enabled('Y').build());
+    bagRepository.save(
+        Bag.builder().name("bag1").memberId(memberId).bagOrder((byte) 2).enabled('Y').build());
+    bagRepository.save(
+        Bag.builder().name("bag1").memberId(2).bagOrder((byte) 1).enabled('Y').build());
 
     // When
     List<Bag> bags = bagRepository.findAllByMemberId(memberId);

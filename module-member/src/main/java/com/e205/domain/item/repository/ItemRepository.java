@@ -2,6 +2,7 @@ package com.e205.domain.item.repository;
 
 import com.e205.domain.item.entity.Item;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +23,6 @@ public interface ItemRepository extends CrudRepository<Item, Integer> {
   @Query("SELECT i FROM Item i WHERE i.memberId = :memberId AND i.id NOT IN " +
       "(SELECT bi.itemId FROM BagItem bi WHERE bi.bagId = :bagId)")
   List<Item> findItemsNotInBag(@Param("memberId") Integer memberId, @Param("bagId") Integer bagId);
+
+  Optional<Item> findByIdAndMemberId(Integer itemId, Integer memberId);
 }

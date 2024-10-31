@@ -1,6 +1,7 @@
 package com.e205.domain.item.service;
 
 import com.e205.command.item.command.CreateItemCommand;
+import com.e205.command.item.command.DeleteItemCommand;
 import com.e205.command.item.command.UpdateItemCommand;
 import com.e205.command.item.command.UpdateItemOrderCommand;
 import com.e205.domain.bag.entity.BagItem;
@@ -105,4 +106,18 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     });
   }
 
+  @Override
+  public void delete(DeleteItemCommand deleteItemCommand) {
+    Integer memberId = deleteItemCommand.memberId();
+    Integer itemId = deleteItemCommand.itemId();
+
+    // TODO: <홍성우> Exception 상세화
+    Item item = itemRepository.findByIdAndMemberId(itemId, memberId)
+        .orElseThrow(RuntimeException::new);
+
+    List<BagItem> bagItems = bagItemRepository.findAllByItemId(itemId);
+    bagItemRepository.deleteAll(bagItems);
+
+    itemRepository.delete(item);
+  }
 }

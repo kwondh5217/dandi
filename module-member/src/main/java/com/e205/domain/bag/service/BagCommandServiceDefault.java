@@ -1,5 +1,7 @@
 package com.e205.domain.bag.service;
 
+import com.e205.command.bag.command.BagDeleteCommand;
+import com.e205.command.bag.command.BagItemDeleteCommand;
 import com.e205.command.bag.command.BagItemOrderUpdateCommand;
 import com.e205.command.bag.command.BagNameUpdateCommand;
 import com.e205.command.bag.command.BagOrderUpdateCommand;
@@ -15,6 +17,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -161,5 +164,36 @@ public class BagCommandServiceDefault implements BagCommandService {
     bagItemRepository.saveAll(newBagItems);
 
     return newBag.toPayload();
+  }
+
+  @Override
+  public void delete(BagDeleteCommand command) {
+    // TODO: <홍성우> RuntimeException 상세화
+    Bag targetBag = bagRepository.findById(command.bagId())
+        .orElseThrow(RuntimeException::new);
+
+    // TODO: <홍성우> RuntimeException 상세화
+    if(!Objects.equals(targetBag.getId(), command.bagId())) {
+      throw new RuntimeException();
+    }
+
+    bagItemRepository.deleteAllByBagId(targetBag.getId());
+    bagRepository.delete(targetBag);
+  }
+
+  @Override
+  public void deleteBagItem(BagItemDeleteCommand command) {
+
+    Bag bag = bagRepository.findById(command.bagId())
+        .orElseThrow(RuntimeException::new);
+
+    if (Objects.equals(bag.getId(), command.memberMainBagId())) {
+      throw new RuntimeException();
+    }
+    if (!Objects.equals(bag.getMemberId(), command.memberId())) {
+      throw new RuntimeException();
+    }
+
+    bagItemRepository.deleteByBagIdAndItemId(command.bagId(), command.bagItemId());
   }
 }

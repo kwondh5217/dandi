@@ -1,5 +1,7 @@
 package com.e205.domain.bag.service;
 
+import com.e205.command.bag.command.BagDeleteCommand;
+import com.e205.command.bag.command.BagItemDeleteCommand;
 import com.e205.command.bag.command.BagItemOrderUpdateCommand;
 import com.e205.command.bag.command.BagNameUpdateCommand;
 import com.e205.command.bag.command.BagOrderUpdateCommand;
@@ -21,4 +23,8 @@ public interface BagCommandService {
   void updateBagItemOrder(BagItemOrderUpdateCommand command);
 
   BagPayload copyBag(CopyBagCommand command);
+
+  void delete(BagDeleteCommand command);
+
+  void deleteBagItem(BagItemDeleteCommand command);
 }
