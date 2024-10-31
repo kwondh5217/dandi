@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -17,9 +18,11 @@ public class FoundImage extends Image {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "found_id")
   private FoundItem foundItem;
+  private LocalDateTime createdAt;
 
   public FoundImage(UUID id, String type, FoundItem foundItem) {
     super(id, type);
     this.foundItem = foundItem;
+    this.createdAt = LocalDateTime.now();
   }
 }

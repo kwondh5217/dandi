@@ -1,6 +1,7 @@
 package com.e205.service;
 
 import com.e205.command.FoundItemSaveCommand;
+import com.e205.command.QuizMakeCommand;
 import com.e205.entity.FoundImage;
 import com.e205.entity.FoundItem;
 import com.e205.repository.FoundItemCommandRepository;
@@ -18,6 +19,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
   private final FoundItemCommandRepository foundItemCommandRepository;
   private final ItemImageRepository itemImageRepository;
   private final ImageService imageService;
+  private final QuizCommandService quizCommandService;
 
   @Override
   public void save(FoundItemSaveCommand command) {
@@ -41,7 +43,8 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
       FoundItem foundItem = foundItemCommandRepository.save(new FoundItem(command));
       UUID imageId = UUID.fromString(FilenameUtils.getBaseName(imageName));
       String type = FilenameUtils.getExtension(imageName);
-      itemImageRepository.save(new FoundImage(imageId, type, foundItem));
+      FoundImage image = itemImageRepository.save(new FoundImage(imageId, type, foundItem));
+      quizCommandService.make(new QuizMakeCommand(foundItem.getId(), command.memberId(), image.getId()));
     } catch (Exception e) {
       imageService.delete(imageName);
       throw e;

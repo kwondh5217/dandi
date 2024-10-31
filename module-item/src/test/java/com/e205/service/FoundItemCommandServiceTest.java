@@ -3,11 +3,14 @@ package com.e205.service;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.e205.FoundItemType;
 import com.e205.command.FoundItemSaveCommand;
+import com.e205.command.QuizMakeCommand;
+import com.e205.entity.FoundImage;
 import com.e205.entity.FoundItem;
 import com.e205.repository.FoundItemCommandRepository;
 import com.e205.repository.ItemImageRepository;
@@ -24,6 +27,7 @@ class FoundItemCommandServiceTest {
   FoundItemCommandService service;
   FoundItemCommandRepository repository;
   ItemImageRepository imageRepository;
+  QuizCommandService quizService;
   ImageService imageService;
 
   @BeforeEach
@@ -31,9 +35,13 @@ class FoundItemCommandServiceTest {
     repository = mock(FoundItemCommandRepository.class);
     imageRepository = mock(ItemImageRepository.class);
     imageService = mock(ImageService.class);
-    given(imageService.save(any())).willReturn(UUID.randomUUID().toString() + ".png");
+    quizService = mock(QuizCommandService.class);
 
-    service = new DefaultFoundItemCommandService(repository, imageRepository, imageService);
+    given(imageService.save(any())).willReturn(UUID.randomUUID().toString() + ".png");
+    given(repository.save(any())).willAnswer(answer -> answer.getArgument(0));
+    given(imageRepository.save((any(FoundImage.class)))).willAnswer(answer -> answer.getArgument(0));
+
+    service = new DefaultFoundItemCommandService(repository, imageRepository, imageService, quizService);
   }
 
   @DisplayName("타입이 카드나 신분증이면, 이미지를 함께 등록할 수 없다.")
@@ -116,6 +124,36 @@ class FoundItemCommandServiceTest {
 
     // then
     assertThatThrownBy(expectThrow).hasMessage("습득 날짜가 미래입니다.");
+  }
+
+  @DisplayName("습득물 저장 시 퀴즈를 생성한다.")
+  @Test
+  void When_SaveFoundItem_Then_MakeQuiz() {
+    // given
+    FoundItemSaveCommand command = generateCommand(generateResource(),
+        FoundItemType.OTHER, LocalDateTime.now());
+
+    // when
+    service.save(command);
+
+    // then
+    verify(quizService).make(any(QuizMakeCommand.class));
+  }
+
+  @DisplayName("퀴즈 생성을 실패하면 저장했던 이미지를 삭제한다.")
+  @Test
+  void When_FailToMakeQuiz_Then_DeleteSavedImage() {
+    // given
+    FoundItemSaveCommand command = generateCommand(generateResource(),
+        FoundItemType.OTHER, LocalDateTime.now());
+    doThrow(new RuntimeException()).when(quizService).make(any(QuizMakeCommand.class));
+
+    // when
+    ThrowingCallable expectThrow = () -> service.save(command);
+
+    // then
+    assertThatThrownBy(expectThrow).isInstanceOf(RuntimeException.class);
+    verify(imageService).delete(any(String.class));
   }
 
   private FoundItemSaveCommand generateCommand(Resource image, FoundItemType type,

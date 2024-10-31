@@ -1,5 +1,6 @@
 package com.e205.repository;
 
+import static com.e205.entity.QFoundImage.foundImage;
 import static com.e205.entity.QLostImage.lostImage;
 
 import com.e205.entity.FoundImage;
@@ -7,6 +8,9 @@ import com.e205.entity.LostImage;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import javax.swing.text.html.Option;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,5 +43,27 @@ public class DefaultItemImageRepository implements ItemImageRepository {
     return queryFactory.selectFrom(lostImage)
         .where(lostImage.lostItem.id.eq(lostItemId))
         .fetch();
+  }
+
+  @Override
+  public List<FoundImage> findTopFoundImagesByCreateAtDesc(Integer count) {
+    return queryFactory.selectFrom(foundImage)
+        .orderBy(foundImage.createdAt.desc())
+        .limit(count)
+        .fetch();
+  }
+
+  @Override
+  public Optional<LostImage> findLostImageById(UUID id) {
+    return queryFactory.selectFrom(lostImage)
+        .where(lostImage.id.eq(id))
+        .stream().findFirst();
+  }
+
+  @Override
+  public Optional<FoundImage> findFoundImageById(UUID id) {
+    return queryFactory.selectFrom(foundImage)
+        .where(foundImage.id.eq(id))
+        .stream().findFirst();
   }
 }

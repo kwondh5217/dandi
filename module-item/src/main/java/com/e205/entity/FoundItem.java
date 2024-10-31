@@ -11,9 +11,11 @@ import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 @Entity
 public class FoundItem {
 
@@ -21,9 +23,9 @@ public class FoundItem {
   @Id
   private Integer id;
   private Integer memberId;
-  @Column(precision = 9, scale = 6)
+  @Column(precision = 9)
   private Double lat;
-  @Column(precision = 9, scale = 6)
+  @Column(precision = 9)
   private Double lon;
   private String description;
   private String savePlace;

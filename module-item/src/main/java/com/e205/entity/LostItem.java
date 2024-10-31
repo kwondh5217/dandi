@@ -43,6 +43,8 @@ public class LostItem implements LoggableEntity {
     this.memberId = command.lostMemberId();
     this.situationDescription = command.situationDesc();
     this.itemDescription = command.itemDesc();
+    this.startRouteId = command.startRouteId();
+    this.endRouteId = command.endRouteId();
     this.createdAt = LocalDateTime.now();
   }
 
