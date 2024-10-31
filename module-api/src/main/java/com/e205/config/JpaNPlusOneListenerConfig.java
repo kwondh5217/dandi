@@ -36,8 +36,8 @@ public class JpaNPlusOneListenerConfig implements ApplicationContextAware {
 
   private void registerCollectionListener(EntityManagerFactory entityManagerFactory) {
     SessionFactoryImpl sessionFactory = entityManagerFactory.unwrap(SessionFactoryImpl.class);
-    EventListenerRegistry registry = sessionFactory.getServiceRegistry()
-        .getService(EventListenerRegistry.class);
+
+    EventListenerRegistry registry = sessionFactory.getEventEngine().getListenerRegistry();
     registry.getEventListenerGroup(EventType.INIT_COLLECTION)
         .appendListener(new CollectionListener());
   }

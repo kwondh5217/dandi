@@ -1,6 +1,5 @@
 package com.e205.config;
 
-import com.e205.log.LazyLoadingInterceptor;
 import com.e205.log.LogInterceptor;
 import com.e205.log.TransactionSynchronizationRegistryImpl;
 import javax.sql.DataSource;
@@ -33,7 +32,7 @@ public class JpaConfig {
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
     HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
     vendorAdapter.setGenerateDdl(true); // 개발 환경에서 필요하면 true로 설정
-    vendorAdapter.setShowSql(true); // 개발 환경에서 필요하면 true로 설정
+    vendorAdapter.setShowSql(false); // 개발 환경에서 필요하면 true로 설정
 
     LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
     emf.setJpaVendorAdapter(vendorAdapter);
@@ -42,7 +41,6 @@ public class JpaConfig {
     emf.getJpaPropertyMap().put(HIBERNATE_SESSION_FACTORY_INTERCEPTOR, logInterceptor());
     emf.getJpaPropertyMap().put(HIBERNATE_FORMAT_SQL, true);
     emf.getJpaPropertyMap().put(HIBERNATE_HBM2DDL_AUTO, CREATE_DROP);
-    emf.getJpaPropertyMap().put(AvailableSettings.INTERCEPTOR, new LazyLoadingInterceptor());
 
     return emf;
   }

@@ -2,12 +2,12 @@ package com.e205.log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManager;
 import java.lang.reflect.Field;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
 import org.hibernate.Interceptor;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.Type;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -22,13 +22,20 @@ public class LogInterceptor implements Interceptor, ApplicationContextAware {
   private final TransactionSynchronizationRegistry transactionSynchronizationRegistry;
 
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext)
-      throws BeansException {
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
     this.applicationContext = applicationContext;
   }
 
-  private EntityManager getEntityManager() {
-    return applicationContext.getBean(EntityManager.class);
+  @Override
+  public boolean onLoad(Object entity, Object id, Object[] state, String[] propertyNames,
+      Type[] types)
+      throws CallbackException {
+    if (entity instanceof HibernateProxy proxy) {
+      if(!proxy.getHibernateLazyInitializer().isUninitialized()) {
+        log.info("Lazy loading detected for field: {}", entity.getClass().getName());
+      }
+    }
+    return false;
   }
 
   private ObjectMapper getObjectMapper() {
@@ -37,115 +44,104 @@ public class LogInterceptor implements Interceptor, ApplicationContextAware {
 
   @Override
   public boolean onFlushDirty(Object entity, Object id, Object[] currentState,
-      Object[] previousState, String[] propertyNames, Type[] types)
-      throws CallbackException {
-    if (!(entity instanceof LoggableEntity)) {
-      return false;
+      Object[] previousState,
+      String[] propertyNames, Type[] types) throws CallbackException {
+    if (entity instanceof LoggableEntity) {
+      registerAfterCommitAction(
+          () -> logEntityUpdate(entity, id, propertyNames, previousState, currentState));
     }
-
-    transactionSynchronizationRegistry.registerSynchronization(
-        new TransactionSynchronization() {
-          @Override
-          public void afterCommit() {
-            EntityManager em = getEntityManager();
-            ObjectMapper objectMapper = getObjectMapper();
-
-            em.detach(entity);
-
-            var before = getLoggableEntity(entity, id, propertyNames, previousState);
-            var after = getLoggableEntity(entity, id, propertyNames, currentState);
-
-            UpdateLog<LoggableEntity> updateLog = new UpdateLog<>(before, after);
-
-            try {
-              log.info("Update for entity: {}, class: {}",
-                  objectMapper.writeValueAsString(updateLog),
-                  entity.getClass().getName());
-            } catch (JsonProcessingException e) {
-              log.warn("Failed to serialize update log", e);
-            }
-          }
-        }
-    );
     return false;
   }
 
   @Override
-  public boolean onSave(Object entity, Object id, Object[] state,
-      String[] propertyNames, Type[] types) throws CallbackException {
-    if (!(entity instanceof LoggableEntity)) {
-      return false;
+  public boolean onSave(Object entity, Object id, Object[] state, String[] propertyNames,
+      Type[] types)
+      throws CallbackException {
+    if (entity instanceof LoggableEntity) {
+      registerAfterCommitAction(() -> logEntitySave(entity));
     }
-
-    transactionSynchronizationRegistry.registerSynchronization(
-        new TransactionSynchronization() {
-          @Override
-          public void afterCommit() {
-            try {
-              ObjectMapper objectMapper = getObjectMapper();
-
-              var save = (LoggableEntity) entity;
-              SaveLog<LoggableEntity> saveLog = new SaveLog<>(save);
-              log.info("Save for entity: {}, class: {}",
-                  objectMapper.writeValueAsString(saveLog), entity.getClass().getName());
-            } catch (JsonProcessingException e) {
-              log.warn("Failed to serialize update log", e);
-            }
-          }
-        });
     return false;
   }
 
   @Override
   public void onDelete(Object entity, Object id, Object[] state, String[] propertyNames,
-      Type[] types) throws CallbackException {
-    if ((entity instanceof LoggableEntity)) {
-      transactionSynchronizationRegistry.registerSynchronization(
-          new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-              EntityManager em = getEntityManager();
-              ObjectMapper objectMapper = getObjectMapper();
-
-              var loggableEntity = (LoggableEntity) entity;
-              em.detach(loggableEntity);
-              DeleteLog<LoggableEntity> deleteLog = new DeleteLog<>(loggableEntity);
-              try {
-                log.info("Delete for entity: {}, class: {}",
-                    objectMapper.writeValueAsString(deleteLog),
-                    entity.getClass().getName());
-              } catch (JsonProcessingException e) {
-                log.warn("Failed to serialize update log", e);
-              }
-            }
-          });
+      Type[] types)
+      throws CallbackException {
+    if (entity instanceof LoggableEntity) {
+      registerAfterCommitAction(() -> logEntityDelete(entity));
     }
   }
 
-  private LoggableEntity getLoggableEntity(Object entity, Object id,
-      String[] propertyNames,
-      Object[] previousState) {
+  private void registerAfterCommitAction(Runnable action) {
+    transactionSynchronizationRegistry.registerSynchronization(new TransactionSynchronization() {
+      @Override
+      public void afterCommit() {
+        action.run();
+      }
+    });
+  }
+
+  private void logEntityUpdate(Object entity, Object id, String[] propertyNames,
+      Object[] previousState,
+      Object[] currentState) {
+    var before = getLoggableEntitySnapshot(entity, id, propertyNames, previousState);
+    var after = getLoggableEntitySnapshot(entity, id, propertyNames, currentState);
+    logChange("Update", before, after, entity.getClass().getName());
+  }
+
+  private void logEntitySave(Object entity) {
+    var save = (LoggableEntity) entity;
+    logChange("Save", save, entity.getClass().getName());
+  }
+
+  private void logEntityDelete(Object entity) {
+    var delete = (LoggableEntity) entity;
+    logChange("Delete", delete, entity.getClass().getName());
+  }
+
+  private void logChange(String action, Object before, Object after, String className) {
     try {
-      Object object = entity.getClass()
-          .getDeclaredConstructor().newInstance();
-      Field idField = object.getClass().getDeclaredField("id");
-      idField.setAccessible(true);
-      idField.set(object, id);
+      ObjectMapper objectMapper = getObjectMapper();
+      log.info("{} for entity: before={}, after={}, class: {}", action,
+          objectMapper.writeValueAsString(before), objectMapper.writeValueAsString(after),
+          className);
+    } catch (JsonProcessingException e) {
+      log.warn("Failed to serialize {} log for class {}", action, className, e);
+    }
+  }
+
+  private void logChange(String action, LoggableEntity entity, String className) {
+    try {
+      ObjectMapper objectMapper = getObjectMapper();
+      log.info("{} for entity: {}, class: {}", action, objectMapper.writeValueAsString(entity),
+          className);
+    } catch (JsonProcessingException e) {
+      log.warn("Failed to serialize {} log for class {}", action, className, e);
+    }
+  }
+
+  private LoggableEntity getLoggableEntitySnapshot(Object entity, Object id, String[] propertyNames,
+      Object[] stateValues) {
+    try {
+      LoggableEntity snapshot = (LoggableEntity) entity.getClass().getDeclaredConstructor()
+          .newInstance();
+      setField(snapshot, "id", id);
 
       for (int i = 0; i < propertyNames.length; i++) {
-        String propertyName = propertyNames[i];
-        Object propertyValue = previousState[i];
-
-        Field declaredField = object.getClass().getDeclaredField(propertyName);
-        declaredField.setAccessible(true);
-        declaredField.set(object, propertyValue);
+        setField(snapshot, propertyNames[i], stateValues[i]);
       }
-      return (LoggableEntity) object;
+      return snapshot;
     } catch (Exception e) {
-      log.warn("Failed to create loggable entity for class: {}. Error: {}",
+      log.warn("Failed to create loggable entity snapshot for class {}. Error: {}",
           entity.getClass().getName(), e.getMessage(), e);
       return null;
     }
   }
-}
 
+  private void setField(Object target, String fieldName, Object value)
+      throws NoSuchFieldException, IllegalAccessException {
+    Field field = target.getClass().getDeclaredField(fieldName);
+    field.setAccessible(true);
+    field.set(target, value);
+  }
+}

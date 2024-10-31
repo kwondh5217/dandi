@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import com.e205.log.LogInterceptor;
 import com.e205.log.LoggableEntity;
 import com.e205.log.TransactionSynchronizationRegistry;
 import org.hibernate.type.Type;
