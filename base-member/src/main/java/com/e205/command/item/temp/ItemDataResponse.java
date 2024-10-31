@@ -1,4 +1,4 @@
-package com.e205.domain.item.dto;
+package com.e205.command.item.temp;
 
 import java.time.LocalDateTime;
 

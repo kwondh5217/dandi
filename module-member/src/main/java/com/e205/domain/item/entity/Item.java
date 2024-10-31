@@ -1,7 +1,7 @@
 package com.e205.domain.item.entity;
 
+import com.e205.command.item.payload.ItemPayload;
 import com.e205.common.audit.BaseTime;
-import com.e205.domain.item.dto.ItemDataResponse;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -55,14 +55,7 @@ public class Item extends BaseTime implements LoggableEntity {
     this.itemOrder = order;
   }
 
-  public static ItemDataResponse of(Item item) {
-    return new ItemDataResponse(
-        item.getId(),
-        item.getItemOrder(),
-        item.getEmoticon(),
-        item.getName(),
-        item.getColorKey(),
-        item.getCreatedDate()
-    );
+  public ItemPayload toPayload() {
+    return new ItemPayload(id, memberId, emoticon, name, colorKey, itemOrder);
   }
 }

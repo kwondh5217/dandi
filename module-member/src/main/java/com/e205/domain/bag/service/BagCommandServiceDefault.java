@@ -1,12 +1,12 @@
 package com.e205.domain.bag.service;
 
-import com.e205.domain.bag.dto.BagItemOrderUpdateCommand;
-import com.e205.domain.bag.dto.BagNameUpdateCommand;
-import com.e205.domain.bag.dto.BagOrderUpdateCommand;
-import com.e205.domain.bag.dto.CopyBagCommand;
-import com.e205.domain.bag.dto.CopyBagResponse;
-import com.e205.domain.bag.dto.CreateBagCommand;
-import com.e205.domain.bag.dto.SelectBagCommand;
+import com.e205.command.bag.command.BagItemOrderUpdateCommand;
+import com.e205.command.bag.command.BagNameUpdateCommand;
+import com.e205.command.bag.command.BagOrderUpdateCommand;
+import com.e205.command.bag.payload.BagPayload;
+import com.e205.command.bag.command.CopyBagCommand;
+import com.e205.command.bag.command.CreateBagCommand;
+import com.e205.command.bag.command.SelectBagCommand;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
@@ -134,7 +134,7 @@ public class BagCommandServiceDefault implements BagCommandService {
   }
 
   @Override
-  public CopyBagResponse copyBag(CopyBagCommand copyBagCommand) {
+  public BagPayload copyBag(CopyBagCommand copyBagCommand) {
     Bag copyBag = bagRepository.findById(copyBagCommand.bagsId())
         .orElseThrow(RuntimeException::new);
 
@@ -160,6 +160,6 @@ public class BagCommandServiceDefault implements BagCommandService {
         .toList();
     bagItemRepository.saveAll(newBagItems);
 
-    return new CopyBagResponse(newBag.getId());
+    return newBag.toPayload();
   }
 }

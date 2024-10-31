@@ -1,12 +1,12 @@
 package com.e205.domain.bag.service;
 
-import com.e205.domain.bag.dto.BagItemOrderUpdateCommand;
-import com.e205.domain.bag.dto.BagNameUpdateCommand;
-import com.e205.domain.bag.dto.BagOrderUpdateCommand;
-import com.e205.domain.bag.dto.CopyBagCommand;
-import com.e205.domain.bag.dto.CopyBagResponse;
-import com.e205.domain.bag.dto.CreateBagCommand;
-import com.e205.domain.bag.dto.SelectBagCommand;
+import com.e205.command.bag.command.BagItemOrderUpdateCommand;
+import com.e205.command.bag.command.BagNameUpdateCommand;
+import com.e205.command.bag.command.BagOrderUpdateCommand;
+import com.e205.command.bag.payload.BagPayload;
+import com.e205.command.bag.command.CopyBagCommand;
+import com.e205.command.bag.command.CreateBagCommand;
+import com.e205.command.bag.command.SelectBagCommand;
 
 public interface BagCommandService {
 
@@ -20,5 +20,5 @@ public interface BagCommandService {
 
   void updateBagItemOrder(BagItemOrderUpdateCommand command);
 
-  CopyBagResponse copyBag(CopyBagCommand command);
+  BagPayload copyBag(CopyBagCommand command);
 }

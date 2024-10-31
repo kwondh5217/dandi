@@ -156,4 +156,40 @@ class ItemRepositoryTest {
     assertThat(itemsNotInBag).hasSize(1);
     assertThat(itemsNotInBag.get(0).getId()).isEqualTo(item3.getId());
   }
+
+
+  @DisplayName("주어진 ID 목록에 해당하는 모든 아이템을 조회")
+  @Test
+  void readAllByItemIds_ShouldReturnItemsWithGivenIds() {
+    // Given
+    Item item1 = itemRepository.save(Item.builder()
+        .name("Item A")
+        .emoticon("🚗")
+        .memberId(1)
+        .itemOrder((byte) 1)
+        .build());
+
+    itemRepository.save(Item.builder()
+        .name("Item B")
+        .emoticon("🚀")
+        .memberId(1)
+        .itemOrder((byte) 2)
+        .build());
+
+    Item item3 = itemRepository.save(Item.builder()
+        .name("Item C")
+        .emoticon("🌟")
+        .memberId(1)
+        .itemOrder((byte) 3)
+        .build());
+
+    List<Integer> itemIds = List.of(item1.getId(), item3.getId());
+
+    // When
+    List<Item> items = itemRepository.findAllById(itemIds);
+
+    // Then
+    assertThat(items).hasSize(2);
+    assertThat(items).extracting("id").containsExactlyInAnyOrder(item1.getId(), item3.getId());
+  }
 }

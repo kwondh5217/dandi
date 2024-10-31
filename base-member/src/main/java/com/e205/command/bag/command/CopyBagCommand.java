@@ -1,4 +1,4 @@
-package com.e205.domain.bag.dto;
+package com.e205.command.bag.command;
 
 public record CopyBagCommand(
     Integer memberId,

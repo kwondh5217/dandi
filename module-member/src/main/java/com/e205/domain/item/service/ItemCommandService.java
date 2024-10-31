@@ -1,8 +1,8 @@
 package com.e205.domain.item.service;
 
-import com.e205.domain.item.dto.CreateItemCommand;
-import com.e205.domain.item.dto.UpdateItemCommand;
-import com.e205.domain.item.dto.UpdateItemOrderCommand;
+import com.e205.command.item.command.CreateItemCommand;
+import com.e205.command.item.command.UpdateItemCommand;
+import com.e205.command.item.command.UpdateItemOrderCommand;
 
 public interface ItemCommandService {
 

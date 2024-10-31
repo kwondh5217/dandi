@@ -4,15 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.*;
 
-import com.e205.domain.bag.dto.BagItemOrder;
-import com.e205.domain.bag.dto.BagItemOrderUpdateCommand;
-import com.e205.domain.bag.dto.BagNameUpdateCommand;
-import com.e205.domain.bag.dto.BagOrder;
-import com.e205.domain.bag.dto.BagOrderUpdateCommand;
-import com.e205.domain.bag.dto.CopyBagCommand;
-import com.e205.domain.bag.dto.CopyBagResponse;
-import com.e205.domain.bag.dto.CreateBagCommand;
-import com.e205.domain.bag.dto.SelectBagCommand;
+import com.e205.command.bag.command.BagItemOrderCommand;
+import com.e205.command.bag.command.SelectBagCommand;
+import com.e205.command.bag.command.CreateBagCommand;
+import com.e205.command.bag.command.CopyBagCommand;
+import com.e205.command.bag.command.BagOrderUpdateCommand;
+import com.e205.command.bag.command.BagOrderCommand;
+import com.e205.command.bag.command.BagNameUpdateCommand;
+import com.e205.command.bag.command.BagItemOrderUpdateCommand;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
@@ -22,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -85,10 +83,10 @@ class BagCommandServiceTest {
     Bag bag2 = Bag.builder().id(2).memberId(memberId).bagOrder((byte) 2).build();
     Bag bag3 = Bag.builder().id(3).memberId(memberId).bagOrder((byte) 3).build();
 
-    List<BagOrder> bagOrders = Arrays.asList(
-        new BagOrder(1, (byte) 3),
-        new BagOrder(2, (byte) 1),
-        new BagOrder(3, (byte) 2)
+    List<BagOrderCommand> bagOrders = Arrays.asList(
+        new BagOrderCommand(1, (byte) 3),
+        new BagOrderCommand(2, (byte) 1),
+        new BagOrderCommand(3, (byte) 2)
     );
 
     BagOrderUpdateCommand bagOrderUpdateCommand = new BagOrderUpdateCommand(memberId, bagOrders);
@@ -172,10 +170,10 @@ class BagCommandServiceTest {
     Integer memberId = 1;
     Integer bagId = 1;
 
-    List<BagItemOrder> itemOrders = List.of(
-        new BagItemOrder(1, (byte) 3),
-        new BagItemOrder(2, (byte) 1),
-        new BagItemOrder(3, (byte) 2)
+    List<BagItemOrderCommand> itemOrders = List.of(
+        new BagItemOrderCommand(1, (byte) 3),
+        new BagItemOrderCommand(2, (byte) 1),
+        new BagItemOrderCommand(3, (byte) 2)
     );
 
     BagItemOrderUpdateCommand command = new BagItemOrderUpdateCommand(memberId, bagId, itemOrders);
@@ -211,9 +209,9 @@ class BagCommandServiceTest {
     Integer wrongMemberId = 2;
     Integer bagId = 1;
 
-    List<BagItemOrder> itemOrders = List.of(
-        new BagItemOrder(1, (byte) 3),
-        new BagItemOrder(2, (byte) 1)
+    List<BagItemOrderCommand> itemOrders = List.of(
+        new BagItemOrderCommand(1, (byte) 3),
+        new BagItemOrderCommand(2, (byte) 1)
     );
 
     BagItemOrderUpdateCommand command = new BagItemOrderUpdateCommand(wrongMemberId, bagId,

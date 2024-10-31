@@ -1,4 +1,4 @@
-package com.e205.domain.bag.dto;
+package com.e205.command.bag.command;
 
 import java.util.List;
 import lombok.Builder;
@@ -6,7 +6,7 @@ import lombok.Builder;
 @Builder
 public record BagOrderUpdateCommand(
     Integer memberId,
-    List<BagOrder> bags
+    List<BagOrderCommand> bags
 ) {
 
 }

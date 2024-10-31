@@ -13,6 +13,8 @@ public interface ItemRepository extends CrudRepository<Item, Integer> {
 
   List<Item> findAllByMemberId(Integer memberId);
 
+  List<Item> findAllById(Iterable<Integer> itemIds);
+
   boolean existsByNameAndMemberId(String name, Integer memberId);
 
   boolean existsByNameAndMemberIdAndIdNot(String name, Integer memberId, Integer id);

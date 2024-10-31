@@ -1,5 +1,6 @@
 package com.e205.domain.bag.entity;
 
+import com.e205.command.bag.payload.BagItemPayload;
 import com.e205.common.audit.BaseTime;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
@@ -7,7 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,5 +39,9 @@ public class BagItem extends BaseTime implements LoggableEntity {
     this.bagId = bagId;
     this.itemId = itemId;
     this.itemOrder = itemOrder;
+  }
+
+  public BagItemPayload toPayload() {
+    return new BagItemPayload(id, bagId, itemId, itemOrder);
   }
 }

@@ -1,11 +1,11 @@
 package com.e205.domain.item.service;
 
-import com.e205.domain.item.dto.ItemDataResponse;
+import com.e205.command.item.payload.ItemPayload;
 import java.util.List;
 
 public interface ItemQueryService {
 
-  List<ItemDataResponse> readAllItems(Integer memberId);
+  List<ItemPayload> readAllItems(Integer memberId);
 
-  List<ItemDataResponse> readItemsNotInBag(Integer memberId, Integer bagId);
+  List<ItemPayload> readItemsNotInBag(Integer memberId, Integer bagId);
 }

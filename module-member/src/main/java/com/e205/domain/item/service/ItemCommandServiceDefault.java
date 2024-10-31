@@ -1,10 +1,10 @@
 package com.e205.domain.item.service;
 
+import com.e205.command.item.command.CreateItemCommand;
+import com.e205.command.item.command.UpdateItemCommand;
+import com.e205.command.item.command.UpdateItemOrderCommand;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
-import com.e205.domain.item.dto.CreateItemCommand;
-import com.e205.domain.item.dto.UpdateItemCommand;
-import com.e205.domain.item.dto.UpdateItemOrderCommand;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import jakarta.transaction.Transactional;

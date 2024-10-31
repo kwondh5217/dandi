@@ -3,12 +3,15 @@ package com.e205.domain.bag.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.*;
 
-import com.e205.domain.bag.dto.BagDataResponse;
-import com.e205.domain.bag.dto.BagItemDataResponse;
+import com.e205.command.bag.payload.BagItemPayload;
+import com.e205.command.bag.payload.BagPayload;
+import com.e205.command.item.payload.ItemPayload;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
+import com.e205.domain.item.entity.Item;
+import com.e205.domain.item.repository.ItemRepository;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +30,9 @@ class BagQueryServiceTest {
   @Mock
   private BagItemRepository bagItemRepository;
 
+  @Mock
+  private ItemRepository itemRepository;
+
   @InjectMocks
   private BagQueryServiceDefault bagQueryService;
 
@@ -41,7 +47,7 @@ class BagQueryServiceTest {
     given(bagRepository.findAllByMemberId(memberId)).willReturn(Arrays.asList(bag1, bag2));
 
     // When
-    List<BagDataResponse> bags = bagQueryService.readAllBags(memberId);
+    List<BagPayload> bags = bagQueryService.readAllBags(memberId);
 
     // Then
     assertThat(bags).hasSize(2);
@@ -49,38 +55,41 @@ class BagQueryServiceTest {
     verify(bagRepository, times(1)).findAllByMemberId(memberId);
   }
 
-  @DisplayName("특정 가방의 모든 아이템을 조회")
+  @DisplayName("특정 가방 ID에 포함된 모든 BagItem 조회")
   @Test
-  void readAllItemsByBagId_ShouldReturnAllItemsInBag() {
+  void readAllBagItemsByBagId_ShouldReturnAllBagItemsForBag() {
     // Given
     Integer bagId = 1;
-    BagItem bagItem1 = BagItem.builder().bagId(bagId).itemId(1).itemOrder((byte) 1).build();
-    BagItem bagItem2 = BagItem.builder().bagId(bagId).itemId(2).itemOrder((byte) 2).build();
+    BagItem bagItem1 = BagItem.builder().bagId(bagId).itemOrder((byte) 1).build();
+    BagItem bagItem2 = BagItem.builder().bagId(bagId).itemOrder((byte) 2).build();
 
-    BagItemDataResponse response1 = BagItemDataResponse.builder()
-        .itemId(bagItem1.getItemId())
-        .itemOrder(bagItem1.getItemOrder())
-        .name("지갑")
-        .emoticon("💼")
-        .colorKey((byte) 1)
-        .build();
-
-    BagItemDataResponse response2 = BagItemDataResponse.builder()
-        .itemId(bagItem2.getItemId())
-        .itemOrder(bagItem2.getItemOrder())
-        .name("여권")
-        .emoticon("🛂")
-        .colorKey((byte) 2)
-        .build();
-
-    given(bagItemRepository.findAllItemsByBagId(bagId)).willReturn(Arrays.asList(response1, response2));
+    given(bagItemRepository.findAllByBagId(bagId)).willReturn(Arrays.asList(bagItem1, bagItem2));
 
     // When
-    List<BagItemDataResponse> items = bagQueryService.readAllItemsByBagId(bagId);
+    List<BagItemPayload> bagItems = bagQueryService.readAllBagItemsByBagId(bagId);
 
     // Then
-    assertThat(items).hasSize(2);
-    assertThat(items).extracting("itemId").containsExactly(1, 2);
-    verify(bagItemRepository, times(1)).findAllItemsByBagId(bagId);
+    assertThat(bagItems).hasSize(2);
+    verify(bagItemRepository, times(1)).findAllByBagId(bagId);
+  }
+
+  @DisplayName("특정 Item ID 목록에 포함된 모든 Item 조회")
+  @Test
+  void readAllByItemIds_ShouldReturnAllItemsForGivenIds() {
+    // Given
+    List<Integer> itemIds = Arrays.asList(1, 2, 3);
+    Item item1 = Item.builder().id(1).name("지갑").build();
+    Item item2 = Item.builder().id(2).name("여권").build();
+    Item item3 = Item.builder().id(3).name("키").build();
+
+    given(itemRepository.findAllById(itemIds)).willReturn(Arrays.asList(item1, item2, item3));
+
+    // When
+    List<ItemPayload> items = bagQueryService.readAllByItemIds(itemIds);
+
+    // Then
+    assertThat(items).hasSize(3);
+    assertThat(items).extracting("id").containsExactly(1, 2, 3);
+    verify(itemRepository, times(1)).findAllById(itemIds);
   }
 }

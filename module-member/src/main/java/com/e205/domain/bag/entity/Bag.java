@@ -1,7 +1,7 @@
 package com.e205.domain.bag.entity;
 
+import com.e205.command.bag.payload.BagPayload;
 import com.e205.common.audit.BaseTime;
-import com.e205.domain.bag.dto.BagDataResponse;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,11 +44,7 @@ public class Bag extends BaseTime implements LoggableEntity {
     this.name = newName;
   }
 
-  public BagDataResponse of() {
-    return BagDataResponse.builder()
-        .id(this.id)
-        .bagOrder(this.bagOrder)
-        .enabled(this.enabled)
-        .build();
+  public BagPayload toPayload() {
+    return new BagPayload(id, memberId, enabled, bagOrder, name);
   }
 }

@@ -1,9 +1,9 @@
-package com.e205.domain.bag.dto;
+package com.e205.command.bag.command;
 
 import lombok.Builder;
 
 @Builder
-public record BagOrder(
+public record BagOrderCommand(
     Integer bagId,
     Byte order
 ) {

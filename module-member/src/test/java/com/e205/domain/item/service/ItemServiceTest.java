@@ -9,14 +9,14 @@ import static org.mockito.BDDMockito.spy;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.verify;
 
+import com.e205.command.item.command.CreateItemCommand;
+import com.e205.command.item.command.ItemOrderCommand;
+import com.e205.command.item.payload.ItemPayload;
+import com.e205.command.item.command.UpdateItemCommand;
+import com.e205.command.item.command.UpdateItemOrderCommand;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
-import com.e205.domain.item.dto.CreateItemCommand;
-import com.e205.domain.item.dto.ItemDataResponse;
-import com.e205.domain.item.dto.ItemOrder;
-import com.e205.domain.item.dto.UpdateItemCommand;
-import com.e205.domain.item.dto.UpdateItemOrderCommand;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import java.util.Arrays;
@@ -114,7 +114,7 @@ class ItemServiceTest {
     given(itemRepository.findAllByMemberId(memberId)).willReturn(Arrays.asList(item1, item2));
 
     // When
-    List<ItemDataResponse> items = itemQueryService.readAllItems(memberId);
+    List<ItemPayload> items = itemQueryService.readAllItems(memberId);
 
     // Then
     assertThat(items).hasSize(2);
@@ -204,10 +204,10 @@ class ItemServiceTest {
     Integer itemId2 = 2;
     Integer itemId3 = 3;
 
-    List<ItemOrder> itemOrders = Arrays.asList(
-        new ItemOrder(itemId1, (byte) 3),
-        new ItemOrder(itemId2, (byte) 1),
-        new ItemOrder(itemId3, (byte) 2)
+    List<ItemOrderCommand> itemOrders = Arrays.asList(
+        new ItemOrderCommand(itemId1, (byte) 3),
+        new ItemOrderCommand(itemId2, (byte) 1),
+        new ItemOrderCommand(itemId3, (byte) 2)
     );
 
     UpdateItemOrderCommand updateCommand = new UpdateItemOrderCommand(currentUserId, itemOrders);
