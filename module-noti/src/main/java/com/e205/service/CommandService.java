@@ -10,11 +10,10 @@ import com.e205.repository.FoundItemNotificationRepository;
 import com.e205.repository.LostItemNotificationRepository;
 import com.e205.repository.NotificationRepository;
 import com.e205.util.NotificationFactory;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional
@@ -45,16 +44,14 @@ public class CommandService {
   }
 
   public void confirmItemNotification(ConfirmItemCommand command) {
-    Notification notification = findNotificationByTypeAndId(command.type(), command.itemId());
-    notification.confirmRead();
+    findNotificationByTypeAndId(command.type(), command.itemId())
+        .forEach(Notification::confirmRead);
   }
 
-  private Notification findNotificationByTypeAndId(String type, Integer itemId) {
+  private List<Notification> findNotificationByTypeAndId(String type, Integer itemId) {
     return switch (type) {
-      case "lostItem" -> lostItemNotificationRepository.findById(itemId)
-          .orElseThrow(() -> new RuntimeException("존재하지 않는 알림입니다."));
-      case "foundItem" -> foundItemNotificationRepository.findById(itemId)
-          .orElseThrow(() -> new RuntimeException("존재하지 않는 알림입니다."));
+      case "lostItem" -> lostItemNotificationRepository.findByLostItemId(itemId);
+      case "foundItem" -> foundItemNotificationRepository.findByFoundItemId(itemId);
       default -> throw new IllegalArgumentException("지원하지 않는 알림 유형입니다.");
     };
   }

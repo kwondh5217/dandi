@@ -7,8 +7,6 @@ import com.e205.entity.FoundItemNotification;
 import com.e205.entity.LostItemNotification;
 import com.e205.entity.Notification;
 import com.e205.entity.RouteNotification;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

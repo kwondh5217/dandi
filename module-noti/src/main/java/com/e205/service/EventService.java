@@ -1,123 +1,77 @@
 package com.e205.service;
 
-import com.e205.CreateNotificationCommand;
 import com.e205.MemberWithFcm;
 import com.e205.MembersInRouteQuery;
-import com.e205.NotifiedMembersCommand;
-import com.e205.communication.ItemCommandService;
+import com.e205.NotifyEvent;
 import com.e205.communication.MemberQueryService;
 import com.e205.communication.RouteQueryService;
+import com.e205.event.FoundItemSaveEvent;
 import com.e205.event.LostItemSaveEvent;
+import com.e205.event.RouteSavedEvent;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.util.Assert;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class EventService {
 
-  private static final int CHUNK_SIZE = 100;
-
   @Value("${noti.until.time}")
   private int notificationWindowHours;
 
   private final RouteQueryService routeQueryService;
-  private final Notifier notifier;
+  private final NotificationProcessor notificationProcessor;
   private final MemberQueryService memberQueryService;
-  private final CommandService commandService;
-  private final PlatformTransactionManager transactionManager;
-  private final RetryTemplate retryTemplate;
-  private final ItemCommandService itemCommandService;
+
+  @Retryable(backoff = @Backoff(delay = 500, multiplier = 1.5))
+  public void handleRouteSavedEvent(RouteSavedEvent event) {
+    String fcm = this.memberQueryService.findMemberFcmById(event.memberId());
+    Assert.state(fcm != null, "No member FCM found");
+    this.notificationProcessor.notify(fcm, event.getType(), event.snapShot());
+  }
+
+  public void handleNotifyEvent(NotifyEvent event) {
+    String fcm = this.memberQueryService.findMemberFcmById(event.ownerId());
+    Assert.state(fcm != null, "No member FCM found");
+    this.notificationProcessor.notify(fcm, event.senderId() + " ", event.type());
+  }
+
+  public void handleFoundItemSaveEvent(FoundItemSaveEvent event) {
+    handleItemSaveEvent(event.saved().startRouteId(), event.saved().endRouteId(),
+        event.saved().createdAt(), event.saved().id(),
+        event.saved().situationDescription(), event.getType());
+  }
 
   public void handleLostItemSaveEvent(LostItemSaveEvent event) {
-    LocalDateTime eventTime = event.saved().createdAt();
-    LocalDateTime since = eventTime.minusHours(this.notificationWindowHours);
-    LocalDateTime until = eventTime.plusHours(this.notificationWindowHours);
-
-    List<Integer> memberIds = this.routeQueryService.queryMembersInPoints(
-        new MembersInRouteQuery(event.saved().route(), since, until)
-    );
-
-    List<NotifiedMembersCommand> notifiedMembers = this.notifyMembersAndCreateCommands(event, memberIds);
-
-    this.itemCommandService.saveNotifiedMembers(notifiedMembers);
+    handleItemSaveEvent(event.saved().startRouteId(), event.saved().endRouteId(),
+        event.saved().createdAt(), event.saved().id(),
+        event.saved().situationDescription(), event.getType());
   }
 
-  private List<NotifiedMembersCommand> notifyMembersAndCreateCommands(LostItemSaveEvent event,
-      List<Integer> memberIds) {
-    List<MemberWithFcm> membersWithFcm = this.memberQueryService.memberWithFcmQuery(memberIds);
-    List<NotifiedMembersCommand> notifiedMembers = new ArrayList<>();
+  private void handleItemSaveEvent(Integer startRouteId, Integer endRouteId,
+      LocalDateTime createdAt, Integer resourceId,
+      String situationDescription, String eventType) {
+    List<Integer> memberIds = findMemberIdsInRoute(startRouteId, endRouteId, createdAt);
+    List<MemberWithFcm> membersWithFcm = this.memberQueryService.membersWithFcmQuery(
+        memberIds);
 
-    DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-    def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-
-    for (int i = 0; i < membersWithFcm.size(); i += CHUNK_SIZE) {
-      List<MemberWithFcm> chunk = membersWithFcm.subList(i, Math.min(i + CHUNK_SIZE, membersWithFcm.size()));
-      TransactionStatus status = this.transactionManager.getTransaction(def);
-
-      try {
-        chunk.forEach(member -> {
-          this.commandService.createNotification(createNotificationCommand(event, member));
-
-          TransactionSynchronizationManager.registerSynchronization(
-              new TransactionSynchronizationAdapter() {
-                @Override
-                public void afterCommit() {
-                  retryTemplate.execute(context -> {
-                    notifier.notify(member.fcmToken());
-                    return null;
-                  });
-                }
-              }
-          );
-
-          notifiedMembers.add(new NotifiedMembersCommand(member.memberId(), LocalDateTime.now()));
-        });
-
-        this.transactionManager.commit(status);
-
-      } catch (Exception e) {
-        log.warn("Error in chunk, rolling back chunk transaction: " + e.getMessage());
-        this.transactionManager.rollback(status);
-        throw e;
-      }
-    }
-
-    return notifiedMembers;
+    this.notificationProcessor.processNotifications(resourceId, situationDescription,
+        eventType, membersWithFcm);
   }
 
-  private CreateNotificationCommand createNotificationCommand(LostItemSaveEvent event, MemberWithFcm member) {
-    String title = extractTitle(event);
+  private List<Integer> findMemberIdsInRoute(Integer startRouteId, Integer endRouteId,
+      LocalDateTime time) {
+    LocalDateTime since = time.minusHours(this.notificationWindowHours);
+    LocalDateTime until = time.plusHours(this.notificationWindowHours);
 
-    return CreateNotificationCommand.builder()
-        .memberId(member.memberId())
-        .resourceId(event.saved().id())
-        .title(title)
-        .createdAt(LocalDateTime.now())
-        .type("lostItem")
-        .build();
-  }
-
-  private String extractTitle(LostItemSaveEvent event) {
-    String situationDescription = event.saved().situationDescription();
-    if (situationDescription == null) {
-      return "No description";
-    }
-    return situationDescription.length() >= 20
-        ? situationDescription.substring(0, 20)
-        : situationDescription;
+    return this.routeQueryService.queryMembersInPoints(
+        new MembersInRouteQuery(startRouteId, endRouteId, since, until));
   }
 }

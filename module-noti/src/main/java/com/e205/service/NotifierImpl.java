@@ -12,7 +12,7 @@ public class NotifierImpl implements Notifier {
 
   @Async("fcmPushTaskExecutor")
   @Override
-  public void notify(String deviceToken) {
+  public void notify(String deviceToken, String title, String body) {
     Message message = Message.builder()
         .setToken(deviceToken)
         .setNotification(

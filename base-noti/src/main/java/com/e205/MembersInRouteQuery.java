@@ -2,10 +2,10 @@ package com.e205;
 
 import com.e205.querys.Query;
 import java.time.LocalDateTime;
-import org.locationtech.jts.geom.LineString;
 
 public record MembersInRouteQuery(
-    LineString route,
+    Integer startRouteId,
+    Integer endRouteId,
     LocalDateTime since,
     LocalDateTime until
 ) implements Query {

@@ -12,7 +12,6 @@ import com.e205.repository.FoundItemNotificationRepository;
 import com.e205.repository.LostItemNotificationRepository;
 import com.e205.repository.NotificationRepository;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,12 +52,12 @@ class CommandServiceTest {
   void confirmationNotification_lostItem() {
     var confirmItemCommand = new ConfirmItemCommand(1, "lostItem");
     var lostItemNotification = mock(LostItemNotification.class);
-    given(this.lostItemNotificationRepository.findById(any())).willReturn(
-        Optional.ofNullable(lostItemNotification));
+    given(this.lostItemNotificationRepository.findByLostItemId(any())).willReturn(
+        List.of(lostItemNotification));
 
     this.commandService.confirmItemNotification(confirmItemCommand);
 
-    verify(this.lostItemNotificationRepository).findById(1);
+    verify(this.lostItemNotificationRepository).findByLostItemId(1);
     verify(lostItemNotification).confirmRead();
   }
 

@@ -5,7 +5,8 @@ import java.util.List;
 
 public interface MemberQueryService {
 
-  List<MemberWithFcm> memberWithFcmQuery(List<Integer> members);
+  List<MemberWithFcm> membersWithFcmQuery(List<Integer> members);
+  String findMemberFcmById(Integer memberId);
 
 
 }

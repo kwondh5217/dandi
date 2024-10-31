@@ -9,7 +9,12 @@ import org.springframework.stereotype.Component;
 public class DirectMemberQueryService implements MemberQueryService {
 
   @Override
-  public List<MemberWithFcm> memberWithFcmQuery(List<Integer> members) {
+  public List<MemberWithFcm> membersWithFcmQuery(List<Integer> members) {
     return List.of();
+  }
+
+  @Override
+  public String findMemberFcmById(Integer memberId) {
+    return "0";
   }
 }
