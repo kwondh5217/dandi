@@ -1,4 +1,4 @@
-package com.e205.message;
+package com.e205.domain.message;
 
 import com.e205.events.Event;
 import com.e205.events.EventPublisher;
@@ -7,8 +7,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
-@Component
-public class ItemEventPublisher implements EventPublisher {
+@Component("memberEventPublisher")
+public class MemberEventPublisher implements EventPublisher {
 
   private final ApplicationEventPublisher eventPublisher;
 
@@ -17,4 +17,3 @@ public class ItemEventPublisher implements EventPublisher {
     eventPublisher.publishEvent(event);
   }
 }
-

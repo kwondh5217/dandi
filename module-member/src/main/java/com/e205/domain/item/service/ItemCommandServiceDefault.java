@@ -1,5 +1,8 @@
 package com.e205.domain.item.service;
 
+import com.e205.command.bag.event.BagItemAddEvent;
+import com.e205.command.bag.event.BagItemChangedEvent;
+import com.e205.command.bag.event.BagItemDeleteEvent;
 import com.e205.command.item.command.CreateItemCommand;
 import com.e205.command.item.command.DeleteItemCommand;
 import com.e205.command.item.command.UpdateItemCommand;
@@ -8,6 +11,7 @@ import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
+import com.e205.domain.message.MemberEventPublisher;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +25,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class ItemCommandServiceDefault implements ItemCommandService {
 
-  private final ItemRepository itemRepository;
-  private final BagItemRepository bagItemRepository;
   private static final int MAX_ITEM_COUNT = 50;
   private static final int MAX_BAG_ITEM_COUNT = 20;
+  private final ItemRepository itemRepository;
+  private final BagItemRepository bagItemRepository;
+  private final MemberEventPublisher eventPublisher;
 
   @Override
   public void save(CreateItemCommand createItemCommand) {
@@ -68,6 +73,8 @@ public class ItemCommandServiceDefault implements ItemCommandService {
         .itemOrder(maxItemOrder)
         .build();
     bagItemRepository.save(bagItem);
+
+    eventPublisher.publish(new BagItemAddEvent(item.toPayload()));
   }
 
   @Override
@@ -89,6 +96,8 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     item.updateName(updateCommand.name());
     item.updateEmoticon(updateCommand.emoticon());
     item.updateColorKey(updateCommand.colorKey());
+
+    eventPublisher.publish(new BagItemChangedEvent(item.toPayload()));
   }
 
   @Override
@@ -119,5 +128,6 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     bagItemRepository.deleteAll(bagItems);
 
     itemRepository.delete(item);
+    eventPublisher.publish(new BagItemDeleteEvent(item.toPayload()));
   }
 }

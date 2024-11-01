@@ -12,10 +12,14 @@ import com.e205.command.bag.command.BagOrderUpdateCommand;
 import com.e205.command.bag.command.BagOrderCommand;
 import com.e205.command.bag.command.BagNameUpdateCommand;
 import com.e205.command.bag.command.BagItemOrderUpdateCommand;
+import com.e205.command.bag.event.BagChangedEvent;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
+import com.e205.domain.item.entity.Item;
+import com.e205.domain.item.repository.ItemRepository;
+import com.e205.domain.message.MemberEventPublisher;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +43,12 @@ class BagCommandServiceTest {
 
   @Mock
   private BagItemRepository bagItemRepository;
+
+  @Mock
+  private ItemRepository itemRepository;
+
+  @Mock
+  private MemberEventPublisher eventPublisher;
 
   @InjectMocks
   private BagCommandServiceDefault bagCommandService;
@@ -245,10 +255,13 @@ class BagCommandServiceTest {
     // 타겟 가방의 아이템 생성
     BagItem item1 = BagItem.builder().bagId(targetBagId).itemId(1).itemOrder((byte) 1).build();
     BagItem item2 = BagItem.builder().bagId(targetBagId).itemId(2).itemOrder((byte) 2).build();
+    Item itemEntity1 = Item.builder().id(1).memberId(memberId).emoticon("🙂").name("Item1").colorKey((byte)1).itemOrder((byte)1).build();
+    Item itemEntity2 = Item.builder().id(2).memberId(memberId).emoticon("😊").name("Item2").colorKey((byte)2).itemOrder((byte)2).build();
 
     given(bagRepository.findById(myBagId)).willReturn(Optional.of(originalBag));
     given(bagRepository.findById(targetBagId)).willReturn(Optional.of(targetBag));
     given(bagItemRepository.findAllByBagId(targetBagId)).willReturn(List.of(item1, item2));
+    given(itemRepository.findAllById(anyList())).willReturn(List.of(itemEntity1, itemEntity2));
 
     // When
     bagCommandService.selectBag(command);
@@ -264,6 +277,8 @@ class BagCommandServiceTest {
           itemList.stream()
               .anyMatch(bagItem -> bagItem.getItemId() == 2 && bagItem.getItemOrder() == (byte) 2);
     }));
+
+    verify(eventPublisher, times(1)).publish(any(BagChangedEvent.class));
   }
 
   @DisplayName("가방 복사 실패 - 최대 가방 개수 초과")

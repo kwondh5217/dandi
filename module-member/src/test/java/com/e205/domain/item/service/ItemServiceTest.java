@@ -16,9 +16,9 @@ import com.e205.command.item.command.UpdateItemCommand;
 import com.e205.command.item.command.UpdateItemOrderCommand;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
-import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
+import com.e205.domain.message.MemberEventPublisher;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +44,7 @@ class ItemServiceTest {
   private BagItemRepository bagItemRepository;
 
   @Mock
-  private BagRepository bagRepository;
+  private MemberEventPublisher memberEventPublisher;
 
   @InjectMocks
   private ItemCommandServiceDefault itemCommandService;

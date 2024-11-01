@@ -7,7 +7,7 @@ import com.e205.domain.bag.service.BagCommandServiceDefault;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.domain.item.service.ItemCommandServiceDefault;
-import jakarta.persistence.EntityManager;
+import com.e205.domain.message.MemberEventPublisher;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +29,7 @@ import org.springframework.test.annotation.DirtiesContext;
 class BagCommandServiceIntegrationTest {
 
   @Autowired
-  private EntityManager entityManager;
+  private MemberEventPublisher memberEventPublisher;
 
   @Autowired
   private BagCommandServiceDefault bagCommandService;

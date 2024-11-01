@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface BagItemRepository extends JpaRepository<BagItem, Integer> {
 
   List<BagItem> findAllByBagId(Integer bagId);
-
+  // TODO: <홍성우> 한건한건 삭제된다. Batch 한번에해라
   void deleteAllByBagId(Integer id);
 
   void deleteByBagIdAndItemId(Integer integer, Integer integer1);

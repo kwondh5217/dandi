@@ -5,14 +5,19 @@ import com.e205.command.bag.command.BagItemDeleteCommand;
 import com.e205.command.bag.command.BagItemOrderUpdateCommand;
 import com.e205.command.bag.command.BagNameUpdateCommand;
 import com.e205.command.bag.command.BagOrderUpdateCommand;
+import com.e205.command.bag.event.BagChangedEvent;
 import com.e205.command.bag.payload.BagPayload;
 import com.e205.command.bag.command.CopyBagCommand;
 import com.e205.command.bag.command.CreateBagCommand;
 import com.e205.command.bag.command.SelectBagCommand;
+import com.e205.command.item.payload.ItemPayload;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
+import com.e205.domain.item.entity.Item;
+import com.e205.domain.item.repository.ItemRepository;
+import com.e205.domain.message.MemberEventPublisher;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +36,8 @@ public class BagCommandServiceDefault implements BagCommandService {
   private static final int MAX_BAG_COUNT = 10;
   private final BagRepository bagRepository;
   private final BagItemRepository bagItemRepository;
+  private final ItemRepository itemRepository;
+  private final MemberEventPublisher eventPublisher;
 
   @Override
   public void save(CreateBagCommand createBagCommand) {
@@ -111,6 +118,26 @@ public class BagCommandServiceDefault implements BagCommandService {
             .build())
         .toList();
     bagItemRepository.saveAll(newBagItems);
+
+    convertAndPublishBagChangedEvent(newBagItems);
+  }
+
+  private void convertAndPublishBagChangedEvent(List<BagItem> bagItems) {
+    List<Integer> itemIds = bagItems.stream()
+        .map(BagItem::getItemId)
+        .toList();
+
+    Map<Integer, Item> itemsById = itemRepository.findAllById(itemIds).stream()
+        .collect(Collectors.toMap(Item::getId, Function.identity()));
+
+    List<ItemPayload> itemPayloads = bagItems.stream()
+        .map(bagItem -> Optional.ofNullable(itemsById.get(bagItem.getItemId()))
+            .map(Item::toPayload)
+            .orElseThrow(RuntimeException::new)
+        )
+        .toList();
+
+    eventPublisher.publish(new BagChangedEvent(itemPayloads));
   }
 
   @Override
