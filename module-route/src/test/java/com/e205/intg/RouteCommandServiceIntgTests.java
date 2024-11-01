@@ -1,5 +1,8 @@
 package com.e205.intg;
 
+import static com.e205.intg.env.Constant.BAG_ID_1;
+import static com.e205.intg.env.Constant.BAG_ID_2;
+import static com.e205.intg.env.Constant.MEMBER_ID_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -11,7 +14,7 @@ import com.e205.command.SnapshotUpdateCommand;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
-import com.e205.dto.TrackPointPayload;
+import com.e205.dto.TrackPoint;
 import com.e205.interaction.queries.BagItemQueryService;
 import com.e205.repository.RouteRepository;
 import com.e205.service.RouteCommandService;
@@ -32,12 +35,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 @SpringBootTest(classes = TestConfiguration.class)
 public class RouteCommandServiceIntgTests {
 
-  private static final Integer BAG_1 = 1;
-  private static final Integer BAG_2 = 2;
-
   List<SnapshotItem> basedBagItems;
   List<SnapshotItem> currentBagItems;
   List<SnapshotItem> newBagItems;
+
+  RouteCreateCommand requestBagId1;
+  RouteCreateCommand requestBagId2;
 
   @Autowired
   private RouteCommandService routeCommandService;
@@ -48,15 +51,10 @@ public class RouteCommandServiceIntgTests {
   @MockBean
   private BagItemQueryService bagItemQueryService;
 
-  private Integer memberId;
-  private RouteCreateCommand requestBagId1;
-  private RouteCreateCommand requestBagId2;
-
   @BeforeEach
   void setUp() {
-    memberId = 1;
-    requestBagId1 = new RouteCreateCommand(BAG_1, LocalDateTime.now());
-    requestBagId2 = new RouteCreateCommand(BAG_2, LocalDateTime.now());
+    requestBagId1 = new RouteCreateCommand(BAG_ID_1, LocalDateTime.now());
+    requestBagId2 = new RouteCreateCommand(BAG_ID_2, LocalDateTime.now());
     assignSnapshotItem();
   }
 
@@ -66,14 +64,14 @@ public class RouteCommandServiceIntgTests {
   void 이동_생성시_이전_가방과_현재_가방이_같은_경우_이전_스냅샷_제공_테스트() {
     // given
     Snapshot initSnapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
-    routeRepository.save(Route.toEntity(memberId, requestBagId1, Snapshot.toJson(initSnapshot)));
-    Route previousRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(memberId).get();
+    routeRepository.save(Route.toEntity(MEMBER_ID_1, requestBagId1, Snapshot.toJson(initSnapshot)));
+    Route previousRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
 
     given(bagItemQueryService.bagItemsOfMember(any())).willReturn(currentBagItems);
 
     // when
-    routeCommandService.createRoute(requestBagId1, memberId);
-    Route currentRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(memberId).get();
+    routeCommandService.createRoute(requestBagId1, MEMBER_ID_1);
+    Route currentRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
 
     // then
     Snapshot previousSnapshot = Snapshot.fromJson(previousRoute.getSnapshot());
@@ -89,14 +87,14 @@ public class RouteCommandServiceIntgTests {
   void 이동_생성시_이전_가방과_현재_가방이_다른_경우_기본_스냅샷_제공_테스트() {
     // given
     Snapshot initSnapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
-    routeRepository.save(Route.toEntity(memberId, requestBagId1, Snapshot.toJson(initSnapshot)));
-    Route previousRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(memberId).get();
+    routeRepository.save(Route.toEntity(MEMBER_ID_1, requestBagId1, Snapshot.toJson(initSnapshot)));
+    Route previousRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
 
     given(bagItemQueryService.bagItemsOfMember(any())).willReturn(newBagItems);
 
     // when
-    routeCommandService.createRoute(requestBagId2, memberId);
-    Route currentRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(memberId).get();
+    routeCommandService.createRoute(requestBagId2, MEMBER_ID_1);
+    Route currentRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
     Snapshot previousSnapshot = Snapshot.fromJson(previousRoute.getSnapshot());
     Snapshot currentSnapshot = Snapshot.fromJson(currentRoute.getSnapshot());
 
@@ -115,8 +113,8 @@ public class RouteCommandServiceIntgTests {
     given(bagItemQueryService.bagItemsOfMember(any())).willReturn(basedBagItems);
 
     // when
-    routeCommandService.createRoute(requestBagId1, memberId);
-    Route latestRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(memberId).orElseThrow();
+    routeCommandService.createRoute(requestBagId1, MEMBER_ID_1);
+    Route latestRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).orElseThrow();
     Snapshot snapshot = Snapshot.fromJson(latestRoute.getSnapshot());
 
     // then
@@ -131,10 +129,10 @@ public class RouteCommandServiceIntgTests {
     // given
     Snapshot initSnapshot = new Snapshot(requestBagId1.bagId(), basedBagItems);
     Snapshot currentSnapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
-    Route route = Route.toEntity(memberId, requestBagId1, Snapshot.toJson(initSnapshot));
+    Route route = Route.toEntity(MEMBER_ID_1, requestBagId1, Snapshot.toJson(initSnapshot));
     routeRepository.save(route);
     SnapshotUpdateCommand command =
-        new SnapshotUpdateCommand(route.getId(), Snapshot.toJson(currentSnapshot));
+        new SnapshotUpdateCommand(route.getId(), currentSnapshot);
 
     // when
     routeCommandService.updateSnapshot(command);
@@ -144,7 +142,7 @@ public class RouteCommandServiceIntgTests {
     assertThat(updatedRoute).isNotNull();
     assertThat(updatedRoute.getSkip()).isEqualTo('N');
     assertThat(updatedRoute.getSnapshot()).isNotEqualTo(Snapshot.toJson(initSnapshot));
-    assertThat(updatedRoute.getSnapshot()).isEqualTo(command.snapshot());
+    assertThat(updatedRoute.getSnapshot()).isEqualTo(Snapshot.toJson(command.snapshot()));
   }
 
   @Test
@@ -153,17 +151,19 @@ public class RouteCommandServiceIntgTests {
   void 이동_종료_테스트() {
     // given
     Snapshot snapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
-    Route route = routeRepository.save(Route.toEntity(1, requestBagId1, Snapshot.toJson(snapshot)));
-    List<TrackPointPayload> trackPoints = List.of(
-        TrackPointPayload.builder().lat(37.7749).lon(-122.4194).build(),
-        TrackPointPayload.builder().lat(34.0522).lon(-118.2437).build()
+    Route route = routeRepository.save(
+        Route.toEntity(MEMBER_ID_1, requestBagId1, Snapshot.toJson(snapshot))
+    );
+    List<TrackPoint> trackPoints = List.of(
+        TrackPoint.builder().lat(37.7749).lon(-122.4194).build(),
+        TrackPoint.builder().lat(34.0522).lon(-118.2437).build()
     );
     RouteEndCommand command = new RouteEndCommand(route.getId(), LocalDateTime.now(), trackPoints);
 
     // when
     routeCommandService.endRoute(command);
     Route endedRoute = routeRepository.findById(route.getId()).orElseThrow();
-    List<TrackPointPayload> savedTrackPoints = GeometryUtils.getPoints(endedRoute.getTrack());
+    List<TrackPoint> savedTrackPoints = GeometryUtils.getPoints(endedRoute.getTrack());
 
     // then
     assertThat(endedRoute.getEndedAt()).isNotNull();

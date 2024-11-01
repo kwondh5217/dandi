@@ -54,7 +54,7 @@ public class RouteCommandService {
   public void updateSnapshot(SnapshotUpdateCommand command) {
     Route route = getRoute(command.routeId());
     routeValidator.validateEndedRoute(route);
-    route.updateSnapshot(command.snapshot());
+    route.updateSnapshot(Snapshot.toJson(command.snapshot()));
     routeRepository.save(route);
   }
 

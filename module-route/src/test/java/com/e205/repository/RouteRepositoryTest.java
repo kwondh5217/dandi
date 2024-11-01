@@ -1,5 +1,7 @@
 package com.e205.repository;
 
+import static com.e205.intg.env.Constant.MEMBER_ID_1;
+import static com.e205.intg.env.Constant.MEMBER_ID_2;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.e205.domain.Route;
@@ -22,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @DataJpaTest
 class RouteRepositoryTest {
 
-  private static final Integer MEMBER_ID = 1;
-
   @Autowired
   private RouteRepository routeRepository;
 
@@ -32,6 +32,11 @@ class RouteRepositoryTest {
   LineString track1;
   LineString track2;
   LineString track3;
+
+  Route route1;
+  Route route2;
+  Route route3;
+  Route otherRoute;
 
   @BeforeEach
   public void setUp() {
@@ -59,7 +64,7 @@ class RouteRepositoryTest {
     Route latestRoute = insertRoutes();
 
     // when
-    Optional<Route> foundRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID);
+    Optional<Route> foundRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1);
 
     // then
     assertThat(foundRoute).isPresent();
@@ -67,32 +72,57 @@ class RouteRepositoryTest {
     assertThat(foundRoute.get().getTrack()).isEqualTo(latestRoute.getTrack());
   }
 
+  @Test
+  @Transactional
+  @DisplayName("현재 이동의 다음 이동 가져오기 테스트")
+  void 현재_이동의_다음_이동_가져오기_테스트() {
+    // given
+    insertRoutes();
+
+    // when
+    Optional<Route> nextRoute = routeRepository
+        .findFirstByMemberIdAndIdGreaterThanOrderByIdAsc(MEMBER_ID_1, route1.getId());
+
+    // then
+    assertThat(nextRoute).isPresent();
+    assertThat(nextRoute.get().getId()).isGreaterThan(route1.getId());
+    assertThat(nextRoute.get().getTrack()).isEqualTo(track2);
+  }
+
   private Route insertRoutes() {
-    Route route1 = Route.builder()
-        .memberId(MEMBER_ID)
+    route1 = Route.builder()
+        .memberId(MEMBER_ID_1)
         .track(track1)
         .createdAt(LocalDateTime.now().minusDays(2))
         .endedAt(LocalDateTime.now().minusDays(2).plusHours(1))
         .build();
 
-    Route route2 = Route.builder()
-        .memberId(MEMBER_ID)
+    route2 = Route.builder()
+        .memberId(MEMBER_ID_1)
         .track(track2)
         .createdAt(LocalDateTime.now().minusDays(1))
         .endedAt(LocalDateTime.now().minusDays(1).plusHours(1))
         .build();
 
-    Route latestRoute = Route.builder()
-        .memberId(MEMBER_ID)
+    route3 = Route.builder()
+        .memberId(MEMBER_ID_1)
+        .track(track3)
+        .createdAt(LocalDateTime.now())
+        .endedAt(null)
+        .build();
+
+    otherRoute = Route.builder()
+        .memberId(MEMBER_ID_2)
         .track(track3)
         .createdAt(LocalDateTime.now())
         .endedAt(null)
         .build();
 
     routeRepository.save(route1);
+    routeRepository.save(otherRoute);
     routeRepository.save(route2);
-    routeRepository.save(latestRoute);
+    routeRepository.save(route3);
 
-    return latestRoute;
+    return route3;
   }
 }

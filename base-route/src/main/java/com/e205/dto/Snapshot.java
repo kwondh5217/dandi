@@ -15,6 +15,9 @@ public record Snapshot(
 
   public static Snapshot fromJson(String json) {
     try {
+      if (json == null) {
+        return null;
+      }
       return objectMapper.readValue(json, Snapshot.class);
     } catch (JsonProcessingException e) {
       // TODO <이현수> : 예외 구체화

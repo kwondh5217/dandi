@@ -82,7 +82,7 @@ public class RouteCommandServiceTests {
   @DisplayName("존재하지 않는 이동 실패 테스트")
   void 존재하지_않는_이동_실패_테스트() {
     // given
-    SnapshotUpdateCommand command = new SnapshotUpdateCommand(INVALID_ROUTE_ID, "test");
+    SnapshotUpdateCommand command = new SnapshotUpdateCommand(INVALID_ROUTE_ID, snapshot);
     given(routeRepository.findById(any(Integer.class))).willReturn(Optional.empty());
 
     // when

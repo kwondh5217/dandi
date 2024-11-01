@@ -1,6 +1,7 @@
 package com.e205.domain;
 
 import com.e205.command.RouteCreateCommand;
+import com.e205.payload.RoutePayload;
 import com.e205.dto.Snapshot;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
@@ -51,6 +52,19 @@ public class Route implements LoggableEntity {
         .skip('Y')
         .snapshot(snapshot)
         .createdAt(request.createdAt())
+        .build();
+  }
+
+  public static RoutePayload toPayload(Route route, String nextSnapshot) {
+    return RoutePayload.builder()
+        .id(route.id)
+        .memberId(route.memberId)
+        .track(route.track)
+        .skip(route.skip)
+        .startSnapshot(Snapshot.fromJson(route.snapshot))
+        .endSnapshot(Snapshot.fromJson(nextSnapshot))
+        .createdAt(route.createdAt)
+        .endedAt(route.endedAt)
         .build();
   }
 
