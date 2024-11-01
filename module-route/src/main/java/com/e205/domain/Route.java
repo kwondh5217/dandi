@@ -1,9 +1,10 @@
 package com.e205.domain;
 
 import com.e205.command.RouteCreateCommand;
-import com.e205.payload.RoutePayload;
+import com.e205.dto.RoutePart;
 import com.e205.dto.Snapshot;
 import com.e205.log.LoggableEntity;
+import com.e205.payload.RoutePayload;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,6 +37,10 @@ public class Route implements LoggableEntity {
   private LocalDateTime createdAt;
   private LocalDateTime endedAt;
 
+  public void updateTrack(LineString track) {
+    this.track = track;
+  }
+
   public void endRoute(LineString track, LocalDateTime endedAt) {
     this.track = track;
     this.endedAt = endedAt;
@@ -63,6 +68,15 @@ public class Route implements LoggableEntity {
         .skip(route.skip)
         .startSnapshot(Snapshot.fromJson(route.snapshot))
         .endSnapshot(Snapshot.fromJson(nextSnapshot))
+        .createdAt(route.createdAt)
+        .endedAt(route.endedAt)
+        .build();
+  }
+
+  public static RoutePart toPart(Route route) {
+    return RoutePart.builder()
+        .id(route.id)
+        .track(route.track)
         .createdAt(route.createdAt)
         .endedAt(route.endedAt)
         .build();

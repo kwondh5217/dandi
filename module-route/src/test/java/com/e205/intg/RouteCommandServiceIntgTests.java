@@ -28,12 +28,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 
 //@Sql("/test-sql/route.sql")
 //@ActiveProfiles(value = "test")
 //@AutoConfigureTestDatabase(replace = Replace.NONE)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @SpringBootTest(classes = TestConfiguration.class)
 public class RouteCommandServiceIntgTests {
+
+  private static final Integer BAG_1 = 1;
+  private static final Integer BAG_2 = 2;
 
   List<SnapshotItem> basedBagItems;
   List<SnapshotItem> currentBagItems;

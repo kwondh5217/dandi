@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.operation.distance.DistanceOp;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,5 +31,10 @@ public class GeometryUtils {
             .lon(coordinate.getY())
             .build())
         .collect(Collectors.toList());
+  }
+
+  public boolean isWithinDistance(Geometry point1, Geometry point2, double maxDistanceMeters) {
+    double toMeter = maxDistanceMeters / 111000.0;
+    return DistanceOp.isWithinDistance(point1, point2, toMeter);
   }
 }
