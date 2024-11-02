@@ -1,6 +1,6 @@
 package com.e205.service;
 
-import static com.e205.intg.env.Constant.MEMBER_ID_1;
+import static com.e205.env.TestConstant.MEMBER_ID_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
@@ -22,8 +22,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
+@Sql("/test-sql/route.sql")
+@ActiveProfiles(value = "test")
+@AutoConfigureTestDatabase(replace = Replace.NONE)
 @SpringBootTest(classes = TestConfiguration.class)
 class RouteQueryServiceTests {
 
@@ -150,8 +159,6 @@ class RouteQueryServiceTests {
     LocalDate date = LocalDate.of(2024, 10, 30);
     given(dailyRouteQuery.memberId()).willReturn(MEMBER_ID_1);
     given(dailyRouteQuery.date()).willReturn(date);
-
-    // 이동 목록 및 마지막 이동 설정
     given(routeRepository.findAllByMemberIdAndCreatedAtDate(MEMBER_ID_1, date))
         .willReturn(List.of(route));
     given(route.getEndedAt()).willReturn(LocalDate.now().atTime(23, 59));
@@ -174,21 +181,21 @@ class RouteQueryServiceTests {
   }
 
   @Test
-  @DisplayName("스냅샷 JSON 문자열을 Snapshot 객체로 변환 테스트")
-  void readSnapshot_성공_테스트() {
+  @DisplayName("스냅샷 조회 성공 테스트")
+  void 스냅샷_조회_성공_테스트() {
     // given
     Integer routeId = 1; // 테스트용 routeId
     String snapshotJson = """
-    {
-        "bagId": 1,
-        "items": [
-            {"name": "지갑", "emoticon": "👛", "type": 1, "isChecked": true},
-            {"name": "반지", "emoticon": "💍", "type": 1, "isChecked": true},
-            {"name": "파우치", "emoticon": "👜", "type": 1, "isChecked": true},
-            {"name": "카드", "emoticon": "💳", "type": 1, "isChecked": true}
-        ]
-    }
-    """;
+        {
+            "bagId": 1,
+            "items": [
+                {"name": "지갑", "emoticon": "👛", "type": 1, "isChecked": true},
+                {"name": "반지", "emoticon": "💍", "type": 1, "isChecked": true},
+                {"name": "파우치", "emoticon": "👜", "type": 1, "isChecked": true},
+                {"name": "카드", "emoticon": "💳", "type": 1, "isChecked": true}
+            ]
+        }
+        """;
 
     Snapshot expectedSnapshot = Snapshot.fromJson(snapshotJson);
 

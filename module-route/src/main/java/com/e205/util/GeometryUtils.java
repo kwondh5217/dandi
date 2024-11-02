@@ -8,6 +8,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.operation.distance.DistanceOp;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,7 @@ public class GeometryUtils {
 
   public static LineString getLineString(List<TrackPoint> points) {
     return geoFactory.createLineString(points.stream()
-        .map(point -> new Coordinate(point.lat(), point.lon()))
+        .map(point -> new Coordinate(point.lon(), point.lat()))
         .toArray(Coordinate[]::new)
     );
   }
@@ -27,8 +28,8 @@ public class GeometryUtils {
   public static List<TrackPoint> getPoints(LineString lineString) {
     return Stream.of(lineString.getCoordinates())
         .map(coordinate -> TrackPoint.builder()
-            .lat(coordinate.getX())
-            .lon(coordinate.getY())
+            .lat(coordinate.getY())
+            .lon(coordinate.getX())
             .build())
         .collect(Collectors.toList());
   }
@@ -36,5 +37,16 @@ public class GeometryUtils {
   public boolean isWithinDistance(Geometry point1, Geometry point2, double maxDistanceMeters) {
     double toMeter = maxDistanceMeters / 111000.0;
     return DistanceOp.isWithinDistance(point1, point2, toMeter);
+  }
+
+  public LineString combineTracks(List<LineString> tracks) {
+    return geoFactory.createLineString(tracks.stream()
+        .flatMap(lineString -> Stream.of(lineString.getCoordinates()))
+        .toArray(Coordinate[]::new));
+  }
+
+  public Polygon createBufferedPolygon(LineString lineString, double radiusMeters) {
+    double radiusInDegrees = radiusMeters / 111000.0;
+    return (Polygon) lineString.buffer(radiusInDegrees);
   }
 }

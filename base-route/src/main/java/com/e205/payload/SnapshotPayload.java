@@ -5,8 +5,8 @@ import lombok.Builder;
 
 @Builder
 public record SnapshotPayload(
-    Snapshot snapshot,
-    char skip
+    char skip,
+    Snapshot snapshot
 ) {
 
 }

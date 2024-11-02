@@ -9,12 +9,18 @@ import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
 import com.e205.query.DailyRouteReadQuery;
+import com.e205.query.RouteInMemberQuery;
 import com.e205.query.RouteReadQuery;
 import com.e205.repository.RouteRepository;
 import com.e205.util.GeometryUtils;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RouteQueryService {
 
-  private final RouteRepository routeRepository;
-  private final GeometryUtils geometryUtils;
   @Value("${route.max-radius}")
   private double radius;
+
+  private final RouteRepository routeRepository;
+  private final GeometryUtils geometryUtils;
 
   public SnapshotPayload readSnapshot(Integer routeId) {
     Route route = getRoute(routeId);
@@ -69,6 +76,21 @@ public class RouteQueryService {
         .orElse(null);
 
     return RoutesPayload.builder().routeParts(routeParts).nextRouteId(nextRouteId).build();
+  }
+
+  public List<Integer> findUsersNearLostItemPath(RouteInMemberQuery query) {
+    List<Route> routesInRange = routeRepository.findRoutesWithinRange(
+        query.memberId(), query.startRouteId(), query.endRouteId()
+    );
+
+    LineString combinedTrack = geometryUtils.combineTracks(
+        routesInRange.stream().map(Route::getTrack).collect(Collectors.toList())
+    );
+
+    Polygon bufferedPolygon = geometryUtils.createBufferedPolygon(combinedTrack, radius);
+    LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
+
+    return new ArrayList<>(routeRepository.findUsersWithinPolygon(bufferedPolygon, twoHoursAgo));
   }
 
   private Route getRoute(Integer routeId) {

@@ -10,10 +10,10 @@ dependencies {
     implementation 'com.mysql:mysql-connector-j:8.4.0'
 
     // Test
-    // implementation 'org.testcontainers:jdbc:1.20.1'
-    // testImplementation 'org.testcontainers:testcontainers:1.20.1'
-    // testImplementation 'org.testcontainers:junit-jupiter:1.20.1'
-    // testImplementation 'org.testcontainers:mysql:1.20.1'
+    implementation 'org.testcontainers:jdbc:1.20.1'
+    testImplementation 'org.testcontainers:testcontainers:1.20.1'
+    testImplementation 'org.testcontainers:junit-jupiter:1.20.1'
+    testImplementation 'org.testcontainers:mysql:1.20.1'
     testImplementation 'com.h2database:h2:2.3.232'
 }
 

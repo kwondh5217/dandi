@@ -1,8 +1,8 @@
 package com.e205.intg;
 
-import static com.e205.intg.env.Constant.BAG_ID_1;
-import static com.e205.intg.env.Constant.BAG_ID_2;
-import static com.e205.intg.env.Constant.MEMBER_ID_1;
+import static com.e205.env.TestConstant.BAG_ID_1;
+import static com.e205.env.TestConstant.BAG_ID_2;
+import static com.e205.env.TestConstant.MEMBER_ID_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -19,26 +19,26 @@ import com.e205.interaction.queries.BagItemQueryService;
 import com.e205.repository.RouteRepository;
 import com.e205.service.RouteCommandService;
 import com.e205.util.GeometryUtils;
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 
-//@Sql("/test-sql/route.sql")
-//@ActiveProfiles(value = "test")
-//@AutoConfigureTestDatabase(replace = Replace.NONE)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Transactional
+@Sql("/test-sql/route.sql")
+@ActiveProfiles(value = "test")
+@AutoConfigureTestDatabase(replace = Replace.NONE)
 @SpringBootTest(classes = TestConfiguration.class)
 public class RouteCommandServiceIntgTests {
-
-  private static final Integer BAG_1 = 1;
-  private static final Integer BAG_2 = 2;
 
   List<SnapshotItem> basedBagItems;
   List<SnapshotItem> currentBagItems;
@@ -65,7 +65,6 @@ public class RouteCommandServiceIntgTests {
 
   @Test
   @DisplayName("이동 생성 시 이전 가방과 현재 가방이 같은 경우 이전 스냅샷 제공 테스트")
-  @Transactional
   void 이동_생성시_이전_가방과_현재_가방이_같은_경우_이전_스냅샷_제공_테스트() {
     // given
     Snapshot initSnapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
@@ -88,7 +87,6 @@ public class RouteCommandServiceIntgTests {
 
   @Test
   @DisplayName("이동 생성 시 이전 가방과 현재 가방이 다른 경우 기본 스냅샷 제공 테스트")
-  @Transactional
   void 이동_생성시_이전_가방과_현재_가방이_다른_경우_기본_스냅샷_제공_테스트() {
     // given
     Snapshot initSnapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
@@ -112,7 +110,6 @@ public class RouteCommandServiceIntgTests {
 
   @Test
   @DisplayName("최근 이동이 없는 경우 기본 스냅샷을 포함한 이동 생성 테스트")
-  @Transactional
   void 최근_이동이_없는_경우_기본_스냅샷을_포함한_이동_생성_테스트() {
     // given
     given(bagItemQueryService.bagItemsOfMember(any())).willReturn(basedBagItems);
@@ -129,7 +126,6 @@ public class RouteCommandServiceIntgTests {
 
   @Test
   @DisplayName("스냅샷 수정 테스트")
-  @Transactional
   void 스냅샷_수정_테스트() {
     // given
     Snapshot initSnapshot = new Snapshot(requestBagId1.bagId(), basedBagItems);
@@ -152,7 +148,6 @@ public class RouteCommandServiceIntgTests {
 
   @Test
   @DisplayName("이동 종료 테스트")
-  @Transactional
   void 이동_종료_테스트() {
     // given
     Snapshot snapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
