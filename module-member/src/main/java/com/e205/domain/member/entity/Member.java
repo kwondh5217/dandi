@@ -4,6 +4,8 @@ import com.e205.common.audit.BaseTime;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,4 +35,16 @@ public class Member extends BaseTime implements LoggableEntity {
 
   @Column(nullable = false, length = 30)
   private String email;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 10)
+  private Status status;
+
+  public void updateStatus(Status newStatus) {
+    this.status = newStatus;
+  }
+
+  public void updateEmail(String email) {
+    this.email = email;
+  }
 }
