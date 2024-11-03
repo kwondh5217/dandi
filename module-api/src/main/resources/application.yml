@@ -2,3 +2,20 @@ app:
   push:
     waitTime: 150
     computeTime: 20
+firebase:
+  file:
+    name: firebase/dandi-4158a-firebase-adminsdk-h61xd-7ec9de5fad.json
+
+noti:
+  until:
+    time: 3
+spring:
+  jpa:
+    properties:
+      .hibernate:
+        cache:
+          region:
+            timeToLiveSeconds: 3600
+  autoconfigure:
+    exclude:
+    - org.redisson.spring.starter.RedissonAutoConfigurationV2

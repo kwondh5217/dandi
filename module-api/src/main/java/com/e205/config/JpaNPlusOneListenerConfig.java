@@ -31,13 +31,16 @@ public class JpaNPlusOneListenerConfig implements ApplicationContextAware {
   }
 
   private EntityManagerFactory getEntityManagerFactory() {
-    return applicationContext.getBean(LocalContainerEntityManagerFactoryBean.class).getObject();
+    return applicationContext.getBean(LocalContainerEntityManagerFactoryBean.class)
+        .getObject();
   }
 
   private void registerCollectionListener(EntityManagerFactory entityManagerFactory) {
-    SessionFactoryImpl sessionFactory = entityManagerFactory.unwrap(SessionFactoryImpl.class);
+    SessionFactoryImpl sessionFactory = entityManagerFactory.unwrap(
+        SessionFactoryImpl.class);
 
-    EventListenerRegistry registry = sessionFactory.getEventEngine().getListenerRegistry();
+    EventListenerRegistry registry = sessionFactory.getEventEngine()
+        .getListenerRegistry();
     registry.getEventListenerGroup(EventType.INIT_COLLECTION)
         .appendListener(new CollectionListener());
   }
