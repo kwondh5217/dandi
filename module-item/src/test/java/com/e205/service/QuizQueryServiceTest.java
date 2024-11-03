@@ -10,6 +10,7 @@ import com.e205.entity.Quiz;
 import com.e205.entity.QuizSolver;
 import com.e205.query.QuizQuery;
 import com.e205.repository.FoundItemQueryRepository;
+import com.e205.repository.QuizImageRepository;
 import com.e205.repository.QuizQueryRepository;
 import com.e205.repository.QuizSolverRepository;
 import java.util.Optional;
@@ -28,6 +29,7 @@ class QuizQueryServiceTest {
   QuizSolverRepository solverRepository;
   FoundItemQueryRepository foundRepository;
   QuizQueryRepository quizRepository;
+  QuizImageRepository quizImageRepository;
 
   @BeforeEach
   void setUp() {
@@ -37,7 +39,8 @@ class QuizQueryServiceTest {
 
     given(foundRepository.findById(any())).willReturn(Optional.of(mock()));
 
-    service = new DefaultQuizQueryService(foundRepository, solverRepository, quizRepository);
+    service = new DefaultQuizQueryService(foundRepository, solverRepository, quizRepository,
+        quizImageRepository);
   }
 
   @DisplayName("습득물이 존재하지 않으면, 퀴즈를 조회할 수 없다.")

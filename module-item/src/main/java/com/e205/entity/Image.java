@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Transient;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,9 +24,12 @@ public class Image {
   private UUID id;
   @Column(nullable = false, length = 4)
   private String type;
+  @Transient
+  private String name;
 
   public Image(UUID id, String type) {
     this.id = id;
     this.type = type;
+    this.name = String.format("%s.%s", id.toString(), type);
   }
 }

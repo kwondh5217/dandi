@@ -1,5 +1,6 @@
 package com.e205.entity;
 
+import com.e205.payload.QuizImagePayload;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -7,9 +8,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 @Entity
 public class QuizImage {
 
@@ -26,5 +29,11 @@ public class QuizImage {
   public QuizImage(Quiz quiz, Image image) {
     this.quiz = quiz;
     this.image = image;
+  }
+
+  public QuizImagePayload toPayload() {
+    String description = quiz.getFoundItem().getDescription();
+    String image = this.image.getName();
+    return new QuizImagePayload(description, image);
   }
 }

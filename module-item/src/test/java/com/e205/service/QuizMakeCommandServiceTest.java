@@ -17,6 +17,8 @@ import com.e205.repository.FoundItemQueryRepository;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.QuizCommandRepository;
 import com.e205.repository.QuizImageRepository;
+import com.e205.repository.QuizQueryRepository;
+import com.e205.repository.QuizSolverRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -27,11 +29,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class QuizCommandServiceTest {
+/**
+ * 퀴즈 생성에 대한 테스트
+ */
+class QuizMakeCommandServiceTest {
 
   QuizCommandService service;
   QuizCommandRepository repository;
   QuizImageRepository imageRepository;
+  QuizQueryRepository queryRepository;
+  QuizSolverRepository solverRepository;
   FoundItemQueryRepository foundItemQueryRepository;
   ItemImageRepository itemImageRepository;
 
@@ -41,9 +48,11 @@ class QuizCommandServiceTest {
     imageRepository = mock(QuizImageRepository.class);
     foundItemQueryRepository = mock(FoundItemQueryRepository.class);
     itemImageRepository = mock(ItemImageRepository.class);
+    queryRepository = mock(QuizQueryRepository.class);
+    solverRepository = mock(QuizSolverRepository.class);
 
     service = new DefaultQuizCommandService(repository, imageRepository, itemImageRepository,
-        foundItemQueryRepository);
+        foundItemQueryRepository, queryRepository, solverRepository);
   }
 
   @DisplayName("존재하는 습득물의 이미지가 20개가 안 될 경우, 퀴즈를 생성할 수 없다.")
