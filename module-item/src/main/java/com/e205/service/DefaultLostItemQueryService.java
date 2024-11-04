@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class DefaultLostItemQueryService implements LostItemQueryService {
 
@@ -21,7 +22,6 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
   private final RouteQueryService routeQueryService;
   private final EventPublisher itemEventPublisher;
 
-  @Transactional
   @Override
   public LostItemPayload find(LostItemQuery query) {
     LostItemAuth lostItemAuth = getLostItemAuth(query);

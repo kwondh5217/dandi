@@ -7,5 +7,4 @@ public record QuizSubmitCommand(
     Integer quizId,
     UUID answerId
 ) {
-
 }

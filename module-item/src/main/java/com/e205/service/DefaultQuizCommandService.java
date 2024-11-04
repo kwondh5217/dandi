@@ -18,8 +18,10 @@ import java.util.Random;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class DefaultQuizCommandService implements QuizCommandService {
 

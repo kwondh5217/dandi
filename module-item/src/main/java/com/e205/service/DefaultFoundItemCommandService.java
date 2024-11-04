@@ -11,8 +11,11 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class DefaultFoundItemCommandService implements FoundItemCommandService {
 

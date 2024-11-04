@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class DefaultLostItemCommandService implements LostItemCommandService {
 
@@ -28,7 +29,6 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
   private final ImageService imageService;
   private final ItemImageRepository itemImageRepository;
 
-  @Transactional
   @Override
   public void save(LostItemSaveCommand command) {
     verifyImageCount(command);
