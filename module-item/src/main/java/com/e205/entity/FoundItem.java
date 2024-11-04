@@ -2,6 +2,7 @@ package com.e205.entity;
 
 import com.e205.FoundItemType;
 import com.e205.command.FoundItemSaveCommand;
+import com.e205.payload.FoundItemPayload;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -56,5 +57,18 @@ public class FoundItem {
     this.type = command.type();
     this.foundAt = command.foundAt();
     this.createdAt = LocalDateTime.now();
+  }
+
+  public FoundItemPayload toPayload() {
+    return FoundItemPayload.builder()
+        .id(id)
+        .memberId(memberId)
+        .lat(lat)
+        .lon(lon)
+        .description(description)
+        .savePlace(savePlace)
+        .type(type)
+        .foundAt(foundAt)
+        .build();
   }
 }

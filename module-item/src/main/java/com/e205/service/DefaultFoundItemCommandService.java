@@ -1,9 +1,12 @@
 package com.e205.service;
 
+import com.e205.command.FoundItemDeleteCommand;
 import com.e205.command.FoundItemSaveCommand;
 import com.e205.command.QuizMakeCommand;
 import com.e205.entity.FoundImage;
 import com.e205.entity.FoundItem;
+import com.e205.event.FoundItemSaveEvent;
+import com.e205.message.ItemEventPublisher;
 import com.e205.repository.FoundItemCommandRepository;
 import com.e205.repository.ItemImageRepository;
 import java.time.LocalDateTime;
@@ -23,6 +26,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
   private final ItemImageRepository itemImageRepository;
   private final ImageService imageService;
   private final QuizCommandService quizCommandService;
+  private final ItemEventPublisher eventPublisher;
 
   @Override
   public void save(FoundItemSaveCommand command) {
@@ -36,6 +40,11 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
     }
   }
 
+  @Override
+  public void delete(FoundItemDeleteCommand command) {
+    foundItemCommandRepository.deleteById(command.foundId());
+  }
+
   private void processOther(FoundItemSaveCommand command) {
     if (command.image() == null) {
       throw new RuntimeException("이미지는 필수입니다.");
@@ -47,7 +56,12 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
       UUID imageId = UUID.fromString(FilenameUtils.getBaseName(imageName));
       String type = FilenameUtils.getExtension(imageName);
       FoundImage image = itemImageRepository.save(new FoundImage(imageId, type, foundItem));
-      quizCommandService.make(new QuizMakeCommand(foundItem.getId(), command.memberId(), image.getId()));
+      quizCommandService.make(
+          new QuizMakeCommand(foundItem.getId(), command.memberId(), image.getId()));
+
+      FoundItemSaveEvent event = new FoundItemSaveEvent(foundItem.toPayload(),
+          LocalDateTime.now());
+      eventPublisher.publish(event);
     } catch (Exception e) {
       imageService.delete(imageName);
       throw e;
