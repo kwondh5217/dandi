@@ -43,7 +43,7 @@ class RouteQueryServiceTests {
   private GeometryUtils geometryUtils;
 
   @InjectMocks
-  private RouteQueryService routeQueryService;
+  private DirectRouteQueryService routeQueryService;
 
   @Mock
   private Route route;

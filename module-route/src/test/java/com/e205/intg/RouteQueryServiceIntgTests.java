@@ -22,7 +22,7 @@ import com.e205.dto.TrackPoint;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.query.DailyRouteReadQuery;
-import com.e205.query.RouteInMemberQuery;
+import com.e205.query.MembersInRouteQuery;
 import com.e205.query.RouteReadQuery;
 import com.e205.repository.RouteRepository;
 import com.e205.service.RouteQueryService;
@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +47,6 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles(value = "test")
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @SpringBootTest(classes = TestConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class RouteQueryServiceIntgTests {
 
   public List<SnapshotItem> basedBagItems;
@@ -163,10 +161,10 @@ public class RouteQueryServiceIntgTests {
   @DisplayName("반경 내 사용자 조회 테스트")
   void 반경_내_사용자_조회_테스트() {
     // given
-    RouteInMemberQuery query = new RouteInMemberQuery(MEMBER_ID_1, ROUTE_ID_1, ROUTE_ID_3);
+    MembersInRouteQuery query = new MembersInRouteQuery(MEMBER_ID_1, ROUTE_ID_1, ROUTE_ID_3);
 
     // when
-    List<Integer> nearbyUserIds = queryService.findUsersNearLostItemPath(query);
+    List<Integer> nearbyUserIds = queryService.findUserIdsNearPath(query);
 
     // then
     assertThat(nearbyUserIds).contains(MEMBER_ID_2);

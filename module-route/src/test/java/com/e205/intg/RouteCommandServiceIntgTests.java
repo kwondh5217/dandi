@@ -17,7 +17,7 @@ import com.e205.dto.SnapshotItem;
 import com.e205.dto.TrackPoint;
 import com.e205.interaction.queries.BagItemQueryService;
 import com.e205.repository.RouteRepository;
-import com.e205.service.RouteCommandService;
+import com.e205.service.DirectRouteCommandService;
 import com.e205.util.GeometryUtils;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,7 +48,7 @@ public class RouteCommandServiceIntgTests {
   RouteCreateCommand requestBagId2;
 
   @Autowired
-  private RouteCommandService routeCommandService;
+  private DirectRouteCommandService routeCommandService;
 
   @Autowired
   private RouteRepository routeRepository;

@@ -9,7 +9,7 @@ import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
 import com.e205.query.DailyRouteReadQuery;
-import com.e205.query.RouteInMemberQuery;
+import com.e205.query.MembersInRouteQuery;
 import com.e205.query.RouteReadQuery;
 import com.e205.repository.RouteRepository;
 import com.e205.util.GeometryUtils;
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class RouteQueryService {
+public class DirectRouteQueryService implements RouteQueryService {
 
   @Value("${route.max-radius}")
   private double radius;
@@ -36,6 +36,7 @@ public class RouteQueryService {
   private final RouteRepository routeRepository;
   private final GeometryUtils geometryUtils;
 
+  @Override
   public SnapshotPayload readSnapshot(Integer routeId) {
     Route route = getRoute(routeId);
 
@@ -48,6 +49,7 @@ public class RouteQueryService {
         .build();
   }
 
+  @Override
   public RoutePayload readRoute(RouteReadQuery query) {
     Integer routeId = query.routeId();
     Integer memberId = query.memberId();
@@ -67,6 +69,7 @@ public class RouteQueryService {
     return Route.toPayload(currentRoute, nextSnapshot, previousId, nextRouteId);
   }
 
+  @Override
   public RoutesPayload readSpecificDayRoutes(DailyRouteReadQuery query) {
     Integer memberId = query.memberId();
     List<Route> routes = routeRepository.findAllByMemberIdAndCreatedAtDate(memberId, query.date());
@@ -85,7 +88,8 @@ public class RouteQueryService {
     return RoutesPayload.builder().routeParts(routeParts).nextRouteId(nextRouteId).build();
   }
 
-  public List<Integer> findUsersNearLostItemPath(RouteInMemberQuery query) {
+  @Override
+  public List<Integer> findUserIdsNearPath(MembersInRouteQuery query) {
     List<Route> routesInRange = routeRepository.findRoutesWithinRange(
         query.memberId(), query.startRouteId(), query.endRouteId()
     );

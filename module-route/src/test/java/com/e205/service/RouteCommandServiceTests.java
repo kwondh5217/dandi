@@ -41,7 +41,7 @@ public class RouteCommandServiceTests {
   private static final Integer VALID_ROUTE_ID = 1;
 
   @InjectMocks
-  private RouteCommandService commandService;
+  private DirectRouteCommandService commandService;
 
   @Mock
   private RouteRepository routeRepository;

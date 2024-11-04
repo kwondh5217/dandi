@@ -20,14 +20,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
-@Service
 @Transactional
-public class RouteCommandService {
+@Service
+public class DirectRouteCommandService implements RouteCommandService {
 
   private final RouteRepository routeRepository;
   private final RouteValidator routeValidator;
   private final BagItemQueryService bagItemQueryService;
 
+  @Override
   public void createRoute(RouteCreateCommand command, Integer memberId) {
     Optional<Route> route = routeRepository.findFirstByMemberIdOrderByIdDesc(memberId);
     String determinedSnapshot = route.map(findRoute -> {
@@ -51,6 +52,7 @@ public class RouteCommandService {
     return Snapshot.fromJson(previousRoute.getSnapshot());
   }
 
+  @Override
   public void updateSnapshot(SnapshotUpdateCommand command) {
     Route route = getRoute(command.routeId());
     routeValidator.validateEndedRoute(route);
@@ -58,6 +60,7 @@ public class RouteCommandService {
     routeRepository.save(route);
   }
 
+  @Override
   public void endRoute(RouteEndCommand command) {
     Route route = getRoute(command.routeId());
     routeValidator.validateEndedRoute(route);
