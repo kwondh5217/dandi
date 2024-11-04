@@ -5,6 +5,9 @@ import static org.mockito.BDDMockito.*;
 
 import com.e205.command.bag.payload.BagItemPayload;
 import com.e205.command.bag.payload.BagPayload;
+import com.e205.command.bag.query.ReadAllBagItemsQuery;
+import com.e205.command.bag.query.ReadAllBagsQuery;
+import com.e205.command.bag.query.ReadAllItemInfoQuery;
 import com.e205.command.item.payload.ItemPayload;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
@@ -47,7 +50,7 @@ class BagQueryServiceTest {
     given(bagRepository.findAllByMemberId(memberId)).willReturn(Arrays.asList(bag1, bag2));
 
     // When
-    List<BagPayload> bags = bagQueryService.readAllBags(memberId);
+    List<BagPayload> bags = bagQueryService.readAllBags(new ReadAllBagsQuery(memberId));
 
     // Then
     assertThat(bags).hasSize(2);
@@ -59,14 +62,17 @@ class BagQueryServiceTest {
   @Test
   void readAllBagItemsByBagId_ShouldReturnAllBagItemsForBag() {
     // Given
+    Integer memberId = 1;
     Integer bagId = 1;
     BagItem bagItem1 = BagItem.builder().bagId(bagId).itemOrder((byte) 1).build();
     BagItem bagItem2 = BagItem.builder().bagId(bagId).itemOrder((byte) 2).build();
 
+    given(bagRepository.existsByIdAndMemberId(bagId, memberId)).willReturn(true);
     given(bagItemRepository.findAllByBagId(bagId)).willReturn(Arrays.asList(bagItem1, bagItem2));
 
     // When
-    List<BagItemPayload> bagItems = bagQueryService.readAllBagItemsByBagId(bagId);
+    List<BagItemPayload> bagItems = bagQueryService.readAllBagItemsByBagId(
+        new ReadAllBagItemsQuery(1, 1));
 
     // Then
     assertThat(bagItems).hasSize(2);
@@ -78,6 +84,8 @@ class BagQueryServiceTest {
   void readAllByItemIds_ShouldReturnAllItemsForGivenIds() {
     // Given
     List<Integer> itemIds = Arrays.asList(1, 2, 3);
+    ReadAllItemInfoQuery query = new ReadAllItemInfoQuery(itemIds);
+
     Item item1 = Item.builder().id(1).name("지갑").build();
     Item item2 = Item.builder().id(2).name("여권").build();
     Item item3 = Item.builder().id(3).name("키").build();
@@ -85,7 +93,7 @@ class BagQueryServiceTest {
     given(itemRepository.findAllById(itemIds)).willReturn(Arrays.asList(item1, item2, item3));
 
     // When
-    List<ItemPayload> items = bagQueryService.readAllByItemIds(itemIds);
+    List<ItemPayload> items = bagQueryService.readAllByItemIds(query);
 
     // Then
     assertThat(items).hasSize(3);

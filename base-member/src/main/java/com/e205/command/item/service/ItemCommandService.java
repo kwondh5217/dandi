@@ -1,4 +1,4 @@
-package com.e205.domain.item.service;
+package com.e205.command.item.service;
 
 import com.e205.command.item.command.CreateItemCommand;
 import com.e205.command.item.command.DeleteItemCommand;

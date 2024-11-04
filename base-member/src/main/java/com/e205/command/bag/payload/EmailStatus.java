@@ -1,4 +1,4 @@
-package com.e205.domain.member.entity;
+package com.e205.command.bag.payload;
 
 public enum EmailStatus {
   VERIFIED,

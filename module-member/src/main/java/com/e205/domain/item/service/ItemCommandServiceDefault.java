@@ -3,6 +3,7 @@ package com.e205.domain.item.service;
 import com.e205.command.bag.event.BagItemAddEvent;
 import com.e205.command.bag.event.BagItemChangedEvent;
 import com.e205.command.bag.event.BagItemDeleteEvent;
+import com.e205.command.item.service.ItemCommandService;
 import com.e205.command.item.command.CreateItemCommand;
 import com.e205.command.item.command.DeleteItemCommand;
 import com.e205.command.item.command.UpdateItemCommand;

@@ -3,7 +3,12 @@ package com.e205.domain.member.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.e205.domain.member.entity.EmailStatus;
+import com.e205.command.bag.payload.EmailStatus;
+import com.e205.command.member.command.CheckVerificationNumberCommand;
+import com.e205.command.member.command.CreateEmailTokenCommand;
+import com.e205.command.member.command.CreateVerificationNumberCommand;
+import com.e205.command.member.command.SendVerificationEmailCommand;
+import com.e205.command.member.command.VerifyEmailToken;
 import com.e205.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,10 +50,11 @@ class EmailServiceIntegrationTest extends AbstractRedisTestContainer {
   @Test
   void testSendVerificationEmailAndTokenStorage() {
     // given
-    String token = emailService.createAndStoreToken(TEST_USER_ID, TEST_EMAIL);
+    String token = emailService.createAndStoreToken(
+        new CreateEmailTokenCommand(TEST_USER_ID, TEST_EMAIL));
 
     // when
-    emailService.sendVerificationEmail(TEST_EMAIL, token);
+    emailService.sendVerificationEmail(new SendVerificationEmailCommand(TEST_EMAIL, token));
 
     // then
     String tokenKey = "token:" + token;
@@ -65,10 +71,11 @@ class EmailServiceIntegrationTest extends AbstractRedisTestContainer {
   @Test
   void testVerifyToken() {
     // given
-    String token = emailService.createAndStoreToken(TEST_USER_ID, TEST_EMAIL);
+    String token = emailService.createAndStoreToken(
+        new CreateEmailTokenCommand(TEST_USER_ID, TEST_EMAIL));
 
     // when
-    String verifiedUserId = emailService.verifyToken(token);
+    String verifiedUserId = emailService.verifyToken(new VerifyEmailToken(token));
 
     // then
     assertThat(verifiedUserId).isEqualTo(String.valueOf(TEST_USER_ID));
@@ -85,7 +92,7 @@ class EmailServiceIntegrationTest extends AbstractRedisTestContainer {
   @Test
   void testCreateAndStoreVerificationNumber() {
     // when
-    emailService.createAndStoreVerificationNumber(TEST_EMAIL);
+    emailService.createAndStoreVerificationNumber(new CreateVerificationNumberCommand(TEST_EMAIL));
 
     // then
     String redisKey = "verification:" + TEST_EMAIL;
@@ -99,12 +106,13 @@ class EmailServiceIntegrationTest extends AbstractRedisTestContainer {
   @Test
   void testCheckVerificationNumber() {
     // given
-    emailService.createAndStoreVerificationNumber(TEST_EMAIL);
+    emailService.createAndStoreVerificationNumber(new CreateVerificationNumberCommand(TEST_EMAIL));
     String redisKey = "verification:" + TEST_EMAIL;
     String storedVerificationNumber = redisTemplate.opsForValue().get(redisKey);
 
     // when
-    emailService.checkVerificationNumber(TEST_EMAIL, storedVerificationNumber);
+    emailService.checkVerificationNumber(
+        new CheckVerificationNumberCommand(TEST_EMAIL, storedVerificationNumber));
 
     // then
   }
@@ -113,12 +121,13 @@ class EmailServiceIntegrationTest extends AbstractRedisTestContainer {
   @Test
   void testCheckInvalidVerificationNumber() {
     // given
-    emailService.createAndStoreVerificationNumber(TEST_EMAIL);
-    String invalidVerificationNumber = "654321"; // 올바르지 않은 인증 번호
+    emailService.createAndStoreVerificationNumber(new CreateVerificationNumberCommand(TEST_EMAIL));
+    String invalidVerificationNumber = "654321";
 
     // when & then
     assertThrows(IllegalArgumentException.class, () ->
-            emailService.checkVerificationNumber(TEST_EMAIL, invalidVerificationNumber));
+        emailService.checkVerificationNumber(
+            new CheckVerificationNumberCommand(TEST_EMAIL, invalidVerificationNumber)));
   }
 
   @DisplayName("인증 번호 만료 또는 존재하지 않을 때 검증 실패")
@@ -126,6 +135,7 @@ class EmailServiceIntegrationTest extends AbstractRedisTestContainer {
   void testCheckExpiredOrNonexistentVerificationNumber() {
     // when & then
     assertThrows(IllegalArgumentException.class, () ->
-            emailService.checkVerificationNumber(TEST_EMAIL, TEST_VERIFICATION_NUMBER));
+        emailService.checkVerificationNumber(
+            new CheckVerificationNumberCommand(TEST_EMAIL, TEST_VERIFICATION_NUMBER)));
   }
 }

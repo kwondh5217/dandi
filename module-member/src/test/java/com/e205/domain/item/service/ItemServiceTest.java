@@ -9,6 +9,7 @@ import static org.mockito.BDDMockito.spy;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.verify;
 
+import com.e205.command.bag.query.ReadAllItemQuery;
 import com.e205.command.item.command.CreateItemCommand;
 import com.e205.command.item.command.ItemOrderCommand;
 import com.e205.command.item.payload.ItemPayload;
@@ -114,7 +115,7 @@ class ItemServiceTest {
     given(itemRepository.findAllByMemberId(memberId)).willReturn(Arrays.asList(item1, item2));
 
     // When
-    List<ItemPayload> items = itemQueryService.readAllItems(memberId);
+    List<ItemPayload> items = itemQueryService.readAllItems(new ReadAllItemQuery(memberId));
 
     // Then
     assertThat(items).hasSize(2);

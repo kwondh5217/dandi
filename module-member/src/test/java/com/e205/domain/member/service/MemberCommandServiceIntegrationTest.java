@@ -1,9 +1,11 @@
 package com.e205.domain.member.service;
 
-import com.e205.command.member.command.MemberRegistrationCommand;
+import com.e205.command.bag.payload.EmailStatus;
+import com.e205.command.member.command.ChangePasswordWithVerifNumber;
+import com.e205.command.member.service.MemberCommandService;
+import com.e205.command.member.command.RegisterMemberCommand;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.member.entity.Member;
-import com.e205.domain.member.entity.EmailStatus;
 import com.e205.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +50,7 @@ class MemberCommandServiceIntegrationTest extends AbstractRedisTestContainer {
     String email = "testuser@example.com";
     String password = "password123";
     String nickname = "testUser";
-    MemberRegistrationCommand command = new MemberRegistrationCommand(email, password, nickname);
+    RegisterMemberCommand command = new RegisterMemberCommand(email, password, nickname);
 
     // When
     memberCommandService.registerMember(command);
@@ -92,8 +94,8 @@ class MemberCommandServiceIntegrationTest extends AbstractRedisTestContainer {
     redisTemplate.opsForValue().set(redisKey, verificationNumber);
 
     // When
-    memberCommandService.changePasswordWithVerificationNumber(email, verificationNumber,
-        newPassword);
+    memberCommandService.changePasswordWithVerificationNumber(
+        new ChangePasswordWithVerifNumber(email, verificationNumber, newPassword));
 
     // Then
     Member updatedMember = memberRepository.findByEmail(email).orElse(null);

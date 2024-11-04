@@ -13,6 +13,8 @@ public interface BagRepository extends JpaRepository<Bag, Integer> {
 
   List<Bag> findAllByMemberId(Integer memberId);
 
+  boolean existsByIdAndMemberId(Integer bagId, Integer memberId);
+
   boolean existsByMemberIdAndName(Integer memberId, String name);
 
   Optional<Bag> findByIdAndMemberId(Integer bagId, Integer memberId);

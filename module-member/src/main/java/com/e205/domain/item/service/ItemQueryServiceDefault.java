@@ -1,5 +1,8 @@
 package com.e205.domain.item.service;
 
+import com.e205.command.bag.query.ReadAllItemQuery;
+import com.e205.command.bag.query.ReadItemNotInBagQuery;
+import com.e205.command.item.service.ItemQueryService;
 import com.e205.command.item.payload.ItemPayload;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
@@ -14,16 +17,16 @@ public class ItemQueryServiceDefault implements ItemQueryService {
   private final ItemRepository itemRepository;
 
   @Override
-  public List<ItemPayload> readAllItems(Integer memberId) {
-    return itemRepository.findAllByMemberId(memberId)
+  public List<ItemPayload> readAllItems(ReadAllItemQuery readAllItemQuery) {
+    return itemRepository.findAllByMemberId(readAllItemQuery.memberId())
         .stream()
         .map(Item::toPayload)
         .toList();
   }
 
   @Override
-  public List<ItemPayload> readItemsNotInBag(Integer memberId, Integer bagId) {
-    return itemRepository.findItemsNotInBag(memberId, bagId)
+  public List<ItemPayload> readItemsNotInBag(ReadItemNotInBagQuery readItemNotInBagQuery) {
+    return itemRepository.findItemsNotInBag(readItemNotInBagQuery.memberId(), readItemNotInBagQuery.bagId())
         .stream()
         .map(Item::toPayload)
         .toList();

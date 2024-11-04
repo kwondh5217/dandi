@@ -1,4 +1,4 @@
-package com.e205.domain.bag.service;
+package com.e205.command.bag.service;
 
 import com.e205.command.bag.command.BagDeleteCommand;
 import com.e205.command.bag.command.BagItemDeleteCommand;

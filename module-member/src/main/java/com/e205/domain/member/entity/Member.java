@@ -1,5 +1,7 @@
 package com.e205.domain.member.entity;
 
+import com.e205.command.bag.payload.EmailStatus;
+import com.e205.command.bag.payload.MemberPayload;
 import com.e205.common.audit.BaseTime;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
@@ -13,7 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Builder
@@ -56,5 +57,9 @@ public class Member extends BaseTime implements LoggableEntity {
 
   public void updatePassword(String encryptedPassword) {
     this.password = encryptedPassword;
+  }
+
+  public MemberPayload toPayload() {
+    return new MemberPayload(id, bagId, nickname, email, status);
   }
 }

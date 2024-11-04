@@ -1,6 +1,13 @@
 package com.e205.domain.member.service;
 
-import com.e205.domain.member.entity.EmailStatus;
+import com.e205.command.bag.payload.EmailStatus;
+import com.e205.command.member.command.CheckEmailProgressCommand;
+import com.e205.command.member.command.CheckVerificationNumberCommand;
+import com.e205.command.member.command.CreateEmailTokenCommand;
+import com.e205.command.member.command.CreateVerificationNumberCommand;
+import com.e205.command.member.command.SendVerificationEmailCommand;
+import com.e205.command.member.command.VerifyEmailToken;
+import com.e205.command.member.service.EmailCommandService;
 import com.e205.domain.member.repository.MemberRepository;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -14,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
@@ -43,30 +49,31 @@ public class EmailCommandServiceDefault implements EmailCommandService {
   @Value("${backend-url}")
   private String backendUrl;
 
-  public String createAndStoreToken(Integer userId, String email) {
+  @Override
+  public String createAndStoreToken(CreateEmailTokenCommand createEmailTokenCommand) {
     // TODO: <홍성우> Exception 상세화
     String token = UUID.randomUUID().toString();
     String tokenKey = "token:" + token;
-    redisTemplate.opsForHash().put(tokenKey, "userId", String.valueOf(userId));
-    redisTemplate.opsForHash().put(tokenKey, "email", email);
+    redisTemplate.opsForHash().put(tokenKey, "userId", String.valueOf(createEmailTokenCommand.userId()));
+    redisTemplate.opsForHash().put(tokenKey, "email", createEmailTokenCommand.email());
     redisTemplate.expire(tokenKey, TOKEN_EXPIRATION);
 
     return token;
   }
 
-  public void sendVerificationEmail(String toEmail, String token) {
-    validateEmailFormat(toEmail);
-
+  @Override
+  public void sendVerificationEmail(SendVerificationEmailCommand sendVerificationEmailCommand) {
+    validateEmailFormat(sendVerificationEmailCommand.toEmail());
     try {
       ClassPathResource resource = new ClassPathResource(TEMPLATE_PATH);
       String content = Files.readString(resource.getFile().toPath(), StandardCharsets.UTF_8);
 
-      String verificationLink = backendUrl + "/verify?token=" + token;
+      String verificationLink = backendUrl + "/verify?token=" + sendVerificationEmailCommand.token();
       content = content.replace("{{verificationLink}}", verificationLink);
 
       MimeMessage message = mailSender.createMimeMessage();
       message.setFrom(fromEmail);
-      message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(toEmail));
+      message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(sendVerificationEmailCommand.toEmail()));
       message.setSubject(EMAIL_SUBJECT);
       message.setContent(content, EMAIL_CONTENT_TYPE);
 
@@ -77,13 +84,15 @@ public class EmailCommandServiceDefault implements EmailCommandService {
     }
   }
 
-  public void checkEmailVerificationInProgress(String email) {
+  @Override
+  public void checkEmailVerificationInProgress(
+      CheckEmailProgressCommand checkEmailProgressCommandString) {
     Set<String> keys = redisTemplate.keys("token:*");
     if (keys != null && !keys.isEmpty()) {
       boolean inProgress = keys.stream()
           .anyMatch(key -> {
             String storedEmail = (String) redisTemplate.opsForHash().get(key, "email");
-            return email.equals(storedEmail);
+            return checkEmailProgressCommandString.email().equals(storedEmail);
           });
       if (inProgress) {
         // TODO: <홍성우> Exception 상세화
@@ -92,8 +101,9 @@ public class EmailCommandServiceDefault implements EmailCommandService {
     }
   }
 
-  public String verifyToken(String token) {
-    String tokenKey = "token:" + token;
+  @Override
+  public String verifyToken(VerifyEmailToken verifyEmailToken) {
+    String tokenKey = "token:" + verifyEmailToken.token();
     String userId = (String) redisTemplate.opsForHash().get(tokenKey, "userId");
     String email = (String) redisTemplate.opsForHash().get(tokenKey, "email");
 
@@ -110,17 +120,18 @@ public class EmailCommandServiceDefault implements EmailCommandService {
   }
 
   @Override
-  public void createAndStoreVerificationNumber(String email) {
+  public void createAndStoreVerificationNumber(
+      CreateVerificationNumberCommand createVerificationNumberCommand) {
     String verificationNumber = generateVerificationNumber();
 
-    String redisKey = "verification:" + email;
+    String redisKey = "verification:" + createVerificationNumberCommand.email();
     redisTemplate.opsForValue().set(redisKey, verificationNumber, VERIFICATION_EXPIRATION);
-    sendVerificationNumberEmail(email, verificationNumber);
+    sendVerificationNumberEmail(createVerificationNumberCommand.email(), verificationNumber);
   }
 
   @Override
-  public void checkVerificationNumber(String email, String verificationNumber) {
-    String redisKey = "verification:" + email;
+  public void checkVerificationNumber(CheckVerificationNumberCommand checkVerificationNumberCommand) {
+    String redisKey = "verification:" + checkVerificationNumberCommand.email();
     String storedVerificationNumber = redisTemplate.opsForValue().get(redisKey);
 
     // TODO: <홍성우> Exception 상세화
@@ -128,7 +139,7 @@ public class EmailCommandServiceDefault implements EmailCommandService {
       throw new IllegalArgumentException("인증 번호가 만료되었거나 존재하지 않습니다.");
     }
 
-    if (!storedVerificationNumber.equals(verificationNumber)) {
+    if (!storedVerificationNumber.equals(checkVerificationNumberCommand.verificationNumber())) {
       throw new IllegalArgumentException("인증 번호가 올바르지 않습니다.");
     }
   }
