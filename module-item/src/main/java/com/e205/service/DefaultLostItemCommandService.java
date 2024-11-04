@@ -1,8 +1,10 @@
 package com.e205.service;
 
+import com.e205.command.LostItemDeleteCommand;
 import com.e205.entity.LostImage;
 import com.e205.entity.LostItem;
 import com.e205.events.EventPublisher;
+import com.e205.message.ItemEventPublisher;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemCommandRepository;
 import com.e205.command.LostItemSaveCommand;
@@ -25,7 +27,7 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
   private static final int LOST_ITEM_COOL_TIME = 24;
 
   private final LostItemCommandRepository lostItemCommandRepository;
-  private final EventPublisher eventPublisher;
+  private final ItemEventPublisher eventPublisher;
   private final ImageService imageService;
   private final ItemImageRepository itemImageRepository;
 
@@ -50,6 +52,11 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
     }
   }
 
+  @Override
+  public void delete(LostItemDeleteCommand command) {
+    lostItemCommandRepository.deleteById(command.lostId());
+  }
+
   private LostImage toLostImage(String imageName, LostItem lostItem) {
     String baseName = FilenameUtils.getBaseName(imageName);
     String type = FilenameUtils.getExtension(imageName);
@@ -67,14 +74,12 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
         .filter(recent -> recent.getCreatedAt()
             .isAfter(LocalDateTime.now().minusHours(LOST_ITEM_COOL_TIME)))
         .ifPresent(recent -> {
-          // TODO <fosong98> 예외 구체화 필요
           throw new RuntimeException("제한 시간 내에 재등록했을 때");
         });
   }
 
   private static void verifyImageCount(LostItemSaveCommand command) {
     if (command.images().size() > MAX_IMAGE_COUNT) {
-      // TODO <fosong98> 예외 구체화 필요
       throw new RuntimeException("최대 이미지 개수를 초과했을 때");
     }
   }

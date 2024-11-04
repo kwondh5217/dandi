@@ -43,6 +43,8 @@ public class DefaultQuizCommandService implements QuizCommandService {
 
     Quiz quiz = makeQuiz(foundItem, answer);
 
+    quizSolverRepository.save(new QuizSolver(quiz, command.memberId(), true));
+
     List<FoundImage> candidates = getCandidates(command.answerId());
 
     RANDOM.ints(0, candidates.size()).limit(QUIZ_OPTION_COUNT - 1L).mapToObj(candidates::get)

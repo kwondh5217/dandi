@@ -1,5 +1,6 @@
 package com.e205.item.service;
 
+import com.e205.command.LostItemDeleteCommand;
 import com.e205.command.LostItemSaveCommand;
 import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemResponse;
@@ -37,7 +38,14 @@ public class LostItemService {
 
   @Transactional
   public void finishLostItem(Integer memberId, Integer lostItemId) {
-    // TODO <fosong98> 분실물 종료 로직 작성
+    LostItemPayload payload = lostItemQueryService.find(
+        new LostItemQuery(memberId, lostItemId));
+
+    if (!payload.memberId().equals(memberId)) {
+      throw new RuntimeException("분실물을 종료할 권한이 없습니다.");
+    }
+
+    lostItemCommandService.delete(new LostItemDeleteCommand(lostItemId));
   }
 
   @Transactional

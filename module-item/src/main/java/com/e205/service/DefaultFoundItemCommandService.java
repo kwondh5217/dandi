@@ -72,6 +72,10 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
     if (command.image() != null) {
       throw new RuntimeException("카드나 신분증 사진이 포함되어 있습니다.");
     }
-    foundItemCommandRepository.save(new FoundItem(command));
+    // TODO <fosong98> 퀴즈는 다음에 고민
+    FoundItem foundItem = foundItemCommandRepository.save(new FoundItem(command));
+    FoundItemSaveEvent event = new FoundItemSaveEvent(foundItem.toPayload(),
+        LocalDateTime.now());
+    eventPublisher.publish(event);
   }
 }

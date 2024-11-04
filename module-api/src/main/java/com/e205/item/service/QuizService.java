@@ -27,10 +27,11 @@ public class QuizService {
 
   @Transactional
   public boolean submitQuiz(int memberId, int quizId, QuizSubmitRequest request) {
-    QuizSubmitCommand command = new QuizSubmitCommand(memberId, quizId, request.getAnswerId());
+    QuizQuery query = new QuizQuery(memberId, quizId);
+    QuizPayload quiz = quizQueryService.findQuiz(query);
+    QuizSubmitCommand command = new QuizSubmitCommand(memberId, quiz.id(), request.getAnswerId());
     quizCommandService.submit(command);
 
-    // TODO <fosong98> 퀴즈 권한 조회 로직 작성
     return true;
   }
 }

@@ -11,7 +11,7 @@ import com.e205.command.LostItemSaveCommand;
 import com.e205.entity.LostImage;
 import com.e205.entity.LostItem;
 import com.e205.event.LostItemSaveEvent;
-import com.e205.events.EventPublisher;
+import com.e205.message.ItemEventPublisher;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemCommandRepository;
 import java.util.List;
@@ -30,14 +30,14 @@ import org.springframework.core.io.Resource;
 class LostItemCommandServiceTests {
 
   LostItemCommandService service;
-  EventPublisher eventPublisher;
+  ItemEventPublisher eventPublisher;
   LostItemCommandRepository repository;
   ImageService imageService;
   ItemImageRepository itemImageRepository;
 
   @BeforeEach
   void setUp() {
-    eventPublisher = mock(EventPublisher.class);
+    eventPublisher = mock(ItemEventPublisher.class);
     repository = mock(LostItemCommandRepository.class);
     imageService = mock(ImageService.class);
     itemImageRepository = mock(ItemImageRepository.class);
@@ -157,7 +157,8 @@ class LostItemCommandServiceTests {
     var command = new LostItemSaveCommand(1, images, 1, 2, "상황묘사", "물건묘사");
 
     images.forEach(
-        image -> given(imageService.save(image)).willAnswer(answer -> UUID.randomUUID().toString()));
+        image -> given(imageService.save(image)).willAnswer(
+            answer -> UUID.randomUUID().toString()));
     given(repository.save(any(LostItem.class))).willThrow(RuntimeException.class);
 
     // when
