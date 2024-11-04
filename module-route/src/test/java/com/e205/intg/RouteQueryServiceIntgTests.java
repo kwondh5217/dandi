@@ -143,10 +143,6 @@ public class RouteQueryServiceIntgTests {
 
     // when
     RoutesPayload routesPayload = queryService.readSpecificDayRoutes(query);
-    for (RoutePart r : routesPayload.routeParts()) {
-      System.out.println(r.id());
-    }
-    System.out.println(routesPayload.nextRouteId());
 
     // then
     // 일일 이동 검증, 오늘날의 이동

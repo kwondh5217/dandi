@@ -62,8 +62,8 @@ public class RouteCommandServiceIntgTests {
 
   @BeforeEach
   void setUp() {
-    requestBagId1 = new RouteCreateCommand(BAG_ID_1, LocalDateTime.now());
-    requestBagId2 = new RouteCreateCommand(BAG_ID_2, LocalDateTime.now());
+    requestBagId1 = new RouteCreateCommand(BAG_ID_1);
+    requestBagId2 = new RouteCreateCommand(BAG_ID_2);
     assignSnapshotItem();
   }
 
@@ -72,7 +72,7 @@ public class RouteCommandServiceIntgTests {
   void 이동_생성시_이전_가방과_현재_가방이_같은_경우_이전_스냅샷_제공_테스트() {
     // given
     Snapshot initSnapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
-    routeRepository.save(Route.toEntity(MEMBER_ID_1, requestBagId1, Snapshot.toJson(initSnapshot)));
+    routeRepository.save(Route.toEntity(MEMBER_ID_1, Snapshot.toJson(initSnapshot)));
     Route previousRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
 
     given(bagItemQueryService.bagItemsOfMember(any())).willReturn(currentBagItems);
@@ -94,7 +94,7 @@ public class RouteCommandServiceIntgTests {
   void 이동_생성시_이전_가방과_현재_가방이_다른_경우_기본_스냅샷_제공_테스트() {
     // given
     Snapshot initSnapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
-    routeRepository.save(Route.toEntity(MEMBER_ID_1, requestBagId1, Snapshot.toJson(initSnapshot)));
+    routeRepository.save(Route.toEntity(MEMBER_ID_1, Snapshot.toJson(initSnapshot)));
     Route previousRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
 
     given(bagItemQueryService.bagItemsOfMember(any())).willReturn(newBagItems);
@@ -134,7 +134,7 @@ public class RouteCommandServiceIntgTests {
     // given
     Snapshot initSnapshot = new Snapshot(requestBagId1.bagId(), basedBagItems);
     Snapshot currentSnapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
-    Route route = Route.toEntity(MEMBER_ID_1, requestBagId1, Snapshot.toJson(initSnapshot));
+    Route route = Route.toEntity(MEMBER_ID_1, Snapshot.toJson(initSnapshot));
     routeRepository.save(route);
     SnapshotUpdateCommand command =
         new SnapshotUpdateCommand(route.getId(), currentSnapshot);
@@ -156,13 +156,13 @@ public class RouteCommandServiceIntgTests {
     // given
     Snapshot snapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
     Route route = routeRepository.save(
-        Route.toEntity(MEMBER_ID_1, requestBagId1, Snapshot.toJson(snapshot))
+        Route.toEntity(MEMBER_ID_1, Snapshot.toJson(snapshot))
     );
     List<TrackPoint> trackPoints = List.of(
         TrackPoint.builder().lat(37.7749).lon(-122.4194).build(),
         TrackPoint.builder().lat(34.0522).lon(-118.2437).build()
     );
-    RouteEndCommand command = new RouteEndCommand(route.getId(), LocalDateTime.now(), trackPoints);
+    RouteEndCommand command = new RouteEndCommand(route.getId(), trackPoints);
 
     // when
     routeCommandService.endRoute(command);

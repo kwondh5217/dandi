@@ -79,7 +79,7 @@ public class RouteCommandServiceTests {
   @DisplayName("이동 시작 성공 테스트")
   void 이동_시작_성공_테스트() {
     // given
-    RouteCreateCommand command = new RouteCreateCommand(BAG_ID, LocalDateTime.now());
+    RouteCreateCommand command = new RouteCreateCommand(BAG_ID);
     Route savedRoute = getRoute();
     given(routeRepository.save(any(Route.class))).willReturn(savedRoute);
 
@@ -120,7 +120,7 @@ public class RouteCommandServiceTests {
   void 이미_종료_된_이동_실패_테스트() {
     // given
     Route route = new Route();
-    RouteEndCommand command = new RouteEndCommand(VALID_ROUTE_ID, LocalDateTime.now(), null);
+    RouteEndCommand command = new RouteEndCommand(VALID_ROUTE_ID, null);
     given(routeRepository.findById(VALID_ROUTE_ID)).willReturn(Optional.of(route));
     doThrow(new RouteException(RouteError.ENDED_ROUTE)).when(validator).validateEndedRoute(route);
 

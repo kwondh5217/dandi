@@ -44,7 +44,7 @@ public class DirectRouteCommandService implements RouteCommandService {
           return Snapshot.toJson(loadBaseSnapshot(command, memberId));
         });
 
-    Route savedRoute = routeRepository.save(Route.toEntity(memberId, command, determinedSnapshot));
+    Route savedRoute = routeRepository.save(Route.toEntity(memberId, determinedSnapshot));
     String payload = RouteEventPayload.toJson(getPayload(savedRoute, determinedSnapshot));
     eventPublisher.publish(new RouteSavedEvent(memberId, payload));
   }
@@ -79,7 +79,7 @@ public class DirectRouteCommandService implements RouteCommandService {
   public void endRoute(RouteEndCommand command) {
     Route route = getRoute(command.routeId());
     routeValidator.validateEndedRoute(route);
-    route.endRoute(GeometryUtils.getLineString(command.points()), command.endedAt());
+    route.endRoute(GeometryUtils.getLineString(command.points()));
     routeRepository.save(route);
   }
 

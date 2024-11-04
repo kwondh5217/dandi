@@ -41,9 +41,9 @@ public class Route implements LoggableEntity {
     this.track = track;
   }
 
-  public void endRoute(LineString track, LocalDateTime endedAt) {
+  public void endRoute(LineString track) {
     this.track = track;
-    this.endedAt = endedAt;
+    this.endedAt = LocalDateTime.now();
   }
 
   public void updateSnapshot(String snapshot) {
@@ -51,12 +51,12 @@ public class Route implements LoggableEntity {
     this.snapshot = snapshot;
   }
 
-  public static Route toEntity(Integer memberId, RouteCreateCommand request, String snapshot) {
+  public static Route toEntity(Integer memberId, String snapshot) {
     return Route.builder()
         .memberId(memberId)
         .skip('Y')
         .snapshot(snapshot)
-        .createdAt(request.createdAt())
+        .createdAt(LocalDateTime.now())
         .build();
   }
 
