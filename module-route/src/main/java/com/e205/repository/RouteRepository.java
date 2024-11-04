@@ -15,6 +15,11 @@ public interface RouteRepository extends JpaRepository<Route, Integer> {
 
   Optional<Route> findFirstByMemberIdOrderByIdDesc(Integer memberId);
 
+  Optional<Route> findFirstByMemberIdAndIdIsLessThanOrderByIdDesc(
+      Integer memberId,
+      Integer routeId
+  );
+
   Optional<Route> findFirstByMemberIdAndIdGreaterThanOrderByIdAsc(
       Integer memberId,
       Integer routeId

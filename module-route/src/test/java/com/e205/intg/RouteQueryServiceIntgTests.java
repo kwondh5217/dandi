@@ -93,7 +93,7 @@ public class RouteQueryServiceIntgTests {
   @DisplayName("이동 상세 조회 테스트")
   void 이동_상세_조회_테스트() {
     // given
-    RouteReadQuery query = new RouteReadQuery(ROUTE_ID_1);
+    RouteReadQuery query = new RouteReadQuery(MEMBER_ID_1, ROUTE_ID_1);
 
     // when
     RoutePayload routePayload = queryService.readRoute(query);
@@ -102,14 +102,15 @@ public class RouteQueryServiceIntgTests {
     assertThat(routePayload.startSnapshot()).isEqualTo(snapshot1);
     assertThat(routePayload.memberId()).isEqualTo(MEMBER_ID_1);
     assertThat(routePayload.track()).isEqualTo(GeometryUtils.getLineString(trackPoints1));
-    assertThat(routePayload.endSnapshot()).isEqualTo(snapshot2);
+    assertThat(routePayload.previousRouteId()).isNull();
+    assertThat(routePayload.nextRouteId()).isEqualTo(ROUTE_ID_2);
   }
 
   @Test
   @DisplayName("이동 상세 조회 - 시작, 끝 지점 반경 외 테스트")
   void 이동_상세_조회_시작_끝_반경_외_테스트() {
     // given
-    RouteReadQuery query = new RouteReadQuery(ROUTE_ID_1);
+    RouteReadQuery query = new RouteReadQuery(MEMBER_ID_1, ROUTE_ID_1);
     trackPoints2 = List.of(
         TrackPoint.builder().lat(44.7749).lon(-122.4194).build(),
         TrackPoint.builder().lat(44.7749).lon(-122.4195).build()
@@ -127,7 +128,8 @@ public class RouteQueryServiceIntgTests {
 
     // then
     assertThat(routePayload.track()).isEqualTo(GeometryUtils.getLineString(trackPoints1));
-    assertThat(routePayload.endSnapshot()).isNull();
+    assertThat(routePayload.nextRouteId()).isNotNull();
+    assertThat(routePayload.nextSnapshot()).isNull();
   }
 
   @Test

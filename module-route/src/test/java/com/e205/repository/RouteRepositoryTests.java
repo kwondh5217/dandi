@@ -84,6 +84,26 @@ class RouteRepositoryTests {
   }
 
   @Test
+  @DisplayName("특정 ID보다 작은 최근 경로 조회 테스트")
+  void 특정_ID_보다_작은_최근_경로_조회_테스트() {
+    // given
+    insertRoutes();
+    Integer targetRouteId = route2.getId();
+
+    // when
+    Optional<Route> foundRoute = routeRepository.findFirstByMemberIdAndIdIsLessThanOrderByIdDesc(
+        MEMBER_ID_1, targetRouteId
+    );
+
+    // then
+    assertThat(foundRoute).isPresent();
+    assertThat(foundRoute.get().getId()).isLessThan(targetRouteId);
+    assertThat(foundRoute.get().getId()).isEqualTo(route1.getId());
+    assertThat(foundRoute.get().getTrack()).isEqualTo(track1);
+  }
+
+
+  @Test
   @DisplayName("현재 이동의 다음 이동 가져오기 테스트")
   void 현재_이동의_다음_이동_가져오기_테스트() {
     // given

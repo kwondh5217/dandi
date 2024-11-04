@@ -75,7 +75,7 @@ class RouteQueryServiceTests {
     RoutePayload payload = routeQueryService.readRoute(routeReadQuery);
 
     // then
-    assertThat(payload.endSnapshot()).isNull();
+    assertThat(payload.nextRouteId()).isNull();
   }
 
   @Test
@@ -91,7 +91,7 @@ class RouteQueryServiceTests {
     RoutePayload payload = routeQueryService.readRoute(routeReadQuery);
 
     // then
-    assertThat(payload.endSnapshot()).isNull();
+    assertThat(payload.nextRouteId()).isNull();
   }
 
   @Test
@@ -111,7 +111,7 @@ class RouteQueryServiceTests {
     RoutePayload payload = routeQueryService.readRoute(routeReadQuery);
 
     // then
-    assertThat(payload.endSnapshot()).isNull();
+    assertThat(payload.nextRouteId()).isNull();
   }
 
 

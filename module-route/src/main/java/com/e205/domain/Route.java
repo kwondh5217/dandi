@@ -60,14 +60,18 @@ public class Route implements LoggableEntity {
         .build();
   }
 
-  public static RoutePayload toPayload(Route route, String nextSnapshot) {
+  public static RoutePayload toPayload(Route route, Snapshot nextSnapshot,
+      Integer previousRouteId, Integer nextRouteId
+  ) {
     return RoutePayload.builder()
         .id(route.id)
         .memberId(route.memberId)
         .track(route.track)
         .skip(route.skip)
         .startSnapshot(Snapshot.fromJson(route.snapshot))
-        .endSnapshot(Snapshot.fromJson(nextSnapshot))
+        .nextSnapshot(nextSnapshot)
+        .previousRouteId(previousRouteId)
+        .nextRouteId(nextRouteId)
         .createdAt(route.createdAt)
         .endedAt(route.endedAt)
         .build();

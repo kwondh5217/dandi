@@ -12,7 +12,9 @@ public record RoutePayload(
     LineString track,
     char skip,
     Snapshot startSnapshot,
-    Snapshot endSnapshot,
+    Snapshot nextSnapshot,
+    Integer previousRouteId,
+    Integer nextRouteId,
     LocalDateTime createdAt,
     LocalDateTime endedAt
 ) {

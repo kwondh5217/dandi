@@ -50,14 +50,21 @@ public class RouteQueryService {
 
   public RoutePayload readRoute(RouteReadQuery query) {
     Integer routeId = query.routeId();
+    Integer memberId = query.memberId();
     Route currentRoute = getRoute(routeId);
 
-    String nextSnapshot = getNextRoute(currentRoute.getMemberId(), routeId)
-        .filter(nextRoute -> isWithinDistance(currentRoute, nextRoute))
-        .map(Route::getSnapshot)
+    Integer previousId = getPreviousRoute(memberId, routeId)
+        .map(Route::getId)
         .orElse(null);
 
-    return Route.toPayload(currentRoute, nextSnapshot);
+    Optional<Route> nextRoute = getNextRoute(memberId, routeId);
+    Integer nextRouteId = nextRoute.map(Route::getId).orElse(null);
+    Snapshot nextSnapshot = Snapshot.fromJson(nextRoute
+        .filter((route) -> isWithinDistance(route, currentRoute))
+        .map(Route::getSnapshot)
+        .orElse(null));
+
+    return Route.toPayload(currentRoute, nextSnapshot, previousId, nextRouteId);
   }
 
   public RoutesPayload readSpecificDayRoutes(DailyRouteReadQuery query) {
@@ -96,6 +103,10 @@ public class RouteQueryService {
   private Route getRoute(Integer routeId) {
     return routeRepository.findById(routeId)
         .orElseThrow(() -> new RouteException(RouteError.NOT_FOUND_ROUTE));
+  }
+
+  private Optional<Route> getPreviousRoute(Integer memberId, Integer routeId) {
+    return routeRepository.findFirstByMemberIdAndIdIsLessThanOrderByIdDesc(memberId, routeId);
   }
 
   private Optional<Route> getNextRoute(Integer memberId, Integer routeId) {
