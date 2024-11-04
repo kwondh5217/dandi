@@ -1,9 +1,10 @@
 package com.e205.domain.member.service;
 
-import com.e205.domain.member.entity.Status;
+import com.e205.domain.member.entity.EmailStatus;
 import com.e205.domain.member.repository.MemberRepository;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Set;
@@ -18,8 +19,9 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.UUID;
 
-@Service
+@Transactional
 @RequiredArgsConstructor
+@Service
 public class EmailCommandServiceDefault implements EmailCommandService {
 
   private static final String EMAIL_SUBJECT = "단디 이메일 인증";
@@ -94,8 +96,7 @@ public class EmailCommandServiceDefault implements EmailCommandService {
       redisTemplate.delete(tokenKey);
 
       memberRepository.findById(Integer.parseInt(userId)).ifPresent(member -> {
-        member.setStatus(Status.VERIFIED);
-        member.setEmail(email);
+        member.updateStatus(EmailStatus.VERIFIED);
         memberRepository.save(member);
       });
       return userId;

@@ -2,7 +2,7 @@ package com.e205.domain.member.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.e205.domain.member.entity.Status;
+import com.e205.domain.member.entity.EmailStatus;
 import com.e205.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,12 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class EmailServiceIntegrationTest {
 
-  private static final String TEST_EMAIL = "sungwoo166@gmail.com";  // 실제 테스트용 수신 이메일
-  private static final Integer TEST_USER_ID = 1;  // 실제 테스트용 사용자 ID
+  private static final String TEST_EMAIL = "sungwoo166@gmail.com";
+  private static final Integer TEST_USER_ID = 1;
 
   @Autowired
   private EmailCommandServiceDefault emailService;
@@ -68,7 +70,7 @@ class EmailServiceIntegrationTest {
     assertThat(verifiedUserId).isEqualTo(String.valueOf(TEST_USER_ID));
 
     memberRepository.findById(TEST_USER_ID).ifPresent(member -> {
-      assertThat(member.getStatus()).isEqualTo(Status.VERIFIED);
+      assertThat(member.getStatus()).isEqualTo(EmailStatus.VERIFIED);
     });
 
     String tokenKey = "token:" + token;

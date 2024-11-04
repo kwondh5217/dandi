@@ -9,42 +9,48 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Member extends BaseTime implements LoggableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @Column(nullable = false)
+  @Column
   private Integer bagId;
 
   @Column(nullable = false, length = 15)
   private String nickname;
 
-  @Column(nullable = false, length = 20)
+  @Column(nullable = false, length = 70)
   private String password;
 
-  @Column(nullable = false, length = 13)
-  private String phone;
-
-  @Column(nullable = false, length = 30)
+  @Column(length = 30)
   private String email;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 10)
-  private Status status;
+  private EmailStatus status;
 
-  public void updateStatus(Status newStatus) {
+  public void updateStatus(EmailStatus newStatus) {
     this.status = newStatus;
   }
 
   public void updateEmail(String email) {
     this.email = email;
+  }
+
+  public void updateBagId(Integer bagId) {
+    this.bagId = bagId;
   }
 }
