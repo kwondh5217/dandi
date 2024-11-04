@@ -6,9 +6,12 @@ import com.e205.command.SnapshotUpdateCommand;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
+import com.e205.event.RouteSavedEvent;
+import com.e205.events.EventPublisher;
 import com.e205.exception.RouteError;
 import com.e205.exception.RouteException;
 import com.e205.interaction.queries.BagItemQueryService;
+import com.e205.dto.RouteEventPayload;
 import com.e205.query.BagItemsOfMemberQuery;
 import com.e205.repository.RouteRepository;
 import com.e205.service.validator.RouteValidator;
@@ -27,6 +30,7 @@ public class DirectRouteCommandService implements RouteCommandService {
   private final RouteRepository routeRepository;
   private final RouteValidator routeValidator;
   private final BagItemQueryService bagItemQueryService;
+  private final EventPublisher eventPublisher;
 
   @Override
   public void createRoute(RouteCreateCommand command, Integer memberId) {
@@ -39,7 +43,10 @@ public class DirectRouteCommandService implements RouteCommandService {
         .orElseGet(() -> {
           return Snapshot.toJson(loadBaseSnapshot(command, memberId));
         });
-    routeRepository.save(Route.toEntity(memberId, command, determinedSnapshot));
+
+    Route savedRoute = routeRepository.save(Route.toEntity(memberId, command, determinedSnapshot));
+    String payload = RouteEventPayload.toJson(getPayload(savedRoute, determinedSnapshot));
+    eventPublisher.publish(new RouteSavedEvent(memberId, payload));
   }
 
   private Snapshot loadBaseSnapshot(RouteCreateCommand request, Integer memberId) {
@@ -50,6 +57,14 @@ public class DirectRouteCommandService implements RouteCommandService {
 
   private Snapshot loadCurrentSnapshot(Route previousRoute) {
     return Snapshot.fromJson(previousRoute.getSnapshot());
+  }
+
+  private RouteEventPayload getPayload(Route savedRoute, String determinedSnapshot) {
+    return RouteEventPayload.builder()
+        .routeId(savedRoute.getId())
+        .skip(savedRoute.getSkip())
+        .snapshot(Snapshot.fromJson(determinedSnapshot))
+        .build();
   }
 
   @Override

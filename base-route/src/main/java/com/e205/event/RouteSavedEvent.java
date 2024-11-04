@@ -3,9 +3,8 @@ package com.e205.event;
 import com.e205.events.Event;
 
 public record RouteSavedEvent(
-    Integer routeId,
     Integer memberId,
-    String snapShot
+    String payload // routeId, snapshot, skip 데이터 포함 
 ) implements Event {
 
   @Override

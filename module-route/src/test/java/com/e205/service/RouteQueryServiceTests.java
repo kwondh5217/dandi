@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.given;
 import com.e205.TestConfiguration;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
+import com.e205.events.EventPublisher;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
@@ -25,6 +26,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +61,9 @@ class RouteQueryServiceTests {
 
   @Mock
   private Route unfinishedRoute;
+
+  @MockBean
+  private EventPublisher eventPublisher;
 
   @Test
   @DisplayName("이동 상세 조회 시 다음 이동이 없다면 endSnapshot은 null이 된다.")

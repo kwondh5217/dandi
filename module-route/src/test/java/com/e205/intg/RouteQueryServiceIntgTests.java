@@ -19,6 +19,7 @@ import com.e205.dto.RoutePart;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
 import com.e205.dto.TrackPoint;
+import com.e205.events.EventPublisher;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.query.DailyRouteReadQuery;
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +79,9 @@ public class RouteQueryServiceIntgTests {
 
   @Autowired
   private EntityManager entityManager;
+
+  @MockBean
+  private EventPublisher eventPublisher;
 
   @BeforeEach
   void setUp() {

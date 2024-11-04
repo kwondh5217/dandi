@@ -1,5 +1,6 @@
 package com.e205.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,6 +15,8 @@ import com.e205.command.SnapshotUpdateCommand;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
+import com.e205.event.RouteSavedEvent;
+import com.e205.events.EventPublisher;
 import com.e205.exception.RouteError;
 import com.e205.exception.RouteException;
 import com.e205.interaction.queries.BagItemQueryService;
@@ -22,10 +25,12 @@ import com.e205.service.validator.RouteValidator;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -52,6 +57,9 @@ public class RouteCommandServiceTests {
   @Mock
   private RouteValidator validator;
 
+  @Mock
+  private EventPublisher eventPublisher;
+
   List<SnapshotItem> basedBagItems;
   Snapshot snapshot;
 
@@ -72,12 +80,24 @@ public class RouteCommandServiceTests {
   void 이동_시작_성공_테스트() {
     // given
     RouteCreateCommand command = new RouteCreateCommand(BAG_ID, LocalDateTime.now());
+    Route savedRoute = getRoute();
+    given(routeRepository.save(any(Route.class))).willReturn(savedRoute);
 
     // when
     commandService.createRoute(command, MEMBER_ID);
 
     // then
     verify(routeRepository).save(any(Route.class));
+    ArgumentCaptor<RouteSavedEvent> eventCaptor = ArgumentCaptor.forClass(RouteSavedEvent.class);
+    verify(eventPublisher).publish(eventCaptor.capture());
+    RouteSavedEvent publishedEvent = eventCaptor.getValue();
+    assertThat(MEMBER_ID).isEqualTo(publishedEvent.memberId());
+    assertThat(publishedEvent.payload()).isNotNull();
+  }
+
+  private @NotNull Route getRoute() {
+    return new Route(VALID_ROUTE_ID, MEMBER_ID, null, 'Y', Snapshot.toJson(snapshot),
+        LocalDateTime.now(), LocalDateTime.now());
   }
 
   @Test
