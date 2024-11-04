@@ -53,4 +53,8 @@ public class Member extends BaseTime implements LoggableEntity {
   public void updateBagId(Integer bagId) {
     this.bagId = bagId;
   }
+
+  public void updatePassword(String encryptedPassword) {
+    this.password = encryptedPassword;
+  }
 }

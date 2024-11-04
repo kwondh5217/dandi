@@ -5,4 +5,6 @@ public interface EmailCommandService {
   void sendVerificationEmail(String toEmail, String token);
   void checkEmailVerificationInProgress(String email);
   String verifyToken(String token);
+  void createAndStoreVerificationNumber(String email);
+  void checkVerificationNumber(String email, String verificationNumber);
 }

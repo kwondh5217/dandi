@@ -12,23 +12,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-class MemberCommandServiceIntegrationTest {
+class MemberCommandServiceIntegrationTest extends AbstractRedisTestContainer {
 
   @Autowired
   private MemberCommandService memberCommandService;
 
   @Autowired
   private MemberRepository memberRepository;
-
-  @Autowired
-  private PasswordEncoder passwordEncoder;
 
   @Autowired
   private BagRepository bagRepository;
@@ -45,8 +41,8 @@ class MemberCommandServiceIntegrationTest {
     memberRepository.deleteAll();
   }
 
-  @Test
   @DisplayName("회원 등록 및 이메일 인증 요청 테스트")
+  @Test
   void testRegisterMemberAndRequestEmailVerification() {
     // Given
     String email = "testuser@example.com";
@@ -61,8 +57,8 @@ class MemberCommandServiceIntegrationTest {
     Member savedMember = memberRepository.findById(1).orElse(null);
     assertThat(savedMember).isNotNull();
     assertThat(savedMember.getEmail()).isEqualTo("testuser@example.com");
-    assertThat(passwordEncoder.matches(password, savedMember.getPassword())).isTrue();
     assertThat(savedMember.getStatus()).isEqualTo(EmailStatus.PENDING);
+    assertThat(password).isEqualTo(savedMember.getPassword());
 
     // Redis 토큰 검증
     String tokenKey = redisTemplate.keys("token:*").stream().findFirst().orElse(null);
@@ -72,5 +68,37 @@ class MemberCommandServiceIntegrationTest {
     assertThat(storedEmail).isEqualTo(email);
 
     assertThat(savedMember.getBagId()).isEqualTo(1);
+  }
+
+  @DisplayName("인증번호로 비밀번호 변경 테스트")
+  @Test
+  void testChangePasswordWithVerificationNumber() {
+    // Given
+    String email = "testuser@example.com";
+    String originalPassword = "password123";
+    String newPassword = "newPassword456";
+    String verificationNumber = "123456";
+
+    Member member = Member.builder()
+        .email(email)
+        .password(originalPassword)
+        .nickname("testUser")
+        .status(EmailStatus.PENDING)
+        .bagId(1)
+        .build();
+    memberRepository.save(member);
+
+    String redisKey = "verification:" + email;
+    redisTemplate.opsForValue().set(redisKey, verificationNumber);
+
+    // When
+    memberCommandService.changePasswordWithVerificationNumber(email, verificationNumber,
+        newPassword);
+
+    // Then
+    Member updatedMember = memberRepository.findByEmail(email).orElse(null);
+    assertThat(updatedMember).isNotNull();
+    assertThat(newPassword).isEqualTo(updatedMember.getPassword());
+    assertThat(redisTemplate.opsForValue().get(redisKey)).isNull();
   }
 }
