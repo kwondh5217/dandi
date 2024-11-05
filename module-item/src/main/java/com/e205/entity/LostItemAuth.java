@@ -10,7 +10,6 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -24,7 +23,7 @@ public class LostItemAuth {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "lost_id")
   private LostItem lostItem;
-  @Column(nullable = false)
+  @Column(name = "is_read", nullable = false)
   private char read = 'N';
 
   public LostItemAuth(Integer memberId, LostItem lostItem) {

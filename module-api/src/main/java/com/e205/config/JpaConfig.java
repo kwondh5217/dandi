@@ -23,7 +23,7 @@ public class JpaConfig {
   private static final String HIBERNATE_SESSION_FACTORY_INTERCEPTOR = "hibernate.session_factory.interceptor";
   private static final String HIBERNATE_FORMAT_SQL = "hibernate.format_sql";
   private static final String HIBERNATE_HBM2DDL_AUTO = "hibernate.hbm2ddl.auto";
-  private static final String CREATE_DROP = "create-drop";
+  private static final String CREATE_DROP = "create";
   private static final String NONE = "none";
 
   @Autowired(required = false)

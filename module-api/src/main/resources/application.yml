@@ -20,7 +20,12 @@ spring:
     exclude:
     - org.redisson.spring.starter.RedissonAutoConfigurationV2
   profiles:
-    active: secret
+    include: secret
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
 route:
   max-radius: 1000

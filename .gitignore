@@ -146,3 +146,8 @@ gradle-app.setting
 /module-api/src/main/resources/application-secret.yml
 module-member/src/main/resources/application-secret.yml
 # End of https://www.toptal.com/developers/gitignore/api/gradle,intellij
+/module-api/src/main/resources/application-prod.yml
+/module-api/src/main/resources/firebase/dandi-4158a-firebase-adminsdk-h61xd-7ec9de5fad.json
+/module-item/src/main/resources/application-secret.yml
+/module-item/src/main/resources/application-prod.yml
+/module-api/src/main/resources/redisson.yaml

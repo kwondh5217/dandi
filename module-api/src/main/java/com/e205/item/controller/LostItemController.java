@@ -1,9 +1,9 @@
 package com.e205.item.controller;
 
+import com.e205.auth.helper.AuthHelper;
 import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemResponse;
 import com.e205.item.service.LostItemService;
-import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,29 +24,24 @@ import org.springframework.web.multipart.MultipartFile;
 public class LostItemController {
 
   private final LostItemService lostItemService;
+  private final AuthHelper authHelper;
 
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping
-  public void createLostItem(
-      Principal principal,
-      @RequestPart("lostItemRequest")LostItemCreateRequest request,
-      @RequestPart("images") List<MultipartFile> images
-  ) {
-    int memberId = Integer.parseInt(principal.getName());
-    lostItemService.createLostItem(memberId, request, images);
+  public void createLostItem(@RequestPart("lostItemRequest") LostItemCreateRequest request,
+      @RequestPart("images") List<MultipartFile> images) {
+    lostItemService.createLostItem(authHelper.getMemberId(), request, images);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/{lostId}")
-  public void finishLostItem(Principal principal, @PathVariable int lostId) {
-    int memberId = Integer.parseInt(principal.getName());
-    lostItemService.finishLostItem(memberId, lostId);
+  public void finishLostItem(@PathVariable int lostId) {
+    lostItemService.finishLostItem(authHelper.getMemberId(), lostId);
   }
 
   @GetMapping("/{lostId}")
-  public ResponseEntity<LostItemResponse> getLostItem(Principal principal, @PathVariable int lostId) {
-    int memberId = Integer.parseInt(principal.getName());
-    LostItemResponse response = lostItemService.getLostItem(memberId, lostId);
+  public ResponseEntity<LostItemResponse> getLostItem(@PathVariable int lostId) {
+    LostItemResponse response = lostItemService.getLostItem(authHelper.getMemberId(), lostId);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 }

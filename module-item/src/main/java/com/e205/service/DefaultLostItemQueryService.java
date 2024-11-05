@@ -60,8 +60,8 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
   }
 
   private boolean isReadablePosition(Integer memberId, LostItem lostItem) {
-    MembersInRouteQuery query = new MembersInRouteQuery(lostItem.getMemberId(),
-        lostItem.getStartRouteId(), lostItem.getEndRouteId());
+    MembersInRouteQuery query = new MembersInRouteQuery(lostItem.getStartRouteId(),
+        lostItem.getEndRouteId(), lostItem.getLostAt());
 
     List<Integer> memberList = routeQueryService.findUserIdsNearPath(query);
     return memberList.contains(memberId);
