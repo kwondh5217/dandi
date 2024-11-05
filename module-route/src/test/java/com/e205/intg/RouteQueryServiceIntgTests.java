@@ -5,12 +5,14 @@ import static com.e205.env.TestConstant.BAG_ID_2;
 import static com.e205.env.TestConstant.MEMBER_ID_1;
 import static com.e205.env.TestConstant.MEMBER_ID_2;
 import static com.e205.env.TestConstant.MEMBER_ID_3;
+import static com.e205.env.TestConstant.MEMBER_ID_4;
 import static com.e205.env.TestConstant.ROUTE_ID_1;
 import static com.e205.env.TestConstant.ROUTE_ID_2;
 import static com.e205.env.TestConstant.ROUTE_ID_3;
 import static com.e205.env.TestConstant.ROUTE_ID_4;
 import static com.e205.env.TestConstant.ROUTE_ID_5;
 import static com.e205.env.TestConstant.ROUTE_ID_6;
+import static com.e205.env.TestConstant.ROUTE_ID_7;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.e205.TestConfiguration;
@@ -34,6 +36,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -63,6 +67,7 @@ public class RouteQueryServiceIntgTests {
   public Route route2;
   public Route route3;
   public Route route4;
+  public Route route5;
   public Route withinPolygonRoute;
   public Route noneWithinPolygonRoute;
 
@@ -158,18 +163,28 @@ public class RouteQueryServiceIntgTests {
     assertThat(routesPayload.nextRouteId()).isEqualTo(expectedNextRouteId);
   }
 
-  @Test
-  @DisplayName("반경 내 사용자 조회 테스트")
-  void 반경_내_사용자_조회_테스트() {
+  @ParameterizedTest
+  @CsvSource({
+      "2024-11-03T16:00:00, true",  // since가 route5 생성일보다 이전, MEMBER_ID_4 포함
+      "2024-11-04T16:00:00, false"  // since가 route5 생성일 이후, MEMBER_ID_4 미포함
+  })
+  @DisplayName("특정 기간 내 경로 사용자 조회 테스트")
+  void 특정_기간_내_경로_사용자_조회_테스트(String sinceTime, boolean expectContainsMember4) {
     // given
-    MembersInRouteQuery query = new MembersInRouteQuery(MEMBER_ID_1, ROUTE_ID_1, ROUTE_ID_3);
+    LocalDateTime since = LocalDateTime.parse(sinceTime);
+    MembersInRouteQuery query = new MembersInRouteQuery(ROUTE_ID_1, ROUTE_ID_7, since);
 
     // when
-    List<Integer> nearbyUserIds = queryService.findUserIdsNearPath(query);
+    List<Integer> userIds = queryService.findUserIdsNearPath(query);
 
     // then
-    assertThat(nearbyUserIds).contains(MEMBER_ID_2);
-    assertThat(nearbyUserIds).doesNotContain(MEMBER_ID_3);
+    assertThat(userIds).contains(MEMBER_ID_2);
+    assertThat(userIds).doesNotContain(MEMBER_ID_3);
+    if (expectContainsMember4) {
+      assertThat(userIds).contains(MEMBER_ID_4);
+    } else {
+      assertThat(userIds).doesNotContain(MEMBER_ID_4);
+    }
   }
 
   private void initTracksPoints() {
@@ -232,6 +247,10 @@ public class RouteQueryServiceIntgTests {
         snapshot2, dateTomorrow, endDateTomorrow
     );
 
+    route5 = createRoute(ROUTE_ID_7, MEMBER_ID_4, GeometryUtils.getLineString(trackPoints2),
+        snapshot2, dateNow.minusDays(1).minusHours(3), endDateNow.minusDays(1).minusHours(1)
+    );
+
     withinPolygonRoute = createRoute(ROUTE_ID_5, MEMBER_ID_2,
         GeometryUtils.getLineString(trackPoints2), snapshot2, dateNow, endDateNow
     );
@@ -246,6 +265,7 @@ public class RouteQueryServiceIntgTests {
     routeRepository.save(route4);
     routeRepository.save(withinPolygonRoute);
     routeRepository.save(noneWithinPolygonRoute);
+    routeRepository.save(route5);
   }
 
   private Route createRoute(

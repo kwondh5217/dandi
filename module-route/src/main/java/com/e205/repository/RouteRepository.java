@@ -35,16 +35,15 @@ public interface RouteRepository extends JpaRepository<Route, Integer> {
   );
 
 
-  @Query("SELECT r "
-      + "FROM Route r "
-      + "WHERE r.memberId = :memberId "
-      + "AND r.id BETWEEN :startRouteId "
-      + "AND :endRouteId")
+  @Query("SELECT r " +
+      "FROM Route r " +
+      "WHERE r.memberId = (SELECT memberId FROM Route WHERE id = :startRouteId) " +
+      "AND r.id BETWEEN :startRouteId AND :endRouteId")
   List<Route> findRoutesWithinRange(
-      @Param("memberId") Integer memberId,
       @Param("startRouteId") Integer startRouteId,
       @Param("endRouteId") Integer endRouteId
   );
+
 
   @Query("SELECT r.memberId "
       + "FROM Route r "

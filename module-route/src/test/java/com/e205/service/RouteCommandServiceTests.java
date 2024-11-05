@@ -34,6 +34,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -58,7 +59,7 @@ public class RouteCommandServiceTests {
   private RouteValidator validator;
 
   @Mock
-  private EventPublisher eventPublisher;
+  private ApplicationEventPublisher eventPublisher;
 
   List<SnapshotItem> basedBagItems;
   Snapshot snapshot;
@@ -89,7 +90,7 @@ public class RouteCommandServiceTests {
     // then
     verify(routeRepository).save(any(Route.class));
     ArgumentCaptor<RouteSavedEvent> eventCaptor = ArgumentCaptor.forClass(RouteSavedEvent.class);
-    verify(eventPublisher).publish(eventCaptor.capture());
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
     RouteSavedEvent publishedEvent = eventCaptor.getValue();
     assertThat(MEMBER_ID).isEqualTo(publishedEvent.memberId());
     assertThat(publishedEvent.payload()).isNotNull();

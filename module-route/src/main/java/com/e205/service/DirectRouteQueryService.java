@@ -91,7 +91,7 @@ public class DirectRouteQueryService implements RouteQueryService {
   @Override
   public List<Integer> findUserIdsNearPath(MembersInRouteQuery query) {
     List<Route> routesInRange = routeRepository.findRoutesWithinRange(
-        query.memberId(), query.startRouteId(), query.endRouteId()
+        query.startRouteId(), query.endRouteId()
     );
 
     LineString combinedTrack = geometryUtils.combineTracks(
@@ -99,9 +99,8 @@ public class DirectRouteQueryService implements RouteQueryService {
     );
 
     Polygon bufferedPolygon = geometryUtils.createBufferedPolygon(combinedTrack, radius);
-    LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
 
-    return new ArrayList<>(routeRepository.findUsersWithinPolygon(bufferedPolygon, twoHoursAgo));
+    return new ArrayList<>(routeRepository.findUsersWithinPolygon(bufferedPolygon, query.since()));
   }
 
   private Route getRoute(Integer routeId) {
