@@ -8,11 +8,10 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class ItemEventPublisher implements EventPublisher {
+public class ItemEventPublisher {
 
   private final ApplicationEventPublisher eventPublisher;
 
-  @Override
   public void publish(Event event) {
     eventPublisher.publishEvent(event);
   }

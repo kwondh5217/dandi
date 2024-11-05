@@ -4,6 +4,7 @@ import com.e205.command.LostItemDeleteCommand;
 import com.e205.command.LostItemSaveCommand;
 import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemResponse;
+import com.e205.payload.ItemImagePayload;
 import com.e205.payload.LostItemPayload;
 import com.e205.query.LostItemQuery;
 import com.e205.service.LostItemCommandService;
@@ -31,7 +32,7 @@ public class LostItemService {
 
     LostItemSaveCommand command = new LostItemSaveCommand(memberId, imageResources,
         request.startRoute(), request.endRoute(),
-        request.situationDesc(), request.itemDesc());
+        request.situationDesc(), request.itemDesc(), request.lostAt());
 
     lostItemCommandService.save(command);
   }
@@ -53,8 +54,8 @@ public class LostItemService {
     LostItemQuery query = new LostItemQuery(memberId, lostItemId);
     LostItemPayload payload = lostItemQueryService.find(query);
 
-    // TODO <fosong98> 분실물 이미지 조회하는 로직 구현 필요
-    List<String> images = null;
+    List<String> images = lostItemQueryService.findImages(lostItemId).stream()
+        .map(ItemImagePayload::image).toList();
 
     return LostItemResponse.from(payload, images);
   }

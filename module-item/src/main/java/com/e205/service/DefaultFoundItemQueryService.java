@@ -2,7 +2,9 @@ package com.e205.service;
 
 import com.e205.entity.QuizSolver;
 import com.e205.payload.FoundItemPayload;
+import com.e205.payload.ItemImagePayload;
 import com.e205.query.FoundItemQuery;
+import com.e205.repository.ItemImageRepository;
 import com.e205.repository.QuizSolverRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 public class DefaultFoundItemQueryService implements FoundItemQueryService {
 
   private final QuizSolverRepository quizSolverRepository;
+  private final ItemImageRepository imageRepository;
+
 
   @Override
   public FoundItemPayload find(FoundItemQuery query) {
@@ -22,6 +26,13 @@ public class DefaultFoundItemQueryService implements FoundItemQueryService {
     }
 
     return solver.getQuiz().getFoundItem().toPayload();
+  }
+
+  @Override
+  public ItemImagePayload findFoundItemImage(Integer foundId) {
+    return imageRepository.findByFoundItemId(foundId)
+        .map(foundImage -> new ItemImagePayload(foundImage.getName()))
+        .orElseThrow(() -> new RuntimeException("분실물의 이미지가 존재하지 않습니다."));
   }
 
   private QuizSolver getQuizSolver(FoundItemQuery query) {

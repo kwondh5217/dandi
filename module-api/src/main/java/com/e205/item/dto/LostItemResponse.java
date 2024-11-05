@@ -18,8 +18,7 @@ public record LostItemResponse(
         .situationDescription(payload.situationDescription())
         .itemDescription(payload.itemDescription())
         .images(images)
-        // TODO <fosong98> 분실물 생성 시 잃어버린 시간도 받아야 한다.
-//        .lostAt(payload.lostAt)
+        .lostAt(payload.lostAt())
         .build();
   }
 }

@@ -4,6 +4,8 @@ dependencies {
     implementation project(':module-common')
     implementation project(':module-noti')
     implementation project(':module-member')
+    implementation project(':module-route')
+    implementation project(':base-route')
 
     // WEB
     implementation 'org.springframework.boot:spring-boot-starter-web'

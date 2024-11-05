@@ -25,17 +25,19 @@ public class LostItem implements LoggableEntity {
   private Integer endRouteId;
   private String situationDescription;
   private String itemDescription;
+  private LocalDateTime lostAt;
   private LocalDateTime createdAt;
   private LocalDateTime endedAt;
 
   @Builder
   public LostItem(Integer memberId, Integer startRouteId, Integer endRouteId,
-      String situationDescription, String itemDescription) {
+      String situationDescription, String itemDescription, LocalDateTime lostAt) {
     this.memberId = memberId;
     this.startRouteId = startRouteId;
     this.endRouteId = endRouteId;
     this.situationDescription = situationDescription;
     this.itemDescription = itemDescription;
+    this.lostAt = lostAt;
     this.createdAt = LocalDateTime.now();
   }
 
@@ -45,6 +47,7 @@ public class LostItem implements LoggableEntity {
     this.itemDescription = command.itemDesc();
     this.startRouteId = command.startRouteId();
     this.endRouteId = command.endRouteId();
+    this.lostAt = command.lostAt();
     this.createdAt = LocalDateTime.now();
   }
 
@@ -56,6 +59,7 @@ public class LostItem implements LoggableEntity {
         .endRouteId(endRouteId)
         .situationDescription(situationDescription)
         .itemDescription(itemDescription)
+        .lostAt(lostAt)
         .createdAt(createdAt)
         .endedAt(endedAt)
         .build();

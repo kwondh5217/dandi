@@ -3,12 +3,15 @@ package com.e205.service;
 import com.e205.entity.LostItem;
 import com.e205.entity.LostItemAuth;
 import com.e205.event.LostItemReadEvent;
-import com.e205.events.EventPublisher;
+import com.e205.message.ItemEventPublisher;
+import com.e205.payload.ItemImagePayload;
 import com.e205.payload.LostItemPayload;
 import com.e205.query.LostItemQuery;
-import com.e205.query.LostItemValidRangeQuery;
+import com.e205.query.MembersInRouteQuery;
+import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +23,8 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
 
   private final LostItemAuthRepository lostItemAuthRepository;
   private final RouteQueryService routeQueryService;
-  private final EventPublisher itemEventPublisher;
+  private final ItemImageRepository itemImageRepository;
+  private final ItemEventPublisher itemEventPublisher;
 
   @Override
   public LostItemPayload find(LostItemQuery query) {
@@ -43,14 +47,23 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
     return lostItem.toPayload();
   }
 
+  @Override
+  public List<ItemImagePayload> findImages(Integer lostId) {
+    return itemImageRepository.findAllByLostItemId(lostId).stream()
+        .map(image -> new ItemImagePayload(image.getName()))
+        .toList();
+  }
+
   private LostItemAuth getLostItemAuth(LostItemQuery query) {
     return lostItemAuthRepository.findLostItemAuthByMemberIdAndLostItemId(query.memberId(),
         query.lostItemId()).orElseThrow(() -> new RuntimeException("분실물 조회 권한이 없습니다."));
   }
 
   private boolean isReadablePosition(Integer memberId, LostItem lostItem) {
-    return routeQueryService.isReadableRange(
-        new LostItemValidRangeQuery(memberId, lostItem.getStartRouteId(),
-            lostItem.getEndRouteId()));
+    MembersInRouteQuery query = new MembersInRouteQuery(lostItem.getMemberId(),
+        lostItem.getStartRouteId(), lostItem.getEndRouteId());
+
+    List<Integer> memberList = routeQueryService.findUserIdsNearPath(query);
+    return memberList.contains(memberId);
   }
 }

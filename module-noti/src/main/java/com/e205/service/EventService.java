@@ -1,10 +1,9 @@
 package com.e205.service;
 
 import com.e205.MemberWithFcm;
-import com.e205.MembersInRouteQuery;
+import com.e205.query.MembersInRouteQuery;
 import com.e205.NotifyEvent;
 import com.e205.communication.MemberQueryService;
-import com.e205.communication.RouteQueryService;
 import com.e205.event.FoundItemSaveEvent;
 import com.e205.event.LostItemSaveEvent;
 import com.e205.event.RouteSavedEvent;
@@ -34,7 +33,7 @@ public class EventService {
   public void handleRouteSavedEvent(RouteSavedEvent event) {
     String fcm = this.memberQueryService.findMemberFcmById(event.memberId());
     Assert.state(fcm != null, "No member FCM found");
-    this.notificationProcessor.notify(fcm, event.getType(), event.snapShot());
+    this.notificationProcessor.notify(fcm, event.getType(), event.payload());
   }
 
   public void handleNotifyEvent(NotifyEvent event) {
@@ -43,11 +42,11 @@ public class EventService {
     this.notificationProcessor.notify(fcm, event.senderId() + " ", event.type());
   }
 
-  public void handleFoundItemSaveEvent(FoundItemSaveEvent event) {
-    handleItemSaveEvent(event.saved().startRouteId(), event.saved().endRouteId(),
-        event.saved().createdAt(), event.saved().id(),
-        event.saved().situationDescription(), event.getType());
-  }
+//  public void handleFoundItemSaveEvent(FoundItemSaveEvent event) {
+//    handleItemSaveEvent(event, event.saved().endRouteId(),
+//        event.saved().createdAt(), event.saved().id(),
+//        event.saved().situationDescription(), event.getType());
+//  }
 
   public void handleLostItemSaveEvent(LostItemSaveEvent event) {
     handleItemSaveEvent(event.saved().startRouteId(), event.saved().endRouteId(),
@@ -70,8 +69,9 @@ public class EventService {
       LocalDateTime time) {
     LocalDateTime since = time.minusHours(this.notificationWindowHours);
     LocalDateTime until = time.plusHours(this.notificationWindowHours);
-
-    return this.routeQueryService.queryMembersInPoints(
-        new MembersInRouteQuery(startRouteId, endRouteId, since, until));
+    // TODO <fosong98> RouteQueryService 충돌로 인한 null 처리
+    return null;
+//    return this.routeQueryService.findUserIdsNearPath(
+//        new MembersInRouteQuery(startRouteId, endRouteId, since, until));
   }
 }

@@ -10,6 +10,7 @@ import com.e205.entity.Quiz;
 import com.e205.entity.QuizSolver;
 import com.e205.payload.FoundItemPayload;
 import com.e205.query.FoundItemQuery;
+import com.e205.repository.ItemImageRepository;
 import com.e205.repository.QuizSolverRepository;
 import java.util.Optional;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -25,12 +26,14 @@ class FoundItemQueryServiceTest {
 
   FoundItemQueryService service;
   QuizSolverRepository solverRepository;
+  ItemImageRepository imageRepository;
 
   @BeforeEach
   void setUp() {
     solverRepository = mock(QuizSolverRepository.class);
+    imageRepository = mock(ItemImageRepository.class);
 
-    service = new DefaultFoundItemQueryService(solverRepository);
+    service = new DefaultFoundItemQueryService(solverRepository, imageRepository);
   }
 
   @DisplayName("퀴즈를 풀지 않았으면 습득물을 조회할 수 없다.")

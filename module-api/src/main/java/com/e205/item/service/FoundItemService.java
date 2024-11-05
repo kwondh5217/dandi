@@ -5,12 +5,11 @@ import com.e205.command.FoundItemSaveCommand;
 import com.e205.item.dto.FoundItemCreateRequest;
 import com.e205.item.dto.FoundItemResponse;
 import com.e205.payload.FoundItemPayload;
+import com.e205.payload.ItemImagePayload;
 import com.e205.query.FoundItemQuery;
 import com.e205.service.FoundItemCommandService;
 import com.e205.service.FoundItemQueryService;
-import com.e205.service.QueryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.connection.ReactiveStreamCommands.DeleteCommand;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,8 +30,8 @@ public class FoundItemService {
   @Transactional
   public FoundItemResponse get(int memberId, int foundId) {
     FoundItemPayload payload = foundItemQueryService.find(new FoundItemQuery(memberId, foundId));
-    // TODO <fosong98> 습득물 이미지 조회 로직 구현
-    return FoundItemResponse.from(payload, null);
+    ItemImagePayload imagePayload = foundItemQueryService.findFoundItemImage(foundId);
+    return FoundItemResponse.from(payload, imagePayload.image());
   }
 
   @Transactional

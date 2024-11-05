@@ -1,5 +1,6 @@
 package com.e205.repository;
 
+import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockStatic;
 
@@ -36,7 +37,7 @@ class DefaultItemImageRepositoryTest {
   @Test
   void When_FindWithLostItemId_Then_ReturnAllImageForLostItem() {
     // given
-    LostItem lostItem = new LostItem(1, 1, 2, "상황묘사", "물건묘사");
+    LostItem lostItem = new LostItem(1, 1, 2, "상황묘사", "물건묘사", now());
     lostItemCommandRepository.save(lostItem);
 
     List<LostImage> images = Stream.generate(UUID::randomUUID).limit(3)
@@ -55,7 +56,7 @@ class DefaultItemImageRepositoryTest {
   void When_FindFoundItemsByLatestOrderWithLimit20_Then_ReturnSuccess() {
     // given
     FoundItem foundItem = new FoundItem(1, 1D, 1D, "묘사", "저장", FoundItemType.OTHER,
-        LocalDateTime.now());
+        now());
     foundItemCommandRepository.save(foundItem);
 
     List<FoundImage> foundImages;
@@ -79,7 +80,7 @@ class DefaultItemImageRepositoryTest {
 
   private static class MockLocalDateTime implements Closeable {
 
-    private final LocalDateTime fixedTime = LocalDateTime.now();
+    private final LocalDateTime fixedTime = now();
     private final MockedStatic<LocalDateTime> mockTime = mockStatic(LocalDateTime.class);
     private int callCount = 0;
 

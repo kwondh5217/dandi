@@ -1,11 +1,10 @@
 package com.e205.repository;
 
+import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.e205.entity.LostItem;
 import com.e205.entity.LostItemAuth;
-import com.e205.event.LostItemReadEvent;
-import com.e205.events.EventPublisher;
 import jakarta.persistence.EntityManager;
 import java.util.Optional;
 import org.hibernate.Session;
@@ -30,7 +29,7 @@ class LostItemAuthRepositoryTest {
   void When_GetLostItemInAuth_Then_GetWithNoQuery() {
     // given
 
-    LostItem lostItem = new LostItem(1, 1, 2, "상황묘사", "물건묘사");
+    LostItem lostItem = new LostItem(1, 1, 2, "상황묘사", "물건묘사", now());
     LostItemAuth lostItemAuth = new LostItemAuth(1, lostItem);
     lostItemCommandRepository.save(lostItem);
     lostItemAuthRepository.save(lostItemAuth);

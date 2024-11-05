@@ -14,6 +14,8 @@ public interface ItemImageRepository {
 
   List<LostImage> findAllByLostItemId(Integer lostItemId);
 
+  Optional<FoundImage> findByFoundItemId(Integer foundItemId);
+
   List<FoundImage> findTopFoundImagesByCreateAtDesc(Integer count);
 
   Optional<LostImage> findLostImageById(UUID id);

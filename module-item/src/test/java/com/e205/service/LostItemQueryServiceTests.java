@@ -1,5 +1,6 @@
 package com.e205.service;
 
+import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -7,15 +8,18 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.e205.entity.LostItem;
 import com.e205.entity.LostItemAuth;
 import com.e205.event.LostItemReadEvent;
 import com.e205.events.EventPublisher;
+import com.e205.message.ItemEventPublisher;
 import com.e205.query.LostItemQuery;
 import com.e205.query.LostItemValidRangeQuery;
+import com.e205.query.MembersInRouteQuery;
+import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
+import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,12 +41,14 @@ class LostItemQueryServiceTests {
   @Mock
   RouteQueryService routeQueryService;
   @Mock
-  EventPublisher eventPublisher;
+  ItemEventPublisher eventPublisher;
+  @Mock
+  ItemImageRepository imageRepository;
 
   @BeforeEach
   void setUp() {
     service = new DefaultLostItemQueryService(lostItemAuthRepository, routeQueryService,
-        eventPublisher);
+        imageRepository, eventPublisher);
   }
 
   @DisplayName("확인한 적 없고 조회 가능 범위 내에 없으면, 상세조회할 수 없다.")
@@ -52,7 +58,7 @@ class LostItemQueryServiceTests {
     LostItem lostItem = generateLostItem(memberId);
 
     setRead(lostItem, false);
-    setValidPosition(false);
+    setValidPosition(memberId + 1);
 
     LostItemQuery query = new LostItemQuery(memberId, lostItemId);
 
@@ -105,7 +111,7 @@ class LostItemQueryServiceTests {
     LostItem lostItem = generateLostItem(memberId);
 
     setRead(lostItem, false);
-    setValidPosition(true);
+    setValidPosition(memberId);
     LostItemQuery query = new LostItemQuery(memberId, lostItemId);
 
     // when
@@ -122,7 +128,7 @@ class LostItemQueryServiceTests {
     LostItem lostItem = generateLostItem(memberId);
 
     setRead(lostItem, false);
-    setValidPosition(true);
+    setValidPosition(memberId);
     LostItemQuery query = new LostItemQuery(memberId, lostItemId);
 
     // when
@@ -148,8 +154,8 @@ class LostItemQueryServiceTests {
     verify(eventPublisher, never()).publish(any(LostItemReadEvent.class));
   }
 
-  private void setValidPosition(boolean valid) {
-    given(routeQueryService.isReadableRange(any(LostItemValidRangeQuery.class))).willReturn(valid);
+  private void setValidPosition(int expectMemberId) {
+    given(routeQueryService.findUserIdsNearPath(any(MembersInRouteQuery.class))).willReturn(List.of(expectMemberId));
   }
 
   private void setRead(LostItem lostItem, boolean read) {
@@ -162,6 +168,6 @@ class LostItemQueryServiceTests {
   }
 
   private LostItem generateLostItem(Integer memberId) {
-    return new LostItem(memberId, 1, 2, "상황묘사", "물건묘사");
+    return new LostItem(memberId, 1, 2, "상황묘사", "물건묘사", now());
   }
 }

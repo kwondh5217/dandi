@@ -10,7 +10,6 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import javax.swing.text.html.Option;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +42,13 @@ public class DefaultItemImageRepository implements ItemImageRepository {
     return queryFactory.selectFrom(lostImage)
         .where(lostImage.lostItem.id.eq(lostItemId))
         .fetch();
+  }
+
+  @Override
+  public Optional<FoundImage> findByFoundItemId(Integer foundItemId) {
+    return queryFactory.selectFrom(foundImage)
+        .where(foundImage.foundItem.id.eq(foundItemId))
+        .stream().findAny();
   }
 
   @Override

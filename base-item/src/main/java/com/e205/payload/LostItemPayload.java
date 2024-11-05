@@ -11,6 +11,7 @@ public record LostItemPayload(
     int endRouteId,
     String situationDescription,
     String itemDescription,
+    LocalDateTime lostAt,
     LocalDateTime createdAt,
     LocalDateTime endedAt
 ) {
