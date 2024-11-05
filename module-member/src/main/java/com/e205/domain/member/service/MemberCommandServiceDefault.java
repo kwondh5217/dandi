@@ -51,8 +51,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
 
     bagRepository.save(bag);
     member.updateBagId(bag.getId());
-    requestEmailVerification(
-        new RequestEmailVerificationCommand(member.getId(), member.getEmail()));
+
   }
 
   @Override
@@ -66,7 +65,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     }
 
     if (!storedVerificationNumber.equals(
-        changePasswordWithVerificationNumber.verficationNumber())) {
+        changePasswordWithVerificationNumber.verificationNumber())) {
       throw new IllegalArgumentException("인증 번호가 올바르지 않습니다.");
     }
 

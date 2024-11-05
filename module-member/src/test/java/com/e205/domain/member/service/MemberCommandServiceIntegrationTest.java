@@ -2,6 +2,7 @@ package com.e205.domain.member.service;
 
 import com.e205.command.bag.payload.EmailStatus;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
+import com.e205.command.member.command.RequestEmailVerificationCommand;
 import com.e205.command.member.service.MemberCommandService;
 import com.e205.command.member.command.RegisterMemberCommand;
 import com.e205.domain.bag.repository.BagRepository;
@@ -61,14 +62,6 @@ class MemberCommandServiceIntegrationTest extends AbstractRedisTestContainer {
     assertThat(savedMember.getEmail()).isEqualTo("testuser@example.com");
     assertThat(savedMember.getStatus()).isEqualTo(EmailStatus.PENDING);
     assertThat(password).isEqualTo(savedMember.getPassword());
-
-    // Redis 토큰 검증
-    String tokenKey = redisTemplate.keys("token:*").stream().findFirst().orElse(null);
-    assertThat(tokenKey).isNotNull();
-
-    String storedEmail = (String) redisTemplate.opsForHash().get(tokenKey, "email");
-    assertThat(storedEmail).isEqualTo(email);
-
     assertThat(savedMember.getBagId()).isEqualTo(1);
   }
 
@@ -102,5 +95,34 @@ class MemberCommandServiceIntegrationTest extends AbstractRedisTestContainer {
     assertThat(updatedMember).isNotNull();
     assertThat(newPassword).isEqualTo(updatedMember.getPassword());
     assertThat(redisTemplate.opsForValue().get(redisKey)).isNull();
+  }
+
+  @DisplayName("이메일 인증 요청 테스트")
+  @Test
+  void testRequestEmailVerification() {
+    // Given
+    String email = "sungwoo166@gmail.com";
+    Integer userId = 1;
+
+    Member member = Member.builder()
+        .id(userId)
+        .email(email)
+        .password("password123")
+        .nickname("testUser")
+        .status(EmailStatus.PENDING)
+        .bagId(1)
+        .build();
+    memberRepository.save(member);
+
+    // When
+    memberCommandService.requestEmailVerification(
+        new RequestEmailVerificationCommand(userId, email));
+
+    // Then
+    String tokenKey = redisTemplate.keys("token:*").stream().findFirst().orElse(null);
+    assertThat(tokenKey).isNotNull();
+
+    String storedEmail = (String) redisTemplate.opsForHash().get(tokenKey, "email");
+    assertThat(storedEmail).isEqualTo(email);
   }
 }
