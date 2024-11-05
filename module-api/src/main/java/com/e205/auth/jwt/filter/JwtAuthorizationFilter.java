@@ -28,14 +28,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain
   ) throws ServletException, IOException {
+
     String token = request.getHeader("Authorization");
 
     if (isNotToken(token)) {
+      filterChain.doFilter(request, response);
       return;
     }
 
     token = token.substring(7);
     if (!isValidatedToken(request, response, token)) {
+      filterChain.doFilter(request, response);
       return;
     }
 

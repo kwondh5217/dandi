@@ -16,13 +16,12 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
   @Override
   public void commence(HttpServletRequest request, HttpServletResponse response,
-      AuthenticationException authException
-  ) throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    AuthException e = (AuthException) authException;
+      AuthenticationException authException) throws IOException {
 
+    ObjectMapper mapper = new ObjectMapper();
     setHeader(response);
-    response.getWriter().print(mapper.writeValueAsString(setBody(e)));
+    String responseData = mapper.writeValueAsString(buildResponseData(authException));
+    response.getWriter().print(responseData);
   }
 
   private static void setHeader(HttpServletResponse response) {
@@ -31,11 +30,23 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
   }
 
-  private static Map<String, Object> setBody(AuthException e) {
+  private Map<String, Object> buildResponseData(AuthenticationException exception) {
+    if (exception instanceof AuthException authException) {
+      return createCustomErrorResponse(authException);
+    }
+    return createDefaultErrorResponse();
+  }
+
+  private Map<String, Object> createCustomErrorResponse(AuthException authException) {
     Map<String, Object> responseData = new HashMap<>();
-    responseData.put("message", "예외");
-    // responseData.put("message", e.getError().getMessage());
-    // TODO <이현수> : 지정 예외 코드 포함
+//    responseData.put("code", authException.getError().getCode());
+    responseData.put("message", authException.getError().getMessage());
+    return responseData;
+  }
+
+  private Map<String, Object> createDefaultErrorResponse() {
+    Map<String, Object> responseData = new HashMap<>();
+    responseData.put("message", "인증 실패");
     return responseData;
   }
 }

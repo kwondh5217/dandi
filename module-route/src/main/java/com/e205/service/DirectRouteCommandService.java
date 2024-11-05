@@ -19,6 +19,7 @@ import com.e205.util.GeometryUtils;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,7 @@ public class DirectRouteCommandService implements RouteCommandService {
   private final RouteRepository routeRepository;
   private final RouteValidator routeValidator;
   private final BagItemQueryService bagItemQueryService;
-  private final EventPublisher eventPublisher;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   public void createRoute(RouteCreateCommand command, Integer memberId) {
@@ -46,7 +47,7 @@ public class DirectRouteCommandService implements RouteCommandService {
 
     Route savedRoute = routeRepository.save(Route.toEntity(memberId, determinedSnapshot));
     String payload = RouteEventPayload.toJson(getPayload(savedRoute, determinedSnapshot));
-    eventPublisher.publish(new RouteSavedEvent(memberId, payload));
+    eventPublisher.publishEvent(new RouteSavedEvent(memberId, payload));
   }
 
   private Snapshot loadBaseSnapshot(RouteCreateCommand request, Integer memberId) {

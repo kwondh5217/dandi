@@ -1,8 +1,10 @@
 package com.e205.auth.service;
 
 import com.e205.auth.dto.MemberDetails;
+import com.e205.command.bag.payload.MemberPayload;
+import com.e205.command.member.query.FindMemberByEmailQuery;
+import com.e205.command.member.service.MemberQueryService;
 import com.e205.domain.member.entity.Member;
-import com.e205.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,12 +15,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class MemberDetailsService implements UserDetailsService {
 
-  private final MemberRepository memberRepository;
+  private final MemberQueryService memberQueryService;
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    Member member = memberRepository.findByEmail(username)
-        .orElseThrow(() -> new RuntimeException("로그인 실패"));
+    FindMemberByEmailQuery query = new FindMemberByEmailQuery(username);
+    MemberPayload payload = memberQueryService.findMemberByEmail(query);
+
+    Member member = Member.builder()
+        .id(payload.id())
+        .bagId(payload.bagId())
+        .email(payload.email())
+        .nickname(payload.nickname())
+        .status(payload.status())
+        .build();
 
     return new MemberDetails(member);
   }
