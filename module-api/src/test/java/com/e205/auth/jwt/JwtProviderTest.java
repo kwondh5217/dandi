@@ -54,7 +54,7 @@ public class JwtProviderTest {
         .compact();
 
     // when
-    boolean isExpired = jwtProvider.isNotExpired(expiredToken);
+    boolean isExpired = jwtProvider.isExpired(expiredToken);
 
     // then
     assertThat(isExpired).isFalse();

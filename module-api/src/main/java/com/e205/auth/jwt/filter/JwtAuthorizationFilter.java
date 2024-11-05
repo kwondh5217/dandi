@@ -37,7 +37,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     token = token.substring(7);
-    if (!isValidatedToken(request, response, token)) {
+    if (!isValidateIfNotCallCommence(request, response, token)) {
       filterChain.doFilter(request, response);
       return;
     }
@@ -48,11 +48,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         memberDetails.getAuthorities()
     );
     SecurityContextHolder.getContext().setAuthentication(authentication);
-
     filterChain.doFilter(request, response);
   }
 
-  private boolean isValidatedToken(HttpServletRequest request, HttpServletResponse response,
+  private boolean isValidateIfNotCallCommence(HttpServletRequest request, HttpServletResponse response,
       String token
   ) throws IOException {
     if (!jwtProvider.verifyToken(token)) {
@@ -61,7 +60,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       return false;
     }
 
-    if (!jwtProvider.isNotExpired(token)) {
+    if (jwtProvider.isExpired(token)) {
       // TODO <이현수> : 토큰 예외 메시지 전달 : 만료된 토큰
       jwtAuthenticationEntryPoint.commence(request, response, new AuthException(EXAMPLE));
       return false;

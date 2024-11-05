@@ -65,17 +65,22 @@ public class JwtProvider {
     }
   }
 
-  public boolean isNotExpired(String token) {
+  public boolean isExpired(String token) {
     try {
-      return Jwts.parserBuilder()
+      boolean flag = Jwts.parserBuilder()
           .setSigningKey(getSecretKey(key))
           .build()
-          .parseClaimsJwt(token)
+          .parseClaimsJws(token)
           .getBody()
           .getExpiration()
           .before(new Date());
+      System.out.println(flag);
+      return flag;
     } catch (Exception e) {
-      return false;
+      e.printStackTrace();
+      System.out.println(e.getMessage());
+      System.out.println("예외");
+      return true;
     }
   }
 

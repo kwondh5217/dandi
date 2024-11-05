@@ -22,7 +22,7 @@ public record MemberDetails(
 
   @Override
   public String getUsername() {
-    return member.getEmail();
+    return member.getId().toString();
   }
 
   public Integer getId() {

@@ -1,13 +1,12 @@
 package com.e205.auth.jwt.filter;
 
-import static com.e205.exception.ApplicationError.*;
+import static com.e205.exception.ApplicationError.EXAMPLE;
 
 import com.e205.auth.dto.LoginRequest;
 import com.e205.auth.dto.MemberDetails;
 import com.e205.auth.exception.AuthException;
 import com.e205.auth.jwt.JwtProvider;
 import com.e205.auth.jwt.handler.JwtAuthenticationEntryPoint;
-import com.e205.exception.ApplicationError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -31,8 +30,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request,
-      HttpServletResponse response
-  ) throws AuthenticationException {
+      HttpServletResponse response) throws AuthenticationException {
     LoginRequest loginReq;
 
     try {
@@ -66,9 +64,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
   @Override
   protected void unsuccessfulAuthentication(HttpServletRequest request,
-      HttpServletResponse response, AuthenticationException failed
-  ) throws IOException, ServletException {
+      HttpServletResponse response, AuthenticationException failed ) throws IOException {
     // TODO <이현수> : 인증 실패 예외 처리
-    jwtAuthenticationEntryPoint.commence(request, response, new AuthException(EXAMPLE) {});
+    jwtAuthenticationEntryPoint.commence(request, response, new AuthException(EXAMPLE) {
+    });
   }
 }

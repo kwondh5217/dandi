@@ -2,6 +2,7 @@ package com.e205.domain.member.entity;
 
 import com.e205.command.bag.payload.EmailStatus;
 import com.e205.command.bag.payload.MemberPayload;
+import com.e205.command.member.payload.MemberAuthPayload;
 import com.e205.common.audit.BaseTime;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
@@ -61,5 +62,9 @@ public class Member extends BaseTime implements LoggableEntity {
 
   public MemberPayload toPayload() {
     return new MemberPayload(id, bagId, nickname, email, status);
+  }
+
+  public MemberAuthPayload toAuthPayload() {
+    return new MemberAuthPayload(id, bagId, nickname, email, password, status);
   }
 }

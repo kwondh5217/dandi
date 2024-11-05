@@ -2,6 +2,7 @@ package com.e205.domain.member.service;
 
 import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.bag.query.FindMemberQuery;
+import com.e205.command.member.payload.MemberAuthPayload;
 import com.e205.command.member.query.FindMemberByEmailQuery;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.domain.member.repository.MemberRepository;
@@ -23,9 +24,9 @@ public class MemberQueryServiceDefault implements MemberQueryService {
   }
 
   @Override
-  public MemberPayload findMemberByEmail(FindMemberByEmailQuery findMemberByEmailQuery) {
+  public MemberAuthPayload findMemberByEmail(FindMemberByEmailQuery findMemberByEmailQuery) {
     return memberRepository.findByEmail(findMemberByEmailQuery.email())
         .orElseThrow(RuntimeException::new)
-        .toPayload();
+        .toAuthPayload();
   }
 }
