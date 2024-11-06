@@ -62,8 +62,8 @@ public class RouteCommandServiceIntgTests {
 
   @BeforeEach
   void setUp() {
-    requestBagId1 = new RouteCreateCommand(BAG_ID_1);
-    requestBagId2 = new RouteCreateCommand(BAG_ID_2);
+    requestBagId1 = new RouteCreateCommand(MEMBER_ID_1, BAG_ID_1);
+    requestBagId2 = new RouteCreateCommand(MEMBER_ID_1, BAG_ID_2);
     assignSnapshotItem();
   }
 
@@ -78,7 +78,7 @@ public class RouteCommandServiceIntgTests {
     given(bagItemQueryService.bagItemsOfMember(any())).willReturn(currentBagItems);
 
     // when
-    routeCommandService.createRoute(requestBagId1, MEMBER_ID_1);
+    routeCommandService.createRoute(requestBagId1);
     Route currentRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
 
     // then
@@ -100,7 +100,7 @@ public class RouteCommandServiceIntgTests {
     given(bagItemQueryService.bagItemsOfMember(any())).willReturn(newBagItems);
 
     // when
-    routeCommandService.createRoute(requestBagId2, MEMBER_ID_1);
+    routeCommandService.createRoute(requestBagId2);
     Route currentRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
     Snapshot previousSnapshot = Snapshot.fromJson(previousRoute.getSnapshot());
     Snapshot currentSnapshot = Snapshot.fromJson(currentRoute.getSnapshot());
@@ -119,7 +119,7 @@ public class RouteCommandServiceIntgTests {
     given(bagItemQueryService.bagItemsOfMember(any())).willReturn(basedBagItems);
 
     // when
-    routeCommandService.createRoute(requestBagId1, MEMBER_ID_1);
+    routeCommandService.createRoute(requestBagId1);
     Route latestRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).orElseThrow();
     Snapshot snapshot = Snapshot.fromJson(latestRoute.getSnapshot());
 

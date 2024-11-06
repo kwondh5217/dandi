@@ -3,15 +3,21 @@ package com.e205.domain;
 import com.e205.command.RouteCreateCommand;
 import com.e205.dto.RoutePart;
 import com.e205.dto.Snapshot;
+import com.e205.dto.TrackPoint;
 import com.e205.log.LoggableEntity;
 import com.e205.payload.RoutePayload;
+import com.e205.util.GeometryUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -66,7 +72,7 @@ public class Route implements LoggableEntity {
     return RoutePayload.builder()
         .id(route.id)
         .memberId(route.memberId)
-        .track(route.track)
+        .track(toTrackPoints(route.track))
         .skip(route.skip)
         .startSnapshot(Snapshot.fromJson(route.snapshot))
         .nextSnapshot(nextSnapshot)
@@ -78,11 +84,19 @@ public class Route implements LoggableEntity {
   }
 
   public static RoutePart toPart(Route route) {
+    List<TrackPoint> trackPoints = new ArrayList<>();
+
+    if (route.getTrack() != null) {
+      trackPoints = Arrays.stream(route.getTrack().getCoordinates())
+          .map(coord -> new TrackPoint(coord.getY(), coord.getX()))
+          .collect(Collectors.toList());
+    }
+
     return RoutePart.builder()
-        .id(route.id)
-        .track(route.track)
-        .createdAt(route.createdAt)
-        .endedAt(route.endedAt)
+        .id(route.getId())
+        .track(trackPoints)
+        .createdAt(route.getCreatedAt())
+        .endedAt(route.getEndedAt())
         .build();
   }
 
@@ -93,5 +107,9 @@ public class Route implements LoggableEntity {
     } else {
       return Snapshot.toJson(ss);
     }
+  }
+
+  public static List<TrackPoint> toTrackPoints(LineString lineString) {
+    return GeometryUtils.toTrackPoints(lineString);
   }
 }

@@ -80,12 +80,12 @@ public class RouteCommandServiceTests {
   @DisplayName("이동 시작 성공 테스트")
   void 이동_시작_성공_테스트() {
     // given
-    RouteCreateCommand command = new RouteCreateCommand(BAG_ID);
+    RouteCreateCommand command = new RouteCreateCommand(MEMBER_ID, BAG_ID);
     Route savedRoute = getRoute();
     given(routeRepository.save(any(Route.class))).willReturn(savedRoute);
 
     // when
-    commandService.createRoute(command, MEMBER_ID);
+    commandService.createRoute(command);
 
     // then
     verify(routeRepository).save(any(Route.class));

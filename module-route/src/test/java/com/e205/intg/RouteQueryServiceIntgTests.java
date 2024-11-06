@@ -71,7 +71,7 @@ public class RouteQueryServiceIntgTests {
   public Route withinPolygonRoute;
   public Route noneWithinPolygonRoute;
 
-  LocalDateTime dateNow = LocalDateTime.now().minusHours(1);
+  LocalDateTime dateNow = LocalDateTime.now();
   LocalDateTime dateTomorrow = LocalDateTime.now().plusDays(1);
   LocalDateTime endDateNow = LocalDateTime.now().minusMinutes(30);
   LocalDateTime endDateTomorrow = LocalDateTime.now().plusDays(1).plusMinutes(30);
@@ -109,7 +109,7 @@ public class RouteQueryServiceIntgTests {
     // then
     assertThat(routePayload.startSnapshot()).isEqualTo(snapshot1);
     assertThat(routePayload.memberId()).isEqualTo(MEMBER_ID_1);
-    assertThat(routePayload.track()).isEqualTo(GeometryUtils.getLineString(trackPoints1));
+    assertThat(routePayload.track()).isEqualTo(trackPoints1);
     assertThat(routePayload.previousRouteId()).isNull();
     assertThat(routePayload.nextRouteId()).isEqualTo(ROUTE_ID_2);
   }
@@ -135,7 +135,7 @@ public class RouteQueryServiceIntgTests {
     RoutePayload routePayload = queryService.readRoute(query);
 
     // then
-    assertThat(routePayload.track()).isEqualTo(GeometryUtils.getLineString(trackPoints1));
+    assertThat(routePayload.track()).isEqualTo(trackPoints1);
     assertThat(routePayload.nextRouteId()).isNotNull();
     assertThat(routePayload.nextSnapshot()).isNull();
   }
@@ -147,7 +147,7 @@ public class RouteQueryServiceIntgTests {
     DailyRouteReadQuery query = new DailyRouteReadQuery(MEMBER_ID_1, dateNow.toLocalDate());
 
     // when
-    RoutesPayload routesPayload = queryService.readSpecificDayRoutes(query);
+    RoutesPayload routesPayload = queryService.readDailyRoute(query);
 
     // then
     // 일일 이동 검증, 오늘날의 이동
@@ -165,14 +165,14 @@ public class RouteQueryServiceIntgTests {
 
   @ParameterizedTest
   @CsvSource({
-      "2024-11-03T16:00:00, true",  // since가 route5 생성일보다 이전, MEMBER_ID_4 포함
-      "2024-11-04T16:00:00, false"  // since가 route5 생성일 이후, MEMBER_ID_4 미포함
+      "1440, true",  // 최근 1일, 사용자 4 포함
+      "5, false" // 최근 5분, 사용자 4 미포함
   })
   @DisplayName("특정 기간 내 경로 사용자 조회 테스트")
-  void 특정_기간_내_경로_사용자_조회_테스트(String sinceTime, boolean expectContainsMember4) {
+  void 특정_기간_내_경로_사용자_조회_테스트(int minutesAgo, boolean expectedResult) {
     // given
-    LocalDateTime since = LocalDateTime.parse(sinceTime);
-    MembersInRouteQuery query = new MembersInRouteQuery(ROUTE_ID_1, ROUTE_ID_7, since);
+    LocalDateTime since = LocalDateTime.now().minusMinutes(minutesAgo);
+    MembersInRouteQuery query = new MembersInRouteQuery(ROUTE_ID_1, ROUTE_ID_4, since);
 
     // when
     List<Integer> userIds = queryService.findUserIdsNearPath(query);
@@ -180,7 +180,7 @@ public class RouteQueryServiceIntgTests {
     // then
     assertThat(userIds).contains(MEMBER_ID_2);
     assertThat(userIds).doesNotContain(MEMBER_ID_3);
-    if (expectContainsMember4) {
+    if (expectedResult) {
       assertThat(userIds).contains(MEMBER_ID_4);
     } else {
       assertThat(userIds).doesNotContain(MEMBER_ID_4);
@@ -248,7 +248,7 @@ public class RouteQueryServiceIntgTests {
     );
 
     route5 = createRoute(ROUTE_ID_7, MEMBER_ID_4, GeometryUtils.getLineString(trackPoints2),
-        snapshot2, dateNow.minusDays(1).minusHours(3), endDateNow.minusDays(1).minusHours(1)
+        snapshot2, dateNow.minusHours(6), endDateNow.minusHours(5)
     );
 
     withinPolygonRoute = createRoute(ROUTE_ID_5, MEMBER_ID_2,

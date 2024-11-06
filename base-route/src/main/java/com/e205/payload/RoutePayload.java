@@ -1,15 +1,16 @@
 package com.e205.payload;
 
 import com.e205.dto.Snapshot;
+import com.e205.dto.TrackPoint;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Builder;
-import org.locationtech.jts.geom.LineString;
 
 @Builder
 public record RoutePayload(
     Integer id,
     Integer memberId,
-    LineString track,
+    List<TrackPoint> track,
     char skip,
     Snapshot startSnapshot,
     Snapshot nextSnapshot,

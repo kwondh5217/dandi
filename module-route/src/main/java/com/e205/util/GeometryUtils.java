@@ -1,6 +1,7 @@
 package com.e205.util;
 
 import com.e205.dto.TrackPoint;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,5 +49,15 @@ public class GeometryUtils {
   public Polygon createBufferedPolygon(LineString lineString, double radiusMeters) {
     double radiusInDegrees = radiusMeters / 111000.0;
     return (Polygon) lineString.buffer(radiusInDegrees);
+  }
+
+  public static List<TrackPoint> toTrackPoints(LineString lineString) {
+    List<TrackPoint> trackPoints = new ArrayList<>();
+    if (lineString != null) {
+      for (Coordinate coordinate : lineString.getCoordinates()) {
+        trackPoints.add(new TrackPoint(coordinate.y, coordinate.x));
+      }
+    }
+    return trackPoints;
   }
 }

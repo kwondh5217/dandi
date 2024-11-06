@@ -34,26 +34,26 @@ public class DirectRouteCommandService implements RouteCommandService {
   private final ApplicationEventPublisher eventPublisher;
 
   @Override
-  public void createRoute(RouteCreateCommand command, Integer memberId) {
-    Optional<Route> route = routeRepository.findFirstByMemberIdOrderByIdDesc(memberId);
+  public void createRoute(RouteCreateCommand command) {
+    Optional<Route> route = routeRepository.findFirstByMemberIdOrderByIdDesc(command.memberId());
     String determinedSnapshot = route.map(findRoute -> {
-          Snapshot defaultSnapshot = loadBaseSnapshot(command, memberId);
+          Snapshot defaultSnapshot = loadBaseSnapshot(command);
           Snapshot currentSnapshot = loadCurrentSnapshot(findRoute);
           return Route.determineSnapshot(command, defaultSnapshot, currentSnapshot);
         })
         .orElseGet(() -> {
-          return Snapshot.toJson(loadBaseSnapshot(command, memberId));
+          return Snapshot.toJson(loadBaseSnapshot(command));
         });
 
-    Route savedRoute = routeRepository.save(Route.toEntity(memberId, determinedSnapshot));
+    Route savedRoute = routeRepository.save(Route.toEntity(command.memberId(), determinedSnapshot));
     String payload = RouteEventPayload.toJson(getPayload(savedRoute, determinedSnapshot));
-    eventPublisher.publishEvent(new RouteSavedEvent(memberId, payload));
+    eventPublisher.publishEvent(new RouteSavedEvent(command.memberId(), payload));
   }
 
-  private Snapshot loadBaseSnapshot(RouteCreateCommand request, Integer memberId) {
-    BagItemsOfMemberQuery query = new BagItemsOfMemberQuery(memberId, request.bagId());
+  private Snapshot loadBaseSnapshot(RouteCreateCommand command) {
+    BagItemsOfMemberQuery query = new BagItemsOfMemberQuery(command.memberId(), command.bagId());
     List<SnapshotItem> snapshotItems = bagItemQueryService.bagItemsOfMember(query);
-    return new Snapshot(request.bagId(), snapshotItems);
+    return new Snapshot(command.bagId(), snapshotItems);
   }
 
   private Snapshot loadCurrentSnapshot(Route previousRoute) {

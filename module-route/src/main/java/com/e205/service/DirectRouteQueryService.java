@@ -12,6 +12,7 @@ import com.e205.query.DailyRouteReadQuery;
 import com.e205.query.MembersInPointQuery;
 import com.e205.query.MembersInRouteQuery;
 import com.e205.query.RouteReadQuery;
+import com.e205.query.SnapshotReadQuery;
 import com.e205.repository.RouteRepository;
 import com.e205.util.GeometryUtils;
 import java.util.ArrayList;
@@ -37,8 +38,8 @@ public class DirectRouteQueryService implements RouteQueryService {
   private final GeometryUtils geometryUtils;
 
   @Override
-  public SnapshotPayload readSnapshot(Integer routeId) {
-    Route route = getRoute(routeId);
+  public SnapshotPayload readSnapshot(SnapshotReadQuery query) {
+    Route route = getRoute(query.routeId());
 
     Snapshot snapshot = Snapshot.fromJson(route.getSnapshot());
     char skip = route.getSkip();
@@ -70,7 +71,7 @@ public class DirectRouteQueryService implements RouteQueryService {
   }
 
   @Override
-  public RoutesPayload readSpecificDayRoutes(DailyRouteReadQuery query) {
+  public RoutesPayload readDailyRoute(DailyRouteReadQuery query) {
     Integer memberId = query.memberId();
     List<Route> routes = routeRepository.findAllByMemberIdAndCreatedAtDate(memberId, query.date());
     List<RoutePart> routeParts = routes.stream().map(Route::toPart).toList();

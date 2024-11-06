@@ -7,6 +7,7 @@ import com.e205.query.DailyRouteReadQuery;
 import com.e205.query.MembersInPointQuery;
 import com.e205.query.MembersInRouteQuery;
 import com.e205.query.RouteReadQuery;
+import com.e205.query.SnapshotReadQuery;
 import java.util.List;
 
 public interface RouteQueryService {
@@ -14,10 +15,10 @@ public interface RouteQueryService {
   /**
    * 특정 이동 ID에 대한 스냅샷 정보를 조회합니다.
    *
-   * @param routeId 조회할 이동의 ID
+   * @param query 스냅샷 조회 요청 쿼리
    * @return SnapshotPayload 스냅샷 정보와 건너뛰기 여부
    */
-  SnapshotPayload readSnapshot(Integer routeId);
+  SnapshotPayload readSnapshot(SnapshotReadQuery query);
 
   /**
    * 특정 이동의 상세 정보를 조회합니다.
@@ -33,7 +34,7 @@ public interface RouteQueryService {
    * @param query 특정 날짜에 대한 이동 조회 요청 쿼리
    * @return RoutesPayload 이동 목록 및 다음 이동 ID 정보
    */
-  RoutesPayload readSpecificDayRoutes(DailyRouteReadQuery query);
+  RoutesPayload readDailyRoute(DailyRouteReadQuery query);
 
   /**
    * 경로 반경 내 사용자들의 ID 목록을 조회합니다.

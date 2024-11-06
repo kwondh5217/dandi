@@ -74,7 +74,6 @@ public class JwtProvider {
           .getBody()
           .getExpiration()
           .before(new Date());
-      System.out.println(flag);
       return flag;
     } catch (Exception e) {
       e.printStackTrace();

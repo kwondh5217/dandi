@@ -1,13 +1,13 @@
-package com.e205.dto;
+package com.e205.route.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record RoutePart(
+public record RouteSummary(
     Integer id,
-    List<TrackPoint> track,
+    List<Point> track,
     LocalDateTime createdAt,
     LocalDateTime endedAt
 ) {

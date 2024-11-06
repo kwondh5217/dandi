@@ -13,14 +13,19 @@ import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
 import com.e205.query.DailyRouteReadQuery;
 import com.e205.query.RouteReadQuery;
+import com.e205.query.SnapshotReadQuery;
 import com.e205.repository.RouteRepository;
 import com.e205.util.GeometryUtils;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -38,32 +43,34 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest(classes = TestConfiguration.class)
 class RouteQueryServiceTests {
 
+  GeometryFactory geometryFactory = new GeometryFactory();
   @Mock
   private RouteRepository routeRepository;
-
   @Mock
   private GeometryUtils geometryUtils;
-
   @InjectMocks
   private DirectRouteQueryService routeQueryService;
-
   @Mock
   private Route route;
-
   @Mock
   private Route nextRoute;
-
   @Mock
   private RouteReadQuery routeReadQuery;
-
   @Mock
   private DailyRouteReadQuery dailyRouteQuery;
-
   @Mock
   private Route unfinishedRoute;
-
   @MockBean
   private EventPublisher eventPublisher;
+  private LineString lineString;
+
+  @BeforeEach
+  void setUp() {
+    lineString = geometryFactory.createLineString(new Coordinate[]{
+        new Coordinate(127.0, 37.5),
+        new Coordinate(127.1, 37.6)
+    });
+  }
 
   @Test
   @DisplayName("이동 상세 조회 시 다음 이동이 없다면 endSnapshot은 null이 된다.")
@@ -131,7 +138,7 @@ class RouteQueryServiceTests {
         .willReturn(Collections.emptyList());
 
     // when
-    RoutesPayload result = routeQueryService.readSpecificDayRoutes(dailyRouteQuery);
+    RoutesPayload result = routeQueryService.readDailyRoute(dailyRouteQuery);
 
     // then
     assertThat(result).isNull();
@@ -147,9 +154,10 @@ class RouteQueryServiceTests {
     given(unfinishedRoute.getEndedAt()).willReturn(null);
     given(routeRepository.findAllByMemberIdAndCreatedAtDate(MEMBER_ID_1, date))
         .willReturn(List.of(unfinishedRoute));
+    given(unfinishedRoute.getTrack()).willReturn(lineString);
 
     // when
-    RoutesPayload result = routeQueryService.readSpecificDayRoutes(dailyRouteQuery);
+    RoutesPayload result = routeQueryService.readDailyRoute(dailyRouteQuery);
 
     // then
     assertThat(result).isNotNull();
@@ -168,16 +176,17 @@ class RouteQueryServiceTests {
         .willReturn(List.of(route));
     given(route.getEndedAt()).willReturn(LocalDate.now().atTime(23, 59));
     given(route.getId()).willReturn(1);
+    given(route.getTrack()).willReturn(lineString);
 
     // 다음 이동 설정 및 반경 벗어나는 경우 설정
     given(
         routeRepository.findFirstByMemberIdAndIdGreaterThanOrderByIdAsc(MEMBER_ID_1, route.getId()))
         .willReturn(Optional.of(nextRoute));
-    given(geometryUtils.isWithinDistance(route.getTrack(), nextRoute.getTrack(), 1000)).willReturn(
-        false);
+    given(geometryUtils.isWithinDistance(route.getTrack(), nextRoute.getTrack(), 1000))
+        .willReturn(false);
 
     // when
-    RoutesPayload result = routeQueryService.readSpecificDayRoutes(dailyRouteQuery);
+    RoutesPayload result = routeQueryService.readDailyRoute(dailyRouteQuery);
 
     // then
     assertThat(result).isNotNull();
@@ -189,7 +198,8 @@ class RouteQueryServiceTests {
   @DisplayName("스냅샷 조회 성공 테스트")
   void 스냅샷_조회_성공_테스트() {
     // given
-    Integer routeId = 1; // 테스트용 routeId
+    Integer routeId = 1;
+    SnapshotReadQuery query = new SnapshotReadQuery(routeId);
     String snapshotJson = """
         {
             "bagId": 1,
@@ -209,7 +219,7 @@ class RouteQueryServiceTests {
     given(route.getSkip()).willReturn('N');
 
     // when
-    SnapshotPayload snapshotPayload = routeQueryService.readSnapshot(routeId);
+    SnapshotPayload snapshotPayload = routeQueryService.readSnapshot(query);
 
     // then
     assertThat(snapshotPayload.snapshot()).isEqualTo(expectedSnapshot);
