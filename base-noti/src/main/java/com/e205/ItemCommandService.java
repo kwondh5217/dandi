@@ -1,6 +1,5 @@
-package com.e205.communication;
+package com.e205;
 
-import com.e205.NotifiedMembersCommand;
 import java.util.List;
 
 public interface ItemCommandService {
