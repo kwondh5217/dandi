@@ -2,11 +2,11 @@ package com.e205.auth.jwt.filter;
 
 import static com.e205.exception.ApplicationError.EXAMPLE;
 
+import com.e205.auth.dto.AuthenticationMember;
 import com.e205.auth.dto.MemberDetails;
 import com.e205.auth.exception.AuthException;
 import com.e205.auth.jwt.JwtProvider;
 import com.e205.auth.jwt.handler.JwtAuthenticationEntryPoint;
-import com.e205.domain.member.entity.Member;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +42,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       return;
     }
 
-    MemberDetails memberDetails = new MemberDetails(createForAuthentication(token));
+    MemberDetails memberDetails = new MemberDetails(createAuthMember(token));
     Authentication authentication = new UsernamePasswordAuthenticationToken(
         memberDetails, null,
         memberDetails.getAuthorities()
@@ -51,7 +51,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
-  private boolean isValidateIfNotCallCommence(HttpServletRequest request, HttpServletResponse response,
+  private boolean isValidateIfNotCallCommence(HttpServletRequest request,
+      HttpServletResponse response,
       String token
   ) throws IOException {
     if (!jwtProvider.verifyToken(token)) {
@@ -68,8 +69,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     return true;
   }
 
-  private Member createForAuthentication(String token) {
-    return Member.builder()
+  private AuthenticationMember createAuthMember(String token) {
+    return AuthenticationMember.builder()
         .id(jwtProvider.getMemberId(token))
         .build();
   }

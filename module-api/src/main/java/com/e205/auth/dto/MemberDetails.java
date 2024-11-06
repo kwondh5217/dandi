@@ -1,13 +1,12 @@
 package com.e205.auth.dto;
 
-import com.e205.domain.member.entity.Member;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public record MemberDetails(
-    Member member
+    AuthenticationMember member
 ) implements UserDetails {
 
   @Override
@@ -17,15 +16,15 @@ public record MemberDetails(
 
   @Override
   public String getPassword() {
-    return member.getPassword();
+    return member.password();
   }
 
   @Override
   public String getUsername() {
-    return member.getId().toString();
+    return member.email();
   }
 
   public Integer getId() {
-    return member.getId();
+    return member.id();
   }
 }
