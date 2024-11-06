@@ -50,7 +50,7 @@ class NotificationProcessorTest {
   }
 
   @Test
-  void processNotifications_withChunks_andVerifyTransactions() {
+  void processNotifications_shouldCreateNotificationsForEachMemberInTransactionChunks() {
     // given
     List<MemberWithFcm> membersWithFcm = List.of(
         new MemberWithFcm(1, "token1"),
@@ -63,8 +63,8 @@ class NotificationProcessorTest {
         1, "Test Description", "lostItemSaveEvent", membersWithFcm);
 
     // then
-    verify(commandService, times(membersWithFcm.size())).createNotification(
-        any(CreateNotificationCommand.class));
+    verify(commandService, times(membersWithFcm.size()))
+        .createNotification(any(CreateNotificationCommand.class));
 
     var synchronizations = TransactionSynchronizationManager.getSynchronizations();
     long notifierCallbackCount = synchronizations.stream()
@@ -74,32 +74,30 @@ class NotificationProcessorTest {
     assertAll(
         () -> assertThat(synchronizations).isNotEmpty(),
         () -> assertThat(notifierCallbackCount).isEqualTo(membersWithFcm.size()),
-        () -> assertThat(notifiedMembers.size()).isEqualTo(membersWithFcm.size())
+        () -> assertThat(notifiedMembers).hasSize(membersWithFcm.size())
     );
   }
 
   @Test
-  void notify_shouldInvokeNotifierDirectly() {
+  void notify_shouldDirectlyInvokeNotifierWithCorrectParameters() {
     // given
-    String fcm = "fcmToken";
+    String fcmToken = "fcmToken";
     String title = "Test Title";
     String body = "Test Body";
 
     // when
-    notificationProcessor.notify(fcm, title, body);
+    notificationProcessor.notify(fcmToken, title, body);
 
     // then
-    verify(notifier, times(1)).notify(eq(fcm), eq(title), eq(body));
+    verify(notifier, times(1)).notify(eq(fcmToken), eq(title), eq(body));
   }
 
   @Test
-  void processNotifications_whenTransactionFails_shouldRollback() {
+  void processNotifications_whenTransactionFails_shouldRollbackTransaction() {
     // given
-    List<MemberWithFcm> membersWithFcm = List.of(
-        new MemberWithFcm(1, "token1")
-    );
-
+    List<MemberWithFcm> singleMember = List.of(new MemberWithFcm(1, "token1"));
     TransactionStatus transactionStatus = mock(TransactionStatus.class);
+
     given(transactionManager.getTransaction(any(TransactionDefinition.class)))
         .willReturn(transactionStatus);
 
@@ -109,8 +107,9 @@ class NotificationProcessorTest {
     // when
     try {
       notificationProcessor.processNotifications(1, "Test Description",
-          "lostItemSaveEvent", membersWithFcm);
+          "lostItemSaveEvent", singleMember);
     } catch (Exception ignored) {
+      // 예외를 무시하고 계속 진행
     }
 
     // then

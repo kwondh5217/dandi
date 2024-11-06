@@ -17,6 +17,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.type.YesNoConverter;
 import shaded_package.com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import shaded_package.com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -27,6 +29,7 @@ import shaded_package.com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @ToString(callSuper = true)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
+@Cache(region = "notificationCache", usage = CacheConcurrencyStrategy.READ_WRITE)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "TYPE", discriminatorType = DiscriminatorType.STRING)
 public class Notification implements LoggableEntity {

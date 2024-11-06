@@ -5,9 +5,7 @@ import com.e205.log.TransactionSynchronizationRegistryImpl;
 import java.util.Map;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.cfg.AvailableSettings;
-import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -21,13 +19,17 @@ public class JpaConfig {
 
   private static final String ENTITY_PACKAGE_TO_SCAN = "com.e205";
   private static final String HIBERNATE_SESSION_FACTORY_INTERCEPTOR = "hibernate.session_factory.interceptor";
-  private static final String HIBERNATE_FORMAT_SQL = "hibernate.format_sql";
-  private static final String HIBERNATE_HBM2DDL_AUTO = "hibernate.hbm2ddl.auto";
-  private static final String CREATE_DROP = "create";
-  private static final String NONE = "none";
+  private static final String HIBERNATE_FORMAT_SQL_KEY = "hibernate.format_sql";
+  private static final String HIBERNATE_HBM2DDL_AUTO_KEY = "hibernate.hbm2ddl.auto";
 
-  @Autowired(required = false)
-  private RedissonClient redissonClient;
+  @Value("${hibernate.hbm2ddl.auto:#{'none'}}")
+  private String ddlValue;
+  @Value("${hibernate.generateddl:#{false}}")
+  private boolean generateDdl;
+  @Value("${hibernate.showsql:#{false}}")
+  private boolean showSql;
+  @Value("${hibernate.formatsql:#{false}}")
+  private boolean formatSql;
 
   @Bean
   public LogInterceptor logInterceptor() {
@@ -38,8 +40,8 @@ public class JpaConfig {
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(
       DataSource dataSource) {
     HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-    vendorAdapter.setGenerateDdl(true); // 개발 환경에서 필요하면 true로 설정
-    vendorAdapter.setShowSql(false); // 개발 환경에서 필요하면 true로 설정
+    vendorAdapter.setGenerateDdl(generateDdl);
+    vendorAdapter.setShowSql(showSql);
 
     LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
     emf.setJpaVendorAdapter(vendorAdapter);
@@ -48,18 +50,8 @@ public class JpaConfig {
 
     Map<String, Object> jpaProperties = emf.getJpaPropertyMap();
     jpaProperties.put(HIBERNATE_SESSION_FACTORY_INTERCEPTOR, logInterceptor());
-    jpaProperties.put(HIBERNATE_FORMAT_SQL, true);
-    jpaProperties.put(HIBERNATE_HBM2DDL_AUTO, CREATE_DROP);
-
-    if (redissonClient != null) {
-      jpaProperties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, true);
-      jpaProperties.put(AvailableSettings.CACHE_REGION_FACTORY,
-          "org.redisson.hibernate.RedissonRegionFactory");
-      log.info("RedissonClient detected, enabling second-level cache with Redisson");
-    } else {
-      jpaProperties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, false);
-      log.info("RedissonClient not detected, second-level cache is disabled");
-    }
+    jpaProperties.put(HIBERNATE_FORMAT_SQL_KEY, formatSql);
+    jpaProperties.put(HIBERNATE_HBM2DDL_AUTO_KEY, ddlValue);
 
     return emf;
   }

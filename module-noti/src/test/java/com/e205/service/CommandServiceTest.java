@@ -38,7 +38,7 @@ class CommandServiceTest {
   }
 
   @Test
-  void deleteNotificationMembers() {
+  void deleteNotifications_shouldDeleteNotificationsByIds() {
     List<Integer> notificationIds = List.of(1, 2, 3);
     var command = new DeleteNotificationsCommand(
         notificationIds);
@@ -49,7 +49,7 @@ class CommandServiceTest {
   }
 
   @Test
-  void confirmationNotification_lostItem() {
+  void confirmItemNotification_shouldConfirmReadStatusForLostItemNotifications() {
     var confirmItemCommand = new ConfirmItemCommand(1, "lostItem");
     var lostItemNotification = mock(LostItemNotification.class);
     given(this.lostItemNotificationRepository.findByLostItemId(any())).willReturn(

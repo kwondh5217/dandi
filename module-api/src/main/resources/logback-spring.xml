@@ -1,0 +1,19 @@
+<configuration>
+  <!-- Console Appender (개발 중 콘솔 출력용) -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+  </appender>
+
+  <!-- File Appender (파일에 로그 저장) -->
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>./logs/app.log</file> <!-- 로그 파일 경로 -->
+    <append>true</append>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+  </appender>
+
+  <!-- Root Logger 설정 (모든 로그를 Console과 File로 출력) -->
+  <root level="info">
+    <appender-ref ref="CONSOLE" />
+    <appender-ref ref="FILE" />
+  </root>
+</configuration>

@@ -1,3 +1,8 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+
 dependencies {
     implementation project(':module-common')
 
@@ -25,10 +30,41 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.redisson:redisson-spring-boot-starter:3.38.0'
     implementation 'com.mysql:mysql-connector-j:8.0.33'
+    implementation 'com.h2database:h2:2.3.232'
+    implementation 'net.bytebuddy:byte-buddy:1.15.9'
+    implementation 'net.bytebuddy:byte-buddy-agent:1.15.9'
+    implementation 'org.redisson:redisson-hibernate-53:3.38.1'
+
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
+    testImplementation 'io.github.hakky54:logcaptor:2.9.3'
+    implementation 'com.github.codemonstur:embedded-redis:1.4.3'
+
 
     // TEST
     testImplementation 'org.springframework.security:spring-security-test'
 }
 
-bootJar.enabled = true
-jar.enabled = false
+shadowJar {
+    archiveBaseName.set("event-agent")
+    archiveClassifier.set("all")
+    zip64 true
+    manifest {
+        attributes(
+                'Premain-Class': 'com.e205.byteBuddy.EventAgent',
+                'Can-Redefine-Classes': 'true',
+                'Can-Retransform-Classes': 'true'
+        )
+    }
+}
+
+bootRun {
+    enabled = true
+    dependsOn shadowJar
+    jvmArgs = ["-javaagent:${projectDir}/build/libs/event-agent-0.0.1-SNAPSHOT-all.jar"]
+}
+
+test {
+    useJUnitPlatform()
+    dependsOn shadowJar
+    jvmArgs = ["-javaagent:${projectDir}/build/libs/event-agent-0.0.1-SNAPSHOT-all.jar"]
+}

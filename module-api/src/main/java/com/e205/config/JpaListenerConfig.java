@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 @Configuration
-public class JpaNPlusOneListenerConfig implements ApplicationContextAware {
+public class JpaListenerConfig implements ApplicationContextAware {
 
   private ApplicationContext applicationContext;
 
