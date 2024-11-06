@@ -12,6 +12,7 @@ import com.e205.domain.member.repository.MemberRepository;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Random;
@@ -36,11 +37,10 @@ public class EmailCommandServiceDefault implements EmailCommandService {
   private static final String TEMPLATE_PATH = "templates/verification-email.html";
   private static final String TEMPLATE_PATH_VERFICATION = "templates/verification-number-email.html";
   private static final String EMAIL_CONTENT_TYPE = "text/html; charset=utf-8";
-  private static final Duration TOKEN_EXPIRATION = Duration.ofMinutes(10);
+  private static final Duration TOKEN_EXPIRATION = Duration.ofMinutes(15);
   private static final Duration VERIFICATION_EXPIRATION = Duration.ofMinutes(20);
   private static final String EMAIL_SUBJECT_NUMBER = "단디 비밀번호 이메일인증번호";
 
-  private final MemberRepository memberRepository;
   private final JavaMailSender mailSender;
   private final RedisTemplate<String, String> redisTemplate;
 
@@ -51,12 +51,11 @@ public class EmailCommandServiceDefault implements EmailCommandService {
 
   @Override
   public String createAndStoreToken(CreateEmailTokenCommand createEmailTokenCommand) {
-    // TODO: <홍성우> Exception 상세화
+    // 고유한 토큰 생성
     String token = UUID.randomUUID().toString();
-    String tokenKey = "token:" + token;
-    redisTemplate.opsForHash().put(tokenKey, "userId", String.valueOf(createEmailTokenCommand.userId()));
-    redisTemplate.opsForHash().put(tokenKey, "email", createEmailTokenCommand.email());
-    redisTemplate.expire(tokenKey, TOKEN_EXPIRATION);
+    String redisKey = "verifyEmail:" + createEmailTokenCommand.email();
+    redisTemplate.opsForHash().put(redisKey, "token", token);
+    redisTemplate.expire(redisKey, TOKEN_EXPIRATION);
 
     return token;
   }
@@ -68,7 +67,9 @@ public class EmailCommandServiceDefault implements EmailCommandService {
       ClassPathResource resource = new ClassPathResource(TEMPLATE_PATH);
       String content = Files.readString(resource.getFile().toPath(), StandardCharsets.UTF_8);
 
-      String verificationLink = backendUrl + "/verify?token=" + sendVerificationEmailCommand.token();
+      String verificationLink = backendUrl + "/auth/verify?email="
+          + URLEncoder.encode(sendVerificationEmailCommand.toEmail(), StandardCharsets.UTF_8)
+          + "&token=" + sendVerificationEmailCommand.token();
       content = content.replace("{{verificationLink}}", verificationLink);
 
       MimeMessage message = mailSender.createMimeMessage();
@@ -82,41 +83,6 @@ public class EmailCommandServiceDefault implements EmailCommandService {
       // TODO: <홍성우> Exception 상세화
       throw new RuntimeException("이메일 전송 실패");
     }
-  }
-
-  @Override
-  public void checkEmailVerificationInProgress(
-      CheckEmailProgressCommand checkEmailProgressCommandString) {
-    Set<String> keys = redisTemplate.keys("token:*");
-    if (keys != null && !keys.isEmpty()) {
-      boolean inProgress = keys.stream()
-          .anyMatch(key -> {
-            String storedEmail = (String) redisTemplate.opsForHash().get(key, "email");
-            return checkEmailProgressCommandString.email().equals(storedEmail);
-          });
-      if (inProgress) {
-        // TODO: <홍성우> Exception 상세화
-        throw new IllegalStateException("해당 이메일은 이미 인증 중입니다.");
-      }
-    }
-  }
-
-  @Override
-  public String verifyToken(VerifyEmailToken verifyEmailToken) {
-    String tokenKey = "token:" + verifyEmailToken.token();
-    String userId = (String) redisTemplate.opsForHash().get(tokenKey, "userId");
-    String email = (String) redisTemplate.opsForHash().get(tokenKey, "email");
-
-    if (userId != null && email != null) {
-      redisTemplate.delete(tokenKey);
-
-      memberRepository.findById(Integer.parseInt(userId)).ifPresent(member -> {
-        member.updateStatus(EmailStatus.VERIFIED);
-        memberRepository.save(member);
-      });
-      return userId;
-    }
-    throw new RuntimeException("유효하지 않은 인증 토큰입니다.");
   }
 
   @Override

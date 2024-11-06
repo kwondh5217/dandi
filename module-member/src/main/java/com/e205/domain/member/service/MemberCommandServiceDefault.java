@@ -3,6 +3,7 @@ package com.e205.domain.member.service;
 import com.e205.command.bag.payload.EmailStatus;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
 import com.e205.command.member.command.RequestEmailVerificationCommand;
+import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
 import com.e205.command.member.service.MemberCommandService;
 import com.e205.command.member.command.CreateEmailTokenCommand;
 import com.e205.command.member.command.RegisterMemberCommand;
@@ -12,6 +13,8 @@ import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
+import java.time.Duration;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MemberCommandServiceDefault implements MemberCommandService {
 
+  private static final Duration TOKEN_EXPIRATION = Duration.ofMinutes(20);
   private final MemberRepository memberRepository;
   private final BagRepository bagRepository;
   private final EmailCommandServiceDefault emailService;
@@ -28,18 +32,58 @@ public class MemberCommandServiceDefault implements MemberCommandService {
 
   @Override
   public void registerMember(RegisterMemberCommand memberRegistrationCommand) {
-    // TODO: <홍성우> Exception 상세화
     if (memberRepository.existsByEmail(memberRegistrationCommand.email())) {
       throw new IllegalArgumentException("이미 등록된 이메일입니다.");
     }
 
-    Member newMember = Member.builder()
-        .password(memberRegistrationCommand.password())
-        .email(memberRegistrationCommand.email())
-        .nickname(memberRegistrationCommand.nickname())
-        .status(EmailStatus.PENDING)
-        .build();
+    String redisKey = "registration:" + memberRegistrationCommand.email();
+    redisTemplate.opsForHash().put(redisKey, "password", memberRegistrationCommand.password());
+    redisTemplate.opsForHash().put(redisKey, "email", memberRegistrationCommand.email());
+    redisTemplate.opsForHash().put(redisKey, "nickname", memberRegistrationCommand.nickname());
 
+    redisTemplate.expire(redisKey, TOKEN_EXPIRATION);
+
+    // 인증 이메일 발송을 위한 토큰 생성 및 발송
+    String token = emailService.createAndStoreToken(
+        new CreateEmailTokenCommand(memberRegistrationCommand.email()));
+    emailService.sendVerificationEmail(
+        new SendVerificationEmailCommand(memberRegistrationCommand.email(), token));
+  }
+
+  @Override
+  public void verifyEmailAndCompleteRegistration(VerifyEmailAndRegisterCommand verifyEmailAndRegisterCommand) {
+    String redisKey = "verifyEmail:" + verifyEmailAndRegisterCommand.email();
+    Map<Object, Object> storedData = redisTemplate.opsForHash().entries(redisKey);
+    // 저장된 데이터가 없는 경우 예외 처리
+    if (storedData.isEmpty()) {
+      throw new IllegalArgumentException("유효하지 않은 또는 만료된 토큰입니다.");
+    }
+    // 저장된 토큰 가져와서 요청 토큰과 비교
+    String storedToken = (String) storedData.get("token");
+    if (!verifyEmailAndRegisterCommand.token().equals(storedToken)) {
+      throw new IllegalArgumentException("토큰이 일치하지 않습니다.");
+    }
+    String registrationKey = "registration:" + verifyEmailAndRegisterCommand.email();
+    Map<Object, Object> registrationData = redisTemplate.opsForHash().entries(registrationKey);
+
+    if (registrationData.isEmpty()) {
+      throw new IllegalArgumentException("회원가입 정보가 만료되었습니다.");
+    }
+    saveNewMember(verifyEmailAndRegisterCommand.email(), registrationData);
+    redisTemplate.delete(registrationKey);
+    redisTemplate.delete(redisKey);
+  }
+
+  private void saveNewMember(String email, Map<Object, Object> registrationData) {
+    String password = (String) registrationData.get("password");
+    String nickname = (String) registrationData.get("nickname");
+
+    Member newMember = Member.builder()
+        .password(password)
+        .email(email)
+        .nickname(nickname)
+        .status(EmailStatus.VERIFIED)
+        .build();
     Member member = memberRepository.save(newMember);
 
     Bag bag = Bag.builder()
@@ -48,10 +92,8 @@ public class MemberCommandServiceDefault implements MemberCommandService {
         .bagOrder((byte) 1)
         .name("기본가방")
         .build();
-
     bagRepository.save(bag);
     member.updateBagId(bag.getId());
-
   }
 
   @Override
@@ -80,8 +122,8 @@ public class MemberCommandServiceDefault implements MemberCommandService {
   @Override
   public void requestEmailVerification(
       RequestEmailVerificationCommand requestEmailVerificationCommand) {
-    String token = emailService.createAndStoreToken(new CreateEmailTokenCommand(
-        requestEmailVerificationCommand.userId(), requestEmailVerificationCommand.email()));
+    String token = emailService.createAndStoreToken(
+        new CreateEmailTokenCommand(requestEmailVerificationCommand.email()));
     emailService.sendVerificationEmail(
         new SendVerificationEmailCommand(requestEmailVerificationCommand.email(), token));
   }

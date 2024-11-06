@@ -51,41 +51,17 @@ class EmailServiceIntegrationTest extends AbstractRedisTestContainer {
   void testSendVerificationEmailAndTokenStorage() {
     // given
     String token = emailService.createAndStoreToken(
-        new CreateEmailTokenCommand(TEST_USER_ID, TEST_EMAIL));
+        new CreateEmailTokenCommand(TEST_EMAIL));
 
     // when
     emailService.sendVerificationEmail(new SendVerificationEmailCommand(TEST_EMAIL, token));
 
     // then
-    String tokenKey = "token:" + token;
-    String storedUserId = (String) redisTemplate.opsForHash().get(tokenKey, "userId");
-    String storedEmail = (String) redisTemplate.opsForHash().get(tokenKey, "email");
+    String tokenKey = "verifyEmail:" + TEST_EMAIL;
+    String storedEmail = (String) redisTemplate.opsForHash().get(tokenKey, "token");
 
-    assertThat(storedUserId).isNotNull();
     assertThat(storedEmail).isNotNull();
-    assertThat(storedUserId).isEqualTo(String.valueOf(TEST_USER_ID));
-    assertThat(storedEmail).isEqualTo(TEST_EMAIL);
-  }
-
-  @DisplayName("토큰 검증 시 사용자 ID 반환 및 상태 업데이트 확인")
-  @Test
-  void testVerifyToken() {
-    // given
-    String token = emailService.createAndStoreToken(
-        new CreateEmailTokenCommand(TEST_USER_ID, TEST_EMAIL));
-
-    // when
-    String verifiedUserId = emailService.verifyToken(new VerifyEmailToken(token));
-
-    // then
-    assertThat(verifiedUserId).isEqualTo(String.valueOf(TEST_USER_ID));
-
-    memberRepository.findById(TEST_USER_ID).ifPresent(member -> {
-      assertThat(member.getStatus()).isEqualTo(EmailStatus.VERIFIED);
-    });
-
-    String tokenKey = "token:" + token;
-    assertThat(redisTemplate.opsForHash().entries(tokenKey)).isEmpty();
+    assertThat(storedEmail).isEqualTo(token);
   }
 
   @DisplayName("이메일 인증 번호 생성 및 Redis 저장 확인")

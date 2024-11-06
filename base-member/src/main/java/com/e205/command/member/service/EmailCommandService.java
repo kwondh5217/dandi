@@ -13,10 +13,6 @@ public interface EmailCommandService {
 
   void sendVerificationEmail(SendVerificationEmailCommand sendVerificationEmailCommand);
 
-  void checkEmailVerificationInProgress(CheckEmailProgressCommand checkEmailProgressCommandString);
-
-  String verifyToken(VerifyEmailToken verifyEmailToken);
-
   void createAndStoreVerificationNumber(
       CreateVerificationNumberCommand createVerificationNumberCommand);
 
