@@ -129,7 +129,7 @@ class BagCommandServiceIntegrationTest {
     createBagItem(targetBag.getId(), 3, (byte) 3);
 
     // When
-    bagCommandService.delete(new BagDeleteCommand(memberId, targetBag.getId()));
+    bagCommandService.delete(new BagDeleteCommand(memberId, targetBag.getId(), 4));
 
     // Then
     assertThat(bagRepository.findById(targetBag.getId())).isEmpty();

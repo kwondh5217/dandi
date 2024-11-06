@@ -18,6 +18,7 @@ import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
+import com.e205.domain.member.entity.Member;
 import com.e205.domain.message.MemberEventPublisher;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -196,13 +197,15 @@ public class BagCommandServiceDefault implements BagCommandService {
 
   @Override
   public void delete(BagDeleteCommand command) {
-    // TODO: <홍성우> RuntimeException 상세화
-    Bag targetBag = bagRepository.findById(command.bagId())
-        .orElseThrow(RuntimeException::new);
+    if (Objects.equals(command.memberBagId(), command.bagId())) {
+      throw new IllegalArgumentException("기본 가방은 삭제할 수 없습니다.");
+    }
 
-    // TODO: <홍성우> RuntimeException 상세화
-    if(!Objects.equals(targetBag.getId(), command.bagId())) {
-      throw new RuntimeException();
+    Bag targetBag = bagRepository.findById(command.bagId())
+        .orElseThrow(() -> new IllegalArgumentException("삭제할 가방을 찾을 수 없습니다."));
+
+    if (!Objects.equals(targetBag.getMemberId(), command.memberId())) {
+      throw new IllegalArgumentException("삭제하려는 가방의 소유자가 아닙니다.");
     }
 
     bagItemRepository.deleteAllByBagId(targetBag.getId());
