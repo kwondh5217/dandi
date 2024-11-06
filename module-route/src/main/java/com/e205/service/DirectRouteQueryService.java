@@ -9,11 +9,11 @@ import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
 import com.e205.query.DailyRouteReadQuery;
+import com.e205.query.MembersInPointQuery;
 import com.e205.query.MembersInRouteQuery;
 import com.e205.query.RouteReadQuery;
 import com.e205.repository.RouteRepository;
 import com.e205.util.GeometryUtils;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -101,6 +101,11 @@ public class DirectRouteQueryService implements RouteQueryService {
     Polygon bufferedPolygon = geometryUtils.createBufferedPolygon(combinedTrack, radius);
 
     return new ArrayList<>(routeRepository.findUsersWithinPolygon(bufferedPolygon, query.since()));
+  }
+
+  @Override
+  public List<Integer> findUserIdsNearPoint(MembersInPointQuery query) {
+    return List.of();
   }
 
   private Route getRoute(Integer routeId) {

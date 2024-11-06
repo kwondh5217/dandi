@@ -4,6 +4,7 @@ import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
 import com.e205.query.DailyRouteReadQuery;
+import com.e205.query.MembersInPointQuery;
 import com.e205.query.MembersInRouteQuery;
 import com.e205.query.RouteReadQuery;
 import java.util.List;
@@ -35,10 +36,18 @@ public interface RouteQueryService {
   RoutesPayload readSpecificDayRoutes(DailyRouteReadQuery query);
 
   /**
-   * 분실물 경로 반경 내 사용자들의 ID 목록을 조회합니다.
+   * 경로 반경 내 사용자들의 ID 목록을 조회합니다.
    *
    * @param query 이동들의 경로 내 사용자 요청 쿼리
    * @return List<Integer> 분실물 경로 반경 내 사용자 ID 목록
    */
   List<Integer> findUserIdsNearPath(MembersInRouteQuery query);
+
+  /**
+   * 좌표 반경 내 사용자들의 ID 목록을 조회합니다.
+   *
+   * @param query 좌표 반경 내 사용자 요청 쿼리
+   * @return List<Integer> 좌표 반경 내 사용자 ID 목록
+   */
+  List<Integer> findUserIdsNearPoint(MembersInPointQuery query);
 }
