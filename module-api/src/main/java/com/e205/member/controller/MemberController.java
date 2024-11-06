@@ -2,6 +2,7 @@ package com.e205.member.controller;
 
 import com.e205.member.dto.AuthEmailLinkRequest;
 import com.e205.member.dto.CheckVerificationNumberRequest;
+import com.e205.member.dto.CompleteSignUpRequest;
 import com.e205.member.dto.CreateMemberRequest;
 import com.e205.member.dto.MemberInfoResponse;
 import com.e205.member.dto.PasswordNumberEmailRequest;
@@ -73,5 +74,11 @@ public class MemberController {
         "<script>window.close();</script>" +
         "</body></html>";
     return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(responseHtml);
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping("/verify")
+  public void completeSignUp(@RequestBody CompleteSignUpRequest request) {
+    memberService.completeSignUp(request);
   }
 }

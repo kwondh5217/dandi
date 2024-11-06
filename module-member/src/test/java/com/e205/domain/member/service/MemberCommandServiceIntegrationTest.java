@@ -128,7 +128,7 @@ class MemberCommandServiceIntegrationTest extends AbstractRedisTestContainer {
     assertThat(registrationData).containsEntry("nickname", nickname);
   }
 
-  @DisplayName("이메일 인증 후 회원 가입 완료 테스트")
+  @DisplayName("이메일 인증 후")
   @Test
   void testVerifyEmailAndCompleteRegistration() {
     // Given
@@ -141,33 +141,23 @@ class MemberCommandServiceIntegrationTest extends AbstractRedisTestContainer {
     String registrationKey = "registration:" + email;
     redisTemplate.opsForHash().put(registrationKey, "password", password);
     redisTemplate.opsForHash().put(registrationKey, "nickname", nickname);
+    redisTemplate.opsForHash().put(registrationKey, "authenticated", "false");  // 초기값은 "false"
 
-    // 변경된 형식으로 토큰 저장
+    // 토큰 저장 (변경된 형식)
     String tokenKey = "verifyEmail:" + email;
     redisTemplate.opsForHash().put(tokenKey, "token", token);
 
-    // When
+    // When: 이메일 인증 완료
     memberCommandService.verifyEmailAndCompleteRegistration(
         new VerifyEmailAndRegisterCommand(email, token));
 
     // Then
-    // 1. 회원 정보가 DB에 저장되었는지 확인
-    Member registeredMember = memberRepository.findByEmail(email).orElse(null);
-    assertThat(registeredMember).isNotNull();
-    assertThat(registeredMember.getEmail()).isEqualTo(email);
-    assertThat(registeredMember.getPassword()).isEqualTo(password);
-    assertThat(registeredMember.getNickname()).isEqualTo(nickname);
-    assertThat(registeredMember.getStatus()).isEqualTo(EmailStatus.VERIFIED);
-
-    // 2. 기본 가방이 생성되었는지 확인
-    Bag bag = bagRepository.findById(1).orElse(null);
-    assertThat(bag).isNotNull();
-    assertThat(bag.getMemberId()).isEqualTo(registeredMember.getId());
-    assertThat(bag.getName()).isEqualTo("기본가방");
-    assertThat(bag.getEnabled()).isEqualTo('Y');
-
-    // 3. Redis에서 회원가입 정보와 토큰이 삭제되었는지 확인
-    assertThat(redisTemplate.hasKey(registrationKey)).isFalse();
-    assertThat(redisTemplate.hasKey(tokenKey)).isFalse();
+    String isAuthenticated = (String) redisTemplate.opsForHash()
+        .get(registrationKey, "authenticated");
+    assertThat(isAuthenticated).isEqualTo("true");
+    String storedPassword = (String) redisTemplate.opsForHash().get(registrationKey, "password");
+    String storedNickname = (String) redisTemplate.opsForHash().get(registrationKey, "nickname");
+    assertThat(storedPassword).isEqualTo(password);
+    assertThat(storedNickname).isEqualTo(nickname);
   }
 }

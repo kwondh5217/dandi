@@ -2,6 +2,7 @@ package com.e205.domain.member.service;
 
 import com.e205.command.bag.payload.EmailStatus;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
+import com.e205.command.member.command.CompleteSignUpCommand;
 import com.e205.command.member.command.RequestEmailVerificationCommand;
 import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
 import com.e205.command.member.service.MemberCommandService;
@@ -40,6 +41,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     redisTemplate.opsForHash().put(redisKey, "password", memberRegistrationCommand.password());
     redisTemplate.opsForHash().put(redisKey, "email", memberRegistrationCommand.email());
     redisTemplate.opsForHash().put(redisKey, "nickname", memberRegistrationCommand.nickname());
+    redisTemplate.opsForHash().put(redisKey, "authenticated", "false");
 
     redisTemplate.expire(redisKey, TOKEN_EXPIRATION);
 
@@ -69,31 +71,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     if (registrationData.isEmpty()) {
       throw new IllegalArgumentException("회원가입 정보가 만료되었습니다.");
     }
-    saveNewMember(verifyEmailAndRegisterCommand.email(), registrationData);
-    redisTemplate.delete(registrationKey);
-    redisTemplate.delete(redisKey);
-  }
-
-  private void saveNewMember(String email, Map<Object, Object> registrationData) {
-    String password = (String) registrationData.get("password");
-    String nickname = (String) registrationData.get("nickname");
-
-    Member newMember = Member.builder()
-        .password(password)
-        .email(email)
-        .nickname(nickname)
-        .status(EmailStatus.VERIFIED)
-        .build();
-    Member member = memberRepository.save(newMember);
-
-    Bag bag = Bag.builder()
-        .memberId(member.getId())
-        .enabled('Y')
-        .bagOrder((byte) 1)
-        .name("기본가방")
-        .build();
-    bagRepository.save(bag);
-    member.updateBagId(bag.getId());
+    redisTemplate.opsForHash().put(registrationKey, "authenticated", "true");
   }
 
   @Override
@@ -117,6 +95,43 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     member.updatePassword(changePasswordWithVerificationNumber.newPassword());
 
     redisTemplate.delete(redisKey);
+  }
+
+  @Override
+  public void completeSignUp(CompleteSignUpCommand command) {
+    String email = command.email();
+    String registrationKey = "registration:" + email;
+
+    // Redis에서 인증 여부 확인
+    String isAuthenticated = (String) redisTemplate.opsForHash().get(registrationKey, "authenticated");
+    if (isAuthenticated == null || !isAuthenticated.equals("true")) {
+      throw new IllegalStateException("사용자가 이메일 인증을 완료하지 않았습니다.");
+    }
+
+    Map<Object, Object> registrationData = redisTemplate.opsForHash().entries(registrationKey);
+    if (registrationData.isEmpty()) {
+      throw new IllegalArgumentException("회원가입 정보가 만료되었습니다.");
+    }
+
+    String password = (String) registrationData.get("password");
+    String nickname = (String) registrationData.get("nickname");
+    Member newMember = Member.builder()
+        .password(password)
+        .email(email)
+        .nickname(nickname)
+        .status(EmailStatus.VERIFIED)
+        .build();
+
+    Member member = memberRepository.save(newMember);
+    Bag bag = Bag.builder()
+        .memberId(member.getId())
+        .enabled('Y')
+        .bagOrder((byte) 1)
+        .name("기본가방")
+        .build();
+    bagRepository.save(bag);
+    member.updateBagId(bag.getId());
+    redisTemplate.delete(registrationKey);
   }
 
   @Override

@@ -1,6 +1,7 @@
 package com.e205.command.member.service;
 
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
+import com.e205.command.member.command.CompleteSignUpCommand;
 import com.e205.command.member.command.RegisterMemberCommand;
 import com.e205.command.member.command.RequestEmailVerificationCommand;
 import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
@@ -17,4 +18,6 @@ public interface MemberCommandService {
   void changePasswordWithVerificationNumber(
       ChangePasswordWithVerifNumber changePasswordWithVerifNumber
   );
+
+  void completeSignUp(CompleteSignUpCommand command);
 }

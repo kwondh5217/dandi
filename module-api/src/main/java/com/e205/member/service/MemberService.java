@@ -5,6 +5,7 @@ import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.bag.query.FindMemberQuery;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
 import com.e205.command.member.command.CheckVerificationNumberCommand;
+import com.e205.command.member.command.CompleteSignUpCommand;
 import com.e205.command.member.command.CreateVerificationNumberCommand;
 import com.e205.command.member.command.RegisterMemberCommand;
 import com.e205.command.member.command.RequestEmailVerificationCommand;
@@ -14,6 +15,7 @@ import com.e205.command.member.service.MemberCommandService;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.member.dto.AuthEmailLinkRequest;
 import com.e205.member.dto.CheckVerificationNumberRequest;
+import com.e205.member.dto.CompleteSignUpRequest;
 import com.e205.member.dto.CreateMemberRequest;
 import com.e205.member.dto.MemberInfoResponse;
 import com.e205.member.dto.PasswordNumberEmailRequest;
@@ -73,5 +75,10 @@ public class MemberService {
   public void verifyEmail(VerifyEmailRequest request) {
     VerifyEmailAndRegisterCommand command = request.toCommand();
     memberCommandService.verifyEmailAndCompleteRegistration(command);
+  }
+
+  public void completeSignUp(CompleteSignUpRequest request) {
+    CompleteSignUpCommand command = request.toCommand();
+    memberCommandService.completeSignUp(command);
   }
 }
