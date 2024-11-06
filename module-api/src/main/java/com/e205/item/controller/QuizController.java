@@ -23,7 +23,7 @@ public class QuizController {
 
   @GetMapping
   public ResponseEntity<QuizResponse> getQuiz(
-      @AuthenticationPrincipal(expression = "member.id") Integer memberId,
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @PathVariable("foundId") Integer foundId
   ) {
     QuizResponse response = quizService.getQuiz(memberId, foundId);
@@ -32,7 +32,7 @@ public class QuizController {
 
   @PostMapping("/{quizId}")
   public ResponseEntity<QuizResultResponse> submitQuiz(
-      @AuthenticationPrincipal(expression = "member.id") Integer memberId,
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @PathVariable("quizId") Integer quizId,
       @RequestBody QuizSubmitRequest request
   ) {

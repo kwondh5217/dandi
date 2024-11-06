@@ -28,7 +28,7 @@ public class LostItemController {
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping
   public void createLostItem(
-      @AuthenticationPrincipal(expression = "member.id") Integer memberId,
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @RequestPart("lostItemRequest") LostItemCreateRequest request,
       @RequestPart("images") List<MultipartFile> images) {
     lostItemService.createLostItem(memberId, request, images);
@@ -37,14 +37,14 @@ public class LostItemController {
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/{lostId}")
   public void finishLostItem(
-      @AuthenticationPrincipal(expression = "member.id") Integer memberId,
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @PathVariable int lostId) {
     lostItemService.finishLostItem(memberId, lostId);
   }
 
   @GetMapping("/{lostId}")
   public ResponseEntity<LostItemResponse> getLostItem(
-      @AuthenticationPrincipal(expression = "member.id") Integer memberId,
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @PathVariable int lostId) {
     LostItemResponse response = lostItemService.getLostItem(memberId, lostId);
     return new ResponseEntity<>(response, HttpStatus.OK);

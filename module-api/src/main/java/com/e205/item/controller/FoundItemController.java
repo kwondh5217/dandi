@@ -27,7 +27,7 @@ public class FoundItemController {
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping
   public void createFoundItem(
-      @AuthenticationPrincipal(expression = "member.id") Integer memberId,
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @RequestPart("foundItemRequest") FoundItemCreateRequest request,
       @RequestPart("image") MultipartFile image
   ) {
@@ -36,7 +36,7 @@ public class FoundItemController {
 
   @GetMapping("/{foundId}")
   public ResponseEntity<FoundItemResponse> getFoundItem(
-      @AuthenticationPrincipal(expression = "member.id") Integer memberId,
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @PathVariable int foundId
   ) {
     FoundItemResponse response = foundItemService.get(memberId, foundId);
@@ -46,7 +46,7 @@ public class FoundItemController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @DeleteMapping("/{foundId}")
   public void deleteFoundItem(
-      @AuthenticationPrincipal(expression = "member.id") Integer memberId,
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @PathVariable int foundId
   ) {
     foundItemService.delete(memberId, foundId);

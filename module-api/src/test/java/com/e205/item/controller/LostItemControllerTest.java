@@ -52,8 +52,7 @@ public class LostItemControllerTest {
 
   @BeforeEach
   void setUp() {
-    Member member = Member.builder().id(1).build();
-    MemberDetails userDetails = new MemberDetails(member);
+    MemberDetails userDetails = new MemberDetails(1, "", "");
 
     SecurityContextHolder.getContext().setAuthentication(
         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
