@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class QueryService {
+public class NotiQueryService {
 
   private static final int DEFAULT_LIMIT = 20;
   private final NotificationRepository notificationRepository;

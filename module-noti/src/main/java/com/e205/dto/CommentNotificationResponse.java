@@ -10,9 +10,10 @@ public final class CommentNotificationResponse extends NotificationResponse {
   private Integer commentId;
 
   @Builder
-  public CommentNotificationResponse(Integer id, Integer memberId, LocalDateTime createdAt,
-      char confirmation, String title, Integer foundItemId) {
+  public CommentNotificationResponse(Integer id, Integer memberId,
+      LocalDateTime createdAt,
+      boolean confirmation, String title, Integer commentId) {
     super(id, memberId, createdAt, confirmation, title);
-    this.commentId = foundItemId;
+    this.commentId = commentId;
   }
 }

@@ -11,7 +11,7 @@ public final class RouteNotificationResponse extends NotificationResponse {
 
   @Builder
   public RouteNotificationResponse(Integer id, Integer memberId, LocalDateTime createdAt,
-      char confirmation, String title, Integer routeId) {
+      boolean confirmation, String title, Integer routeId) {
     super(id, memberId, createdAt, confirmation, title);
     this.routeId = routeId;
   }

@@ -2,9 +2,9 @@ package com.e205.service;
 
 import com.e205.CreateNotificationCommand;
 import com.e205.DeleteNotificationsCommand;
+import com.e205.ItemCommandService;
 import com.e205.NotifiedMembersCommand;
 import com.e205.command.ConfirmItemCommand;
-import com.e205.communication.ItemCommandService;
 import com.e205.entity.Notification;
 import com.e205.repository.FoundItemNotificationRepository;
 import com.e205.repository.LostItemNotificationRepository;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 @Service
-public class CommandService {
+public class NotiCommandService {
 
   private final NotificationRepository notificationRepository;
   private final ItemCommandService itemCommandService;
@@ -36,7 +36,8 @@ public class CommandService {
   }
 
   public void deleteNotifications(DeleteNotificationsCommand command) {
-    notificationRepository.deleteAllByIdInBatch(command.notificationIds());
+    notificationRepository.deleteAllByIdAndMemberId(command.memberId(),
+        command.notificationIds());
   }
 
   public void notifiedMembersCommand(List<NotifiedMembersCommand> command) {

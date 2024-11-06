@@ -5,8 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.e205.DeleteNotificationsCommand;
+import com.e205.ItemCommandService;
 import com.e205.command.ConfirmItemCommand;
-import com.e205.communication.ItemCommandService;
 import com.e205.entity.LostItemNotification;
 import com.e205.repository.FoundItemNotificationRepository;
 import com.e205.repository.LostItemNotificationRepository;
@@ -15,11 +15,11 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class CommandServiceTest {
+class NotiCommandServiceTest {
 
   private NotificationRepository repository;
   private ItemCommandService itemCommandService;
-  private CommandService commandService;
+  private NotiCommandService notiCommandService;
   private LostItemNotificationRepository lostItemNotificationRepository;
   private FoundItemNotificationRepository foundItemNotificationRepository;
 
@@ -29,7 +29,7 @@ class CommandServiceTest {
     this.itemCommandService = mock(ItemCommandService.class);
     this.lostItemNotificationRepository = mock(LostItemNotificationRepository.class);
     this.foundItemNotificationRepository = mock(FoundItemNotificationRepository.class);
-    this.commandService = new CommandService(
+    this.notiCommandService = new NotiCommandService(
         repository,
         itemCommandService,
         lostItemNotificationRepository,
@@ -40,12 +40,12 @@ class CommandServiceTest {
   @Test
   void deleteNotifications_shouldDeleteNotificationsByIds() {
     List<Integer> notificationIds = List.of(1, 2, 3);
-    var command = new DeleteNotificationsCommand(
+    var command = new DeleteNotificationsCommand(1,
         notificationIds);
 
-    this.commandService.deleteNotifications(command);
+    this.notiCommandService.deleteNotifications(command);
 
-    verify(this.repository).deleteAllByIdInBatch(notificationIds);
+    verify(this.repository).deleteAllByIdAndMemberId(any(), anyList());
   }
 
   @Test
@@ -55,7 +55,7 @@ class CommandServiceTest {
     given(this.lostItemNotificationRepository.findByLostItemId(any())).willReturn(
         List.of(lostItemNotification));
 
-    this.commandService.confirmItemNotification(confirmItemCommand);
+    this.notiCommandService.confirmItemNotification(confirmItemCommand);
 
     verify(this.lostItemNotificationRepository).findByLostItemId(1);
     verify(lostItemNotification).confirmRead();

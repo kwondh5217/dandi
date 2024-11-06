@@ -3,6 +3,9 @@ package com.e205.service;
 import com.e205.CreateNotificationCommand;
 import com.e205.MemberWithFcm;
 import com.e205.NotifiedMembersCommand;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.support.RetryTemplate;
@@ -14,10 +17,6 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -25,7 +24,7 @@ public class NotificationProcessor {
 
   protected static final int CHUNK_SIZE = 100;
 
-  private final CommandService commandService;
+  private final NotiCommandService notiCommandService;
   private final RetryTemplate retryTemplate;
   private final Notifier notifier;
   private final PlatformTransactionManager transactionManager;
@@ -65,7 +64,7 @@ public class NotificationProcessor {
     chunk.forEach(member -> {
       CreateNotificationCommand notification = createNotificationCommand(resourceId,
           situationDescription, eventType, member);
-      commandService.createNotification(notification);
+      notiCommandService.createNotification(notification);
 
       TransactionSynchronizationManager.registerSynchronization(
           new TransactionSynchronization() {

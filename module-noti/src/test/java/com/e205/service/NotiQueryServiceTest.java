@@ -8,15 +8,15 @@ import com.e205.QueryNotificationWithCursor;
 import com.e205.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
 
-class QueryServiceTest {
+class NotiQueryServiceTest {
 
   @Test
   void queryNotificationWithCursor() {
     var query = mock(QueryNotificationWithCursor.class);
     var repository = mock(NotificationRepository.class);
-    QueryService queryService = new QueryService(repository);
+    NotiQueryService notiQueryService = new NotiQueryService(repository);
 
-    queryService.queryNotificationWithCursor(query);
+    notiQueryService.queryNotificationWithCursor(query);
 
     verify(repository).findByMemberIdWithCursor(any(), any(), any(), any());
   }

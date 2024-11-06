@@ -86,16 +86,16 @@ class NotificationRepositoryTest {
   }
 
   @Test
-  void deleteAllByIdInBatch() {
+  void deleteAllByIdAndMemberIdInBatch() {
     List<Integer> notificationIds = this.notificationRepository.findAll()
         .stream()
         .map(Notification::getId)
         .collect(Collectors.toList());
     assertThat(notificationIds.size()).isEqualTo(4);
 
-    this.notificationRepository.deleteAllByIdInBatch(notificationIds);
+    this.notificationRepository.deleteAllByIdAndMemberId(1, notificationIds);
 
     List<Notification> notifications = this.notificationRepository.findAll();
-    assertThat(notifications).isEmpty();
+    assertThat(notifications.size()).isEqualTo(1);
   }
 }

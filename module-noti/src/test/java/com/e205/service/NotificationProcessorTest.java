@@ -27,7 +27,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 class NotificationProcessorTest {
 
-  private CommandService commandService;
+  private NotiCommandService notiCommandService;
   private RetryTemplate retryTemplate;
   private Notifier notifier;
   private PlatformTransactionManager transactionManager;
@@ -36,11 +36,11 @@ class NotificationProcessorTest {
   @BeforeEach
   void setUp() {
     TransactionSynchronizationManager.initSynchronization();
-    this.commandService = mock(CommandService.class);
+    this.notiCommandService = mock(NotiCommandService.class);
     this.retryTemplate = mock(RetryTemplate.class);
     this.notifier = mock(Notifier.class);
     this.transactionManager = mock(PlatformTransactionManager.class);
-    this.notificationProcessor = new NotificationProcessor(commandService, retryTemplate,
+    this.notificationProcessor = new NotificationProcessor(notiCommandService, retryTemplate,
         notifier, transactionManager);
   }
 
@@ -63,7 +63,7 @@ class NotificationProcessorTest {
         1, "Test Description", "lostItemSaveEvent", membersWithFcm);
 
     // then
-    verify(commandService, times(membersWithFcm.size()))
+    verify(notiCommandService, times(membersWithFcm.size()))
         .createNotification(any(CreateNotificationCommand.class));
 
     var synchronizations = TransactionSynchronizationManager.getSynchronizations();
@@ -102,7 +102,7 @@ class NotificationProcessorTest {
         .willReturn(transactionStatus);
 
     doThrow(new RuntimeException("Transaction Failure"))
-        .when(commandService).createNotification(any(CreateNotificationCommand.class));
+        .when(notiCommandService).createNotification(any(CreateNotificationCommand.class));
 
     // when
     try {

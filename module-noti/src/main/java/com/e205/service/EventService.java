@@ -1,10 +1,12 @@
 package com.e205.service;
 
+import com.e205.MemberQueryService;
 import com.e205.MemberWithFcm;
 import com.e205.NotifyEvent;
-import com.e205.communication.MemberQueryService;
+import com.e205.event.FoundItemSaveEvent;
 import com.e205.event.LostItemSaveEvent;
 import com.e205.event.RouteSavedEvent;
+import com.e205.query.MembersInPointQuery;
 import com.e205.query.MembersInRouteQuery;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +32,7 @@ public class EventService {
   private final RouteQueryService routeQueryService;
   private final NotificationProcessor notificationProcessor;
   private final MemberQueryService memberQueryService;
-  private final CommandService commandService;
+  private final NotiCommandService notiCommandService;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -47,11 +49,21 @@ public class EventService {
     this.notificationProcessor.notify(fcm, event.senderId() + " ", event.type());
   }
 
-//  public void handleFoundItemSaveEvent(FoundItemSaveEvent event) {
-//    handleItemSaveEvent(event, event.saved().endRouteId(),
-//        event.saved().createdAt(), event.saved().id(),
-//        event.saved().situationDescription(), event.getType());
-//  }
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void handleFoundItemSaveEvent(FoundItemSaveEvent event) {
+    List<Integer> userIdsNearPoint = this.routeQueryService.findUserIdsNearPoint(
+        new MembersInPointQuery(
+            event.saved().lat(),
+            event.saved().lon(),
+            event.saved().foundAt().getHour()));
+
+    processNotificationForMembers(
+        event.saved().id(),
+        event.saved().description(),
+        event.getType(),
+        this.memberQueryService.membersWithFcmQuery(userIdsNearPoint));
+  }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -83,7 +95,7 @@ public class EventService {
 
   private void processNotificationForMembers(Integer resourceId,
       String situationDescription, String eventType, List<MemberWithFcm> membersWithFcm) {
-    this.commandService.notifiedMembersCommand(
+    this.notiCommandService.notifiedMembersCommand(
         this.notificationProcessor.processNotifications(
             resourceId, situationDescription, eventType,
             membersWithFcm

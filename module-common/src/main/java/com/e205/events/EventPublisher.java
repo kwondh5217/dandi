@@ -2,6 +2,8 @@ package com.e205.events;
 
 public interface EventPublisher {
 
-  void publish(Event event);
+  void publishAtLeastOnce(Event event);
+
+  void publicEvent(Event event);
 
 }

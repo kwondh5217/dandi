@@ -10,6 +10,7 @@ dependencies {
     implementation project(':base-item')
 
     implementation project(':module-noti')
+    implementation project(':base-noti')
 
     implementation project(':module-member')
     implementation project(':base-member')
@@ -28,7 +29,7 @@ dependencies {
 
     // PERSISTENCE
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.redisson:redisson-spring-boot-starter:3.38.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'com.mysql:mysql-connector-j:8.0.33'
     implementation 'com.h2database:h2:2.3.232'
     implementation 'net.bytebuddy:byte-buddy:1.15.9'
@@ -55,6 +56,11 @@ shadowJar {
                 'Can-Retransform-Classes': 'true'
         )
     }
+}
+
+tasks.named("jar").configure {
+    archiveClassifier.set("all")
+    from(shadowJar)
 }
 
 bootRun {
