@@ -2,7 +2,7 @@ package com.e205.service;
 
 import com.e205.MemberWithFcm;
 import com.e205.NotifyEvent;
-import com.e205.communication.MemberQueryService;
+import com.e205.command.member.service.MemberQueryService;
 import com.e205.event.FoundItemSaveEvent;
 import com.e205.event.LostItemSaveEvent;
 import com.e205.event.RouteSavedEvent;

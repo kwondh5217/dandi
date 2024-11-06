@@ -7,8 +7,8 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.e205.MemberQueryService;
 import com.e205.MemberWithFcm;
+import com.e205.command.member.service.MemberQueryService;
 import com.e205.event.LostItemSaveEvent;
 import com.e205.event.RouteSavedEvent;
 import com.e205.payload.LostItemPayload;

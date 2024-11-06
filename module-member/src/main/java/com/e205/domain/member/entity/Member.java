@@ -44,6 +44,8 @@ public class Member extends BaseTime implements LoggableEntity {
   @Column(nullable = false, length = 10)
   private EmailStatus status;
 
+  private String fcmCode;
+
   public void updateStatus(EmailStatus newStatus) {
     this.status = newStatus;
   }
