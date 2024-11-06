@@ -9,6 +9,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.e205.auth.dto.MemberDetails;
+import com.e205.auth.helper.AuthHelper;
+import com.e205.domain.member.entity.Member;
 import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemResponse;
 import com.e205.item.service.LostItemService;
@@ -16,21 +19,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-@WithMockUser(username="1")
-@ExtendWith(MockitoExtension.class)
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(LostItemController.class)
 public class LostItemControllerTest {
 
@@ -42,6 +49,16 @@ public class LostItemControllerTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @BeforeEach
+  void setUp() {
+    Member member = Member.builder().id(1).build();
+    MemberDetails userDetails = new MemberDetails(member);
+
+    SecurityContextHolder.getContext().setAuthentication(
+        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
+    );
+  }
 
   @DisplayName("분실물 생성 요청 테스트")
   @Test
@@ -59,15 +76,12 @@ public class LostItemControllerTest {
     MockMultipartFile image2 = new MockMultipartFile("images", "image2.jpg",
         MediaType.IMAGE_JPEG_VALUE, "dummy image content".getBytes());
 
-    Principal principal = () -> "1";
-
     // when
     ResultActions action = mockMvc.perform(
         multipart("/losts")
             .file(lostItemRequest)
             .file(image1)
             .file(image2)
-            .principal(principal)
             .contentType(MediaType.MULTIPART_FORM_DATA));
 
     // then
@@ -80,11 +94,9 @@ public class LostItemControllerTest {
   void finishLostItem() throws Exception {
     // given
     int lostId = 1;
-    Principal principal = () -> "1";
 
     // when
     ResultActions action = mockMvc.perform(put("/losts/{lostId}", lostId)
-        .principal(principal)
         .contentType(MediaType.APPLICATION_JSON)
     );
 
@@ -98,14 +110,12 @@ public class LostItemControllerTest {
   void getLostItem() throws Exception {
     // given
     int lostItemId = 1;
-    Principal principal = () -> "1";
     LostItemResponse response = new LostItemResponse("검정색 지갑", "집에 없음", List.of(), now());
 
     given(lostItemService.getLostItem(1, lostItemId)).willReturn(response);
 
     // when
     ResultActions action = mockMvc.perform(get("/losts/{lostItemId}", lostItemId)
-        .principal(principal)
         .contentType(MediaType.APPLICATION_JSON)
     );
 

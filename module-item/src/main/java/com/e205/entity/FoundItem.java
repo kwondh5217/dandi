@@ -2,12 +2,14 @@ package com.e205.entity;
 
 import com.e205.FoundItemType;
 import com.e205.command.FoundItemSaveCommand;
+import com.e205.log.LoggableEntity;
 import com.e205.payload.FoundItemPayload;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -18,9 +20,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class FoundItem {
+public class FoundItem implements LoggableEntity {
 
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Id
   private Integer id;
   private Integer memberId;

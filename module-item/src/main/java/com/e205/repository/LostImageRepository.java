@@ -1,5 +1,6 @@
-package com.e205.entity;
+package com.e205.repository;
 
+import com.e205.entity.LostImage;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 

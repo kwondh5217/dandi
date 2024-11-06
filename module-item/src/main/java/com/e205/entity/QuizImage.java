@@ -1,9 +1,12 @@
 package com.e205.entity;
 
+import com.e205.log.LoggableEntity;
 import com.e205.payload.QuizImagePayload;
+import com.fasterxml.jackson.databind.annotation.JsonTypeResolver;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -14,9 +17,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class QuizImage {
+public class QuizImage implements LoggableEntity {
 
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Id
   private Integer id;
   @ManyToOne(fetch = FetchType.LAZY)

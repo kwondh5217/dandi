@@ -5,6 +5,7 @@ import com.e205.log.LoggableEntity;
 import com.e205.payload.LostItemPayload;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class LostItem implements LoggableEntity {
 
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Id
   private Integer id;
   private Integer memberId;

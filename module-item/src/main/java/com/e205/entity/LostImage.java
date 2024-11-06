@@ -1,5 +1,6 @@
 package com.e205.entity;
 
+import com.e205.log.LoggableEntity;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @DiscriminatorValue("lost_item")
-public class LostImage extends Image {
+public class LostImage extends Image implements LoggableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "lost_id")

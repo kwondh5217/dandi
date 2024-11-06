@@ -6,6 +6,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.e205.auth.dto.MemberDetails;
+import com.e205.auth.helper.AuthHelper;
+import com.e205.domain.member.entity.Member;
 import com.e205.item.dto.QuizOptionResponse;
 import com.e205.item.dto.QuizResponse;
 import com.e205.item.dto.QuizSubmitRequest;
@@ -16,14 +19,19 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import net.bytebuddy.utility.RandomString;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(QuizController.class)
 public class QuizControllerTest {
 
@@ -35,6 +43,16 @@ public class QuizControllerTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @BeforeEach
+  void setUp() {
+    Member member = Member.builder().id(1).build();
+    MemberDetails userDetails = new MemberDetails(member);
+
+    SecurityContextHolder.getContext().setAuthentication(
+        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
+    );
+  }
 
   @DisplayName("퀴즈 조회 로직 테스트")
   @Test
@@ -64,14 +82,12 @@ public class QuizControllerTest {
   void submitQuiz() throws Exception {
     // given
     int quizId = 1;
-    Principal principal = () -> "1";
     QuizSubmitRequest request = new QuizSubmitRequest(UUID.randomUUID() + ".png");
 
     given(quizService.submitQuiz(1, quizId, request)).willReturn(true);
 
     // when, then
     mockMvc.perform(post("/founds/{foundId}/quiz/{quizId}", 1, quizId)
-            .principal(principal)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request))
         )
