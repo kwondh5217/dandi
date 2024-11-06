@@ -1,6 +1,5 @@
 package com.e205.auth.helper;
 
-import com.e205.auth.dto.AuthenticationMember;
 import com.e205.auth.dto.MemberDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

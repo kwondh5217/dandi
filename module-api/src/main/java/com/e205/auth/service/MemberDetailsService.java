@@ -1,6 +1,5 @@
 package com.e205.auth.service;
 
-import com.e205.auth.dto.AuthenticationMember;
 import com.e205.auth.dto.MemberDetails;
 import com.e205.command.member.payload.MemberAuthPayload;
 import com.e205.command.member.query.FindMemberByEmailQuery;
@@ -21,13 +20,6 @@ public class MemberDetailsService implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     FindMemberByEmailQuery query = new FindMemberByEmailQuery(username);
     MemberAuthPayload payload = memberQueryService.findMemberByEmail(query);
-
-    AuthenticationMember member = AuthenticationMember.builder()
-        .id(payload.id())
-        .email(payload.email())
-        .password(payload.password())
-        .build();
-
-    return new MemberDetails(member);
+    return new MemberDetails(payload.id(), payload.password(), payload.email());
   }
 }

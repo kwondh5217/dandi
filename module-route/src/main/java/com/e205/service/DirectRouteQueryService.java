@@ -15,6 +15,7 @@ import com.e205.query.RouteReadQuery;
 import com.e205.query.SnapshotReadQuery;
 import com.e205.repository.RouteRepository;
 import com.e205.util.GeometryUtils;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -94,19 +95,19 @@ public class DirectRouteQueryService implements RouteQueryService {
     List<Route> routesInRange = routeRepository.findRoutesWithinRange(
         query.startRouteId(), query.endRouteId()
     );
-
     LineString combinedTrack = geometryUtils.combineTracks(
         routesInRange.stream().map(Route::getTrack).collect(Collectors.toList())
     );
 
-    Polygon bufferedPolygon = geometryUtils.createBufferedPolygon(combinedTrack, radius);
-
+    Polygon bufferedPolygon = geometryUtils.createLineCirclePolygon(combinedTrack, radius);
     return new ArrayList<>(routeRepository.findUsersWithinPolygon(bufferedPolygon, query.since()));
   }
 
   @Override
   public List<Integer> findUserIdsNearPoint(MembersInPointQuery query) {
-    return List.of();
+    Polygon polygon = geometryUtils.createCirclePolygon(query.lat(), query.lon(), radius);
+    LocalDateTime timestamp = LocalDateTime.now().minusHours(query.subtractionTime());
+    return new ArrayList<>(routeRepository.findUsersWithinPolygon(polygon, timestamp));
   }
 
   private Route getRoute(Integer routeId) {

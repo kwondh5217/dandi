@@ -6,8 +6,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public record MemberDetails(
-    AuthenticationMember member
+    Integer id,
+    String password,
+    String email
 ) implements UserDetails {
+
+  public MemberDetails(Integer id) {
+    this(id, null, null);
+  }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -16,15 +22,15 @@ public record MemberDetails(
 
   @Override
   public String getPassword() {
-    return member.password();
+    return password;
   }
 
   @Override
   public String getUsername() {
-    return member.email();
+    return email;
   }
 
   public Integer getId() {
-    return member.id();
+    return id;
   }
 }

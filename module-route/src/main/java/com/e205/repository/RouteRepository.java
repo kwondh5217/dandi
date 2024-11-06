@@ -50,7 +50,7 @@ public interface RouteRepository extends JpaRepository<Route, Integer> {
       + "WHERE r.track IS NOT NULL "
       + "AND (ST_Contains(:polygon, ST_StartPoint(r.track)) "
       + "OR ST_Contains(:polygon, ST_EndPoint(r.track))) "
-      + "AND r.createdAt >= :timestamp")
+      + "AND (r.createdAt >= :timestamp OR r.endedAt >= :timestamp)")
   Set<Integer> findUsersWithinPolygon(
       @Param("polygon") Polygon polygon,
       @Param("timestamp") LocalDateTime timestamp

@@ -2,7 +2,6 @@ package com.e205.auth.jwt.filter;
 
 import static com.e205.exception.ApplicationError.EXAMPLE;
 
-import com.e205.auth.dto.AuthenticationMember;
 import com.e205.auth.dto.MemberDetails;
 import com.e205.auth.exception.AuthException;
 import com.e205.auth.jwt.JwtProvider;
@@ -42,7 +41,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       return;
     }
 
-    MemberDetails memberDetails = new MemberDetails(createAuthMember(token));
+    MemberDetails memberDetails = new MemberDetails(jwtProvider.getMemberId(token));
     Authentication authentication = new UsernamePasswordAuthenticationToken(
         memberDetails, null,
         memberDetails.getAuthorities()
@@ -67,12 +66,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       return false;
     }
     return true;
-  }
-
-  private AuthenticationMember createAuthMember(String token) {
-    return AuthenticationMember.builder()
-        .id(jwtProvider.getMemberId(token))
-        .build();
   }
 
   private boolean isNotToken(String token) {

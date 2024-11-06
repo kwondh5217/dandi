@@ -148,7 +148,7 @@ class RouteRepositoryTests {
         new Coordinate(127.1, 37.6)
     });
     double radius = 1000; // 1km
-    Polygon bufferedPolygon = geometryUtils.createBufferedPolygon(testPath, radius);
+    Polygon bufferedPolygon = geometryUtils.createLineCirclePolygon(testPath, radius);
     LocalDateTime recentTime = LocalDateTime.now().minusHours(2);
 
     // when

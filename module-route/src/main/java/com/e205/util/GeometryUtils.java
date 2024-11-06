@@ -46,9 +46,15 @@ public class GeometryUtils {
         .toArray(Coordinate[]::new));
   }
 
-  public Polygon createBufferedPolygon(LineString lineString, double radiusMeters) {
+  public Polygon createLineCirclePolygon(LineString lineString, double radiusMeters) {
     double radiusInDegrees = radiusMeters / 111000.0;
     return (Polygon) lineString.buffer(radiusInDegrees);
+  }
+
+  public Polygon createCirclePolygon(double lat, double lon, double radiusMeters) {
+    double radiusInDegrees = radiusMeters / 111000.0;
+    Coordinate center = new Coordinate(lon, lat);
+    return (Polygon) geoFactory.createPoint(center).buffer(radiusInDegrees);
   }
 
   public static List<TrackPoint> toTrackPoints(LineString lineString) {
