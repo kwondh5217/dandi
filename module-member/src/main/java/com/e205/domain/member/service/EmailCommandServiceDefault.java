@@ -81,7 +81,7 @@ public class EmailCommandServiceDefault implements EmailCommandService {
       mailSender.send(message);
     } catch (Exception e) {
       // TODO: <홍성우> Exception 상세화
-      throw new RuntimeException("이메일 전송 실패");
+      throw new RuntimeException("이메일 전송 실패", e);
     }
   }
 

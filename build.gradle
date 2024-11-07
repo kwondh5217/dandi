@@ -54,15 +54,25 @@ subprojects {
     }
 
     project(':module-api') {
+        tasks.named('jib') {
+            dependsOn(tasks.named('shadowJar'))
+        }
         jib {
-            from {
-                image = 'openjdk:17-alpine'
-            }
             container {
+                mainClass = 'com.e205.Application'
+                appRoot = '/app'
                 jvmFlags = ['-Duser.timezone=Asia/Seoul',
                             '-Dspring.profiles.active=prod']
             }
+
+            extraDirectories {
+                paths {
+                    path {
+                        from = file('build/libs') // 이미 만들어진 jar 파일 경로
+                        into = '/app' // 이미지 내 복사 위치
+                    }
+                }
+            }
         }
     }
-
 }
