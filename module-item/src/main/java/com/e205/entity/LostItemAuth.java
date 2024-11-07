@@ -21,6 +21,7 @@ public class LostItemAuth implements LoggableEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Id
   private Integer id;
+  @Getter
   private Integer memberId;
   @Getter
   @ManyToOne(fetch = FetchType.LAZY)

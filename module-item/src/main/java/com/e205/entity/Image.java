@@ -24,12 +24,13 @@ public class Image {
   private UUID id;
   @Column(nullable = false, length = 4)
   private String type;
-  @Transient
-  private String name;
 
   public Image(UUID id, String type) {
     this.id = id;
     this.type = type;
-    this.name = String.format("%s.%s", id.toString(), type);
+  }
+
+  public String getName() {
+    return String.format("%s.%s", id, type);
   }
 }

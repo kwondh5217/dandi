@@ -32,6 +32,10 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
 
     LostItem lostItem = lostItemAuth.getLostItem();
 
+    if (lostItemAuth.getMemberId().equals(lostItem.getMemberId())) {
+      return lostItem.toPayload();
+    }
+
     if (lostItem.isEnded()) {
       throw new RuntimeException("종료된 분실물입니다.");
     }

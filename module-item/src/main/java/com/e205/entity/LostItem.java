@@ -42,6 +42,10 @@ public class LostItem implements LoggableEntity {
     this.createdAt = LocalDateTime.now();
   }
 
+  public LostItem(Integer id) {
+    this.id = id;
+  }
+
   public LostItem(LostItemSaveCommand command) {
     this.memberId = command.lostMemberId();
     this.situationDescription = command.situationDesc();

@@ -5,15 +5,18 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.e205.command.LostItemGrantCommand;
 import com.e205.command.LostItemSaveCommand;
 import com.e205.entity.LostImage;
 import com.e205.entity.LostItem;
 import com.e205.event.LostItemSaveEvent;
 import com.e205.message.ItemEventPublisher;
 import com.e205.repository.ItemImageRepository;
+import com.e205.repository.LostItemAuthRepository;
 import com.e205.repository.LostItemCommandRepository;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +38,7 @@ class LostItemCommandServiceTests {
   LostItemCommandRepository repository;
   ImageService imageService;
   ItemImageRepository itemImageRepository;
+  LostItemAuthRepository lostItemAuthRepository;
 
   @BeforeEach
   void setUp() {
@@ -42,8 +46,9 @@ class LostItemCommandServiceTests {
     repository = mock(LostItemCommandRepository.class);
     imageService = mock(ImageService.class);
     itemImageRepository = mock(ItemImageRepository.class);
+    lostItemAuthRepository = mock(LostItemAuthRepository.class);
     service = new DefaultLostItemCommandService(repository, eventPublisher, imageService,
-        itemImageRepository);
+        itemImageRepository, lostItemAuthRepository);
   }
 
   @DisplayName("분실물을 저장할 수 있다.")
@@ -182,6 +187,37 @@ class LostItemCommandServiceTests {
 
     // then
     verify(itemImageRepository, times(images.size())).save(any(LostImage.class));
+  }
+
+  @DisplayName("권한 부여 시 분실물이 존재하지 않으면 예외가 발생한다.")
+  @Test
+  void When_GrantNotExistsItem_Then_ThrowException() {
+    // given
+    given(repository.exists(any())).willReturn(false);
+
+    LostItemGrantCommand command = new LostItemGrantCommand(1, 1);
+
+    // when
+    ThrowingCallable expectThrow = () -> service.grant(command);
+
+    // then
+    assertThatThrownBy(expectThrow).hasMessage("분실물이 존재하지 않습니다.");
+  }
+
+  @DisplayName("분실물 권한이 이미 존재하면, 권한을 생성하지 않는다.")
+  @Test
+  void When_AlreadyExistsAuth_Then_NotCreateAuth() {
+    // given
+    given(repository.exists(any())).willReturn(true);
+    given(lostItemAuthRepository.existsByMemberIdAndLostItemId(1, 1)).willReturn(true);
+
+    LostItemGrantCommand command = new LostItemGrantCommand(1, 1);
+
+    // when
+    service.grant(command);
+
+    // then
+    verify(lostItemAuthRepository, never()).save(any());
   }
 
   private static LostItemSaveCommand generateSaveCommand(List<Resource> images) {
