@@ -1,7 +1,7 @@
 package com.e205.domain.item.service;
 
 import com.e205.command.bag.query.ReadAllItemQuery;
-import com.e205.command.bag.query.ReadItemNotInBagQuery;
+import com.e205.command.item.query.ReadItemNotInBagQuery;
 import com.e205.command.item.service.ItemQueryService;
 import com.e205.command.item.payload.ItemPayload;
 import com.e205.domain.item.entity.Item;

@@ -80,7 +80,7 @@ class BagCommandServiceIntegrationTest {
 
     // When
     bagCommandService.deleteBagItem(
-        new BagItemDeleteCommand(memberId, 2, targetBag1.getId(), bagItem1.getId()));
+        new BagItemDeleteCommand(memberId, targetBag1.getId(), bagItem1.getId()));
 
     // Then
     List<BagItem> remainingItems = bagItemRepository.findAllByBagId(targetBag1.getId());

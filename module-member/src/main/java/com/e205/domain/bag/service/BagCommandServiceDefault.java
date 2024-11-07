@@ -218,9 +218,6 @@ public class BagCommandServiceDefault implements BagCommandService {
     Bag bag = bagRepository.findById(command.bagId())
         .orElseThrow(RuntimeException::new);
 
-    if (Objects.equals(bag.getId(), command.memberMainBagId())) {
-      throw new RuntimeException();
-    }
     if (!Objects.equals(bag.getMemberId(), command.memberId())) {
       throw new RuntimeException();
     }

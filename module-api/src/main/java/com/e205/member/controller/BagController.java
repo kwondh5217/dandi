@@ -6,6 +6,7 @@ import com.e205.member.dto.BagResponse;
 import com.e205.member.dto.ChangeBagNameRequest;
 import com.e205.member.dto.CopySelectBagRequest;
 import com.e205.member.dto.CreateBagRequest;
+import com.e205.member.dto.CreateItemRequest;
 import com.e205.member.dto.DeleteBagRequest;
 import com.e205.member.dto.ItemResponse;
 import com.e205.member.dto.ReadBagRequest;
@@ -82,5 +83,11 @@ public class BagController {
   @DeleteMapping("/{bagId}")
   public void deleteBag(@PathVariable Integer bagId) {
     bagService.deleteBag(new DeleteBagRequest(bagId, authHelper.getMemberId()));
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @DeleteMapping("/{bagId}/items/{itemId}")
+  public void deleteItemInBag(@PathVariable Integer bagId, @PathVariable Integer itemId) {
+    bagService.deleteItemInBag(bagId, itemId, authHelper.getMemberId());
   }
 }

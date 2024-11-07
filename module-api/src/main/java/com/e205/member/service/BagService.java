@@ -2,6 +2,7 @@ package com.e205.member.service;
 
 import com.e205.auth.helper.AuthHelper;
 import com.e205.command.bag.command.BagDeleteCommand;
+import com.e205.command.bag.command.BagItemDeleteCommand;
 import com.e205.command.bag.command.BagNameUpdateCommand;
 import com.e205.command.bag.command.BagOrderCommand;
 import com.e205.command.bag.command.BagOrderUpdateCommand;
@@ -25,6 +26,7 @@ import com.e205.member.dto.BagResponse;
 import com.e205.member.dto.ChangeBagNameRequest;
 import com.e205.member.dto.CopySelectBagRequest;
 import com.e205.member.dto.CreateBagRequest;
+import com.e205.member.dto.CreateItemRequest;
 import com.e205.member.dto.DeleteBagRequest;
 import com.e205.member.dto.ItemResponse;
 import com.e205.member.dto.ReadBagRequest;
@@ -117,5 +119,10 @@ public class BagService {
     BagDeleteCommand command = request.toCommand(request.memberId(), member.bagId());
 
     bagCommandService.delete(command);
+  }
+
+  public void deleteItemInBag(Integer bagId, Integer itemId, Integer memberId) {
+    BagItemDeleteCommand command = new BagItemDeleteCommand(memberId, bagId, itemId);
+    bagCommandService.deleteBagItem(command);
   }
 }

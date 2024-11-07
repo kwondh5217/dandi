@@ -1,4 +1,4 @@
-package com.e205.command.bag.query;
+package com.e205.command.item.query;
 
 public record ReadItemNotInBagQuery(
     Integer memberId,

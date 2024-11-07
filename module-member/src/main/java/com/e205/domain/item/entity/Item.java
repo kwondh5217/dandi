@@ -27,7 +27,7 @@ public class Item extends BaseTime implements LoggableEntity {
   @Column(nullable = false)
   private Integer memberId;
 
-  @Column(nullable = false, length = 2)
+  @Column(nullable = false, length = 10)
   private String emoticon;
 
   @Column(nullable = false, length = 20)

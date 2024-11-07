@@ -11,7 +11,7 @@ public interface BagItemRepository extends JpaRepository<BagItem, Integer> {
   // TODO: <홍성우> 한건한건 삭제된다. Batch 한번에해라
   void deleteAllByBagId(Integer id);
 
-  void deleteByBagIdAndItemId(Integer integer, Integer integer1);
+  void deleteByBagIdAndItemId(Integer bagId, Integer itemId);
 
   List<BagItem> findAllByItemId(Integer itemId);
 }
