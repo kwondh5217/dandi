@@ -9,6 +9,7 @@ import com.e205.command.member.command.CompleteSignUpCommand;
 import com.e205.command.member.command.CreateVerificationNumberCommand;
 import com.e205.command.member.command.RegisterMemberCommand;
 import com.e205.command.member.command.RequestEmailVerificationCommand;
+import com.e205.command.member.command.UpdateFcmCodeCommand;
 import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
 import com.e205.command.member.service.EmailCommandService;
 import com.e205.command.member.service.MemberCommandService;
@@ -17,10 +18,12 @@ import com.e205.member.dto.AuthEmailLinkRequest;
 import com.e205.member.dto.CheckVerificationNumberRequest;
 import com.e205.member.dto.CompleteSignUpRequest;
 import com.e205.member.dto.CreateMemberRequest;
+import com.e205.member.dto.FcmCodeUpdateRequest;
 import com.e205.member.dto.MemberInfoResponse;
 import com.e205.member.dto.PasswordNumberEmailRequest;
 import com.e205.member.dto.PasswordResetRequest;
 import com.e205.member.dto.VerifyEmailRequest;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -80,5 +83,10 @@ public class MemberService {
   public void completeSignUp(CompleteSignUpRequest request) {
     CompleteSignUpCommand command = request.toCommand();
     memberCommandService.completeSignUp(command);
+  }
+
+  public void updateFcmCode(Integer memberId, String fcmCode) {
+    UpdateFcmCodeCommand command = new UpdateFcmCodeCommand(fcmCode, memberId);
+    memberCommandService.updateFcmCode(command);
   }
 }

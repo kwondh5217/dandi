@@ -4,6 +4,7 @@ import com.e205.command.bag.payload.EmailStatus;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
 import com.e205.command.member.command.CompleteSignUpCommand;
 import com.e205.command.member.command.RequestEmailVerificationCommand;
+import com.e205.command.member.command.UpdateFcmCodeCommand;
 import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
 import com.e205.command.member.service.MemberCommandService;
 import com.e205.command.member.command.CreateEmailTokenCommand;
@@ -53,7 +54,8 @@ public class MemberCommandServiceDefault implements MemberCommandService {
   }
 
   @Override
-  public void verifyEmailAndCompleteRegistration(VerifyEmailAndRegisterCommand verifyEmailAndRegisterCommand) {
+  public void verifyEmailAndCompleteRegistration(
+      VerifyEmailAndRegisterCommand verifyEmailAndRegisterCommand) {
     String redisKey = "verifyEmail:" + verifyEmailAndRegisterCommand.email();
     Map<Object, Object> storedData = redisTemplate.opsForHash().entries(redisKey);
     // 저장된 데이터가 없는 경우 예외 처리
@@ -103,7 +105,8 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     String registrationKey = "registration:" + email;
 
     // Redis에서 인증 여부 확인
-    String isAuthenticated = (String) redisTemplate.opsForHash().get(registrationKey, "authenticated");
+    String isAuthenticated = (String) redisTemplate.opsForHash()
+        .get(registrationKey, "authenticated");
     if (isAuthenticated == null || !isAuthenticated.equals("true")) {
       throw new IllegalStateException("사용자가 이메일 인증을 완료하지 않았습니다.");
     }
@@ -141,5 +144,12 @@ public class MemberCommandServiceDefault implements MemberCommandService {
         new CreateEmailTokenCommand(requestEmailVerificationCommand.email()));
     emailService.sendVerificationEmail(
         new SendVerificationEmailCommand(requestEmailVerificationCommand.email(), token));
+  }
+
+  @Override
+  public void updateFcmCode(UpdateFcmCodeCommand command) {
+    Member member = memberRepository.findById(command.memberId())
+        .orElseThrow(RuntimeException::new);
+    member.updateFcmCode(command.fcmCode());
   }
 }

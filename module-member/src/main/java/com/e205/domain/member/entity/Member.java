@@ -62,6 +62,10 @@ public class Member extends BaseTime implements LoggableEntity {
     this.password = encryptedPassword;
   }
 
+  public void updateFcmCode(String fcmCode) {
+    this.fcmCode = fcmCode;
+  }
+
   public MemberPayload toPayload() {
     return new MemberPayload(id, bagId, nickname, email, status);
   }
