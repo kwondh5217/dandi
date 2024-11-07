@@ -5,6 +5,7 @@ import com.e205.auth.jwt.filter.JwtAuthorizationFilter;
 import com.e205.auth.jwt.filter.LoginFilter;
 import com.e205.auth.jwt.handler.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.IpAddressAuthorizationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
@@ -23,6 +25,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
+  @Value("${grafana.alert.ip:127.0.0.1}")
+  private String alertManagerIp;
   private static final String[] AUTH_WHITELIST = {
       "/auth/**",
       "/h2-console/**",
@@ -40,13 +44,17 @@ public class SecurityConfig {
         .httpBasic(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
         .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement((m) -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionManagement(
+            (m) -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(request -> request
+            .requestMatchers("/recovery/**")
+            .access(IpAddressAuthorizationManager.hasIpAddress(alertManagerIp))
             .requestMatchers(AUTH_WHITELIST).permitAll()
             .anyRequest().authenticated()
         )
         .addFilterBefore(
-            new JwtAuthorizationFilter(jwtAuthenticationEntryPoint, jwtProvider), LoginFilter.class
+            new JwtAuthorizationFilter(jwtAuthenticationEntryPoint, jwtProvider),
+            LoginFilter.class
         )
         .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(
@@ -56,7 +64,8 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+  public AuthenticationManager authenticationManager(
+      AuthenticationConfiguration configuration)
       throws Exception {
     return configuration.getAuthenticationManager();
   }
@@ -68,7 +77,8 @@ public class SecurityConfig {
 
   private LoginFilter loginFilter() throws Exception {
     LoginFilter loginFilter = new LoginFilter(
-        jwtAuthenticationEntryPoint, authenticationManager(authenticationConfiguration), jwtProvider
+        jwtAuthenticationEntryPoint, authenticationManager(authenticationConfiguration),
+        jwtProvider
     );
     loginFilter.setFilterProcessesUrl("/auth/token");
     loginFilter.setPostOnly(true);

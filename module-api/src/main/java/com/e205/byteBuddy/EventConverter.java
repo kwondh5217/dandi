@@ -39,6 +39,21 @@ public class EventConverter {
     }
   }
 
+  public OutboxEvent toOutboxEvent(Event event, EventStatus status) {
+    try {
+      Method getEventId = event.getClass().getDeclaredMethod("getEventId");
+      String eventId = (String) getEventId.invoke(event);
+      Method setStatus = event.getClass().getDeclaredMethod("setStatus");
+      setStatus.invoke(event);
+      String payload = this.objectMapper.writeValueAsString(event);
+
+      return new OutboxEvent(eventId, status, payload, LocalDateTime.now(),
+          event.getType());
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to convert event to OutboxEvent", e);
+    }
+  }
+
   public OutboxEvent toOutboxEvent(Event event) {
     try {
       Method getEventId = event.getClass().getDeclaredMethod("getEventId");

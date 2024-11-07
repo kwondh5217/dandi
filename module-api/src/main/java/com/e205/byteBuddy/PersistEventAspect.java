@@ -27,7 +27,8 @@ public class PersistEventAspect {
     for (Object arg : joinPoint.getArgs()) {
       if (arg instanceof Event event) {
         registerBeforeCommitAction(() -> {
-          OutboxEvent outboxEvent = this.converter.toOutboxEvent(event);
+          OutboxEvent outboxEvent = this.converter.toOutboxEvent(event,
+              EventStatus.PENDING);
           logOutboxEvent(outboxEvent);
           this.outboxEventRepository.save(outboxEvent);
         });

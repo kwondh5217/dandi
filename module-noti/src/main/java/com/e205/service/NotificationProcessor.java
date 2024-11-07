@@ -78,7 +78,8 @@ public class NotificationProcessor {
           });
 
       notifiedMembers.add(
-          new NotifiedMembersCommand(member.memberId(), LocalDateTime.now(), eventType));
+          new NotifiedMembersCommand(member.memberId(), resourceId, LocalDateTime.now(),
+              eventType));
     });
   }
 
