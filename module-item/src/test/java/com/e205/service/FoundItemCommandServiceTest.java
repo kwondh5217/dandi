@@ -19,12 +19,12 @@ import com.e205.message.ItemEventPublisher;
 import com.e205.repository.FoundItemCommandRepository;
 import com.e205.repository.ItemImageRepository;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.Resource;
 
 class FoundItemCommandServiceTest {
 
@@ -32,31 +32,28 @@ class FoundItemCommandServiceTest {
   FoundItemCommandRepository repository;
   ItemImageRepository imageRepository;
   QuizCommandService quizService;
-  ImageService imageService;
   ItemEventPublisher eventPublisher;
 
   @BeforeEach
   void setUp() {
     repository = mock(FoundItemCommandRepository.class);
     imageRepository = mock(ItemImageRepository.class);
-    imageService = mock(ImageService.class);
     quizService = mock(QuizCommandService.class);
     eventPublisher = mock(ItemEventPublisher.class);
 
-    given(imageService.save(any())).willReturn(UUID.randomUUID().toString() + ".png");
     given(repository.save(any())).willAnswer(answer -> answer.getArgument(0));
     given(imageRepository.save((any(FoundImage.class)))).willAnswer(
         answer -> answer.getArgument(0));
 
-    service = new DefaultFoundItemCommandService(repository, imageRepository, imageService,
-        quizService, eventPublisher);
+    service = new DefaultFoundItemCommandService(repository, imageRepository, quizService,
+        eventPublisher);
   }
 
   @DisplayName("타입이 카드나 신분증이면, 이미지를 함께 등록할 수 없다.")
   @Test
   void When_TypeIsCardOrId_Then_NotSaveWithImage() {
     // given
-    var image = generateResource();
+    var image = generateImage();
     var type = FoundItemType.CREDIT;
     var foundAt = LocalDateTime.now();
 
@@ -74,24 +71,23 @@ class FoundItemCommandServiceTest {
   @Test
   void When_SaveFoundItem_Then_SaveWithImage() {
     // given
-    FoundItemSaveCommand command = generateCommand(generateResource(),
-        FoundItemType.OTHER, LocalDateTime.now());
+    given(imageRepository.findFoundImageById(any())).willReturn(Optional.of(generateItem()));
+    FoundItemSaveCommand command = generateCommand(generateImage(), FoundItemType.OTHER,
+        LocalDateTime.now());
 
     // when
     service.save(command);
 
     // then
     verify(repository).save(any(FoundItem.class));
-    verify(imageService).save(any(Resource.class));
     verify(eventPublisher, times(1)).publish(any(FoundItemSaveEvent.class));
   }
 
-  @DisplayName("습득물 저장에 실패하면, 저장된 이미지를 삭제한다.")
+  @DisplayName("습득물 저장에 실패하면, 이벤트를 발행하지 않는다.")
   @Test
   void When_FailToSaveFoundItem_Then_DeleteSavedImage() {
     // given
-    var command = generateCommand(generateResource(), FoundItemType.OTHER,
-        LocalDateTime.now());
+    var command = generateCommand(generateImage(), FoundItemType.OTHER, LocalDateTime.now());
     given(repository.save(any())).willThrow(RuntimeException.class);
 
     // when
@@ -99,7 +95,6 @@ class FoundItemCommandServiceTest {
 
     // then
     assertThatThrownBy(expectThrow).isInstanceOf(RuntimeException.class);
-    verify(imageService).delete(any(String.class));
     verify(eventPublisher, never()).publish(any(FoundItemSaveEvent.class));
   }
 
@@ -107,7 +102,7 @@ class FoundItemCommandServiceTest {
   @Test
   void When_TypeIsNotCardOrId_Then_RequiredImage() {
     // given
-    Resource image = null;
+    String image = null;
     var type = FoundItemType.OTHER;
     var foundAt = LocalDateTime.now();
 
@@ -125,7 +120,7 @@ class FoundItemCommandServiceTest {
   @Test
   void When_SaveFoundItem_Then_FoundIsInPast() {
     // given
-    Resource image = generateResource();
+    var image = generateImage();
     var type = FoundItemType.OTHER;
     var foundAt = LocalDateTime.now().plusDays(1);
 
@@ -143,8 +138,9 @@ class FoundItemCommandServiceTest {
   @Test
   void When_SaveFoundItem_Then_MakeQuiz() {
     // given
-    FoundItemSaveCommand command = generateCommand(generateResource(),
-        FoundItemType.OTHER, LocalDateTime.now());
+    given(imageRepository.findFoundImageById(any())).willReturn(Optional.of(generateItem()));
+    FoundItemSaveCommand command = generateCommand(generateImage(), FoundItemType.OTHER,
+        LocalDateTime.now());
 
     // when
     service.save(command);
@@ -158,8 +154,8 @@ class FoundItemCommandServiceTest {
   @Test
   void When_FailToMakeQuiz_Then_DeleteSavedImage() {
     // given
-    FoundItemSaveCommand command = generateCommand(generateResource(),
-        FoundItemType.OTHER, LocalDateTime.now());
+    FoundItemSaveCommand command = generateCommand(generateImage(), FoundItemType.OTHER,
+        LocalDateTime.now());
     doThrow(new RuntimeException()).when(quizService).make(any(QuizMakeCommand.class));
 
     // when
@@ -167,16 +163,19 @@ class FoundItemCommandServiceTest {
 
     // then
     assertThatThrownBy(expectThrow).isInstanceOf(RuntimeException.class);
-    verify(imageService).delete(any(String.class));
     verify(eventPublisher, never()).publish(any(FoundItemSaveEvent.class));
   }
 
-  private FoundItemSaveCommand generateCommand(Resource image, FoundItemType type,
+  private FoundItemSaveCommand generateCommand(String image, FoundItemType type,
       LocalDateTime foundAt) {
     return new FoundItemSaveCommand(1, image, mock(), type, "저장묘사", "물건묘사", foundAt);
   }
 
-  private Resource generateResource() {
-    return mock(Resource.class);
+  private String generateImage() {
+    return String.format("%s.%s", UUID.randomUUID(), "png");
+  }
+
+  private FoundImage generateItem() {
+    return new FoundImage(UUID.randomUUID(), "png", mock());
   }
 }

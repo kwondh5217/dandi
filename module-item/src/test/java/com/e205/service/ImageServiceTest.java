@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import com.e205.ImageType;
+import com.e205.command.ImageSaveCommand;
 import com.e205.repository.FileRepository;
+import com.e205.repository.ItemImageRepository;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,10 +23,12 @@ class ImageServiceTest {
   ImageService imageService;
   @Mock
   FileRepository fileRepository;
+  @Mock
+  ItemImageRepository imageRepository;
 
   @BeforeEach
   void setUp() {
-    imageService = new DefaultImageService(fileRepository);
+    imageService = new DefaultImageService(fileRepository, imageRepository);
   }
 
   @DisplayName("이미지의 확장자가 아니면 예외가 발생한다.")
@@ -31,8 +36,9 @@ class ImageServiceTest {
   void When_InvalidImageExtension_Then_ThrowException() {
     Resource pdf = mock(Resource.class);
     given(pdf.getFilename()).willReturn("notImage.pdf");
+    ImageType imageType = ImageType.FOUND;
 
-    ThrowingCallable expectThrow = () -> imageService.save(pdf);
+    ThrowingCallable expectThrow = () -> imageService.save(new ImageSaveCommand(pdf, imageType));
 
     assertThatThrownBy(expectThrow).hasMessage("이미지 확장자가 잘못되었습니다.");
   }

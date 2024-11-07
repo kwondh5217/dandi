@@ -12,7 +12,6 @@ import com.e205.service.FoundItemQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
@@ -22,8 +21,8 @@ public class FoundItemService {
   private final FoundItemQueryService foundItemQueryService;
 
   @Transactional
-  public void save(int memberId, FoundItemCreateRequest request, MultipartFile image) {
-    FoundItemSaveCommand command = request.toCommand(memberId, image.getResource());
+  public void save(int memberId, FoundItemCreateRequest request) {
+    FoundItemSaveCommand command = request.toCommand(memberId);
     foundItemCommandService.save(command);
   }
 

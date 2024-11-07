@@ -28,7 +28,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.Resource;
 
 @ExtendWith(MockitoExtension.class)
 class LostItemCommandServiceTests {
@@ -36,7 +35,6 @@ class LostItemCommandServiceTests {
   LostItemCommandService service;
   ItemEventPublisher eventPublisher;
   LostItemCommandRepository repository;
-  ImageService imageService;
   ItemImageRepository itemImageRepository;
   LostItemAuthRepository lostItemAuthRepository;
 
@@ -44,10 +42,9 @@ class LostItemCommandServiceTests {
   void setUp() {
     eventPublisher = mock(ItemEventPublisher.class);
     repository = mock(LostItemCommandRepository.class);
-    imageService = mock(ImageService.class);
     itemImageRepository = mock(ItemImageRepository.class);
     lostItemAuthRepository = mock(LostItemAuthRepository.class);
-    service = new DefaultLostItemCommandService(repository, eventPublisher, imageService,
+    service = new DefaultLostItemCommandService(repository, eventPublisher,
         itemImageRepository, lostItemAuthRepository);
   }
 
@@ -55,9 +52,15 @@ class LostItemCommandServiceTests {
   @Test
   void saveLostItem() {
     // given
-    imageSaveStubbing();
-    var images = Stream.generate(this::generateImages).limit(3).toList();
+    given(itemImageRepository.findLostImageById(any())).willReturn(Optional.of(generateItem()));
+    var images = Stream.generate(this::generateImage).limit(3).toList();
     var command = generateSaveCommand(images);
+
+    LostItem mockItem = mock(LostItem.class);
+    given(mockItem.getMemberId()).willReturn(1);
+    given(mockItem.getId()).willReturn(1);
+    given(repository.save(any(LostItem.class))).willReturn(mockItem);
+    given(repository.exists(any())).willReturn(true);
 
     // when
     service.save(command);
@@ -70,7 +73,7 @@ class LostItemCommandServiceTests {
   @Test
   void When_ImageCountGreaterThan3_Then_FailToSaveLostItem() {
     // given
-    var images = Stream.generate(this::generateImages).limit(5).toList();
+    var images = Stream.generate(this::generateImage).limit(5).toList();
     var command = generateSaveCommand(images);
 
     // when
@@ -84,7 +87,7 @@ class LostItemCommandServiceTests {
   @Test
   void When_SaveAgainInCoolTime_Then_FailToSaveLostItem() {
     // given
-    var images = Stream.generate(this::generateImages).limit(3).toList();
+    var images = Stream.generate(this::generateImage).limit(3).toList();
     var lastSaved = new LostItem(1, 1, 2, "상황묘사", "물건묘사", now());
     var command = generateSaveCommand(images);
     given(repository.findFirstByMemberIdOrderByCreatedAtDesc(1)).willReturn(Optional.of(lastSaved));
@@ -100,9 +103,15 @@ class LostItemCommandServiceTests {
   @Test
   void When_SaveSuccess_Then_PublishEvent() {
     // given
-    imageSaveStubbing();
-    var images = Stream.generate(this::generateImages).limit(3).toList();
+    given(itemImageRepository.findLostImageById(any())).willReturn(Optional.of(generateItem()));
+    var images = Stream.generate(this::generateImage).limit(3).toList();
     var command = generateSaveCommand(images);
+
+    LostItem mockItem = mock(LostItem.class);
+    given(mockItem.getMemberId()).willReturn(1);
+    given(mockItem.getId()).willReturn(1);
+    given(repository.save(any(LostItem.class))).willReturn(mockItem);
+    given(repository.exists(any())).willReturn(true);
 
     // when
     service.save(command);
@@ -115,7 +124,7 @@ class LostItemCommandServiceTests {
   @Test
   void When_SaveFail_Then_NotPublishEvent() {
     // given
-    var images = Stream.generate(this::generateImages).limit(5).toList();
+    var images = Stream.generate(this::generateImage).limit(5).toList();
     var command = generateSaveCommand(images);
 
     // when
@@ -126,25 +135,16 @@ class LostItemCommandServiceTests {
     verify(eventPublisher, times(0)).publish(any(LostItemSaveEvent.class));
   }
 
-  @DisplayName("분실물 등록 시 이미지가 있으면 이미지를 저장한다.")
-  @Test
-  void When_SaveWithImage_Then_SaveImage() {
-    // given
-    imageSaveStubbing();
-    var images = Stream.generate(this::generateImages).limit(2).toList();
-    var command = generateSaveCommand(images);
-
-    // when
-    service.save(command);
-
-    // then
-    verify(imageService, times(2)).save(any(Resource.class));
-  }
-
   @DisplayName("이미지가 없어도 분실물 등록에 성공한다.")
   @Test
   void When_WithoutImage_Then_SuccessToSaveLostItem() {
     // given
+    LostItem mockItem = mock(LostItem.class);
+    given(mockItem.getMemberId()).willReturn(1);
+    given(mockItem.getId()).willReturn(1);
+    given(repository.save(any(LostItem.class))).willReturn(mockItem);
+    given(repository.exists(any())).willReturn(true);
+
     LostItemSaveCommand command = generateSaveCommand(List.of());
 
     // when
@@ -158,12 +158,9 @@ class LostItemCommandServiceTests {
   @Test
   void When_FailToSaveLostItem_Then_DeleteSavedImages() {
     // given
-    imageSaveStubbing();
-    var images = Stream.generate(this::generateImages).limit(3).toList();
+    var images = Stream.generate(this::generateImage).limit(3).toList();
     var command = generateSaveCommand(images);
 
-    images.forEach(image -> given(imageService.save(image)).willAnswer(
-        answer -> UUID.randomUUID().toString()));
     given(repository.save(any(LostItem.class))).willThrow(RuntimeException.class);
 
     // when
@@ -171,22 +168,6 @@ class LostItemCommandServiceTests {
 
     // then
     assertThatThrownBy(expectThrow);
-    verify(imageService, times(3)).delete(any());
-  }
-
-  @DisplayName("이미지와 분실물을 저장하면, 이미지 정보를 저장한다.")
-  @Test
-  void When_SaveImageAndLostItem_Then_SaveImageToDB() {
-    // given
-    imageSaveStubbing();
-    var images = Stream.generate(this::generateImages).limit(2).toList();
-    var command = generateSaveCommand(images);
-
-    // when
-    service.save(command);
-
-    // then
-    verify(itemImageRepository, times(images.size())).save(any(LostImage.class));
   }
 
   @DisplayName("권한 부여 시 분실물이 존재하지 않으면 예외가 발생한다.")
@@ -220,15 +201,15 @@ class LostItemCommandServiceTests {
     verify(lostItemAuthRepository, never()).save(any());
   }
 
-  private static LostItemSaveCommand generateSaveCommand(List<Resource> images) {
+  private static LostItemSaveCommand generateSaveCommand(List<String> images) {
     return new LostItemSaveCommand(1, images, 1, 2, "상황 묘사", "물건 묘사", now());
   }
 
-  private Resource generateImages() {
-    return mock(Resource.class);
+  private String generateImage() {
+    return String.format("%s.%s", UUID.randomUUID(), "png");
   }
 
-  private void imageSaveStubbing() {
-    given(imageService.save(any())).willAnswer(answer -> UUID.randomUUID() + ".png");
+  private LostImage generateItem() {
+    return new LostImage(UUID.randomUUID(), "png", mock());
   }
 }

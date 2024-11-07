@@ -9,7 +9,7 @@ import org.springframework.data.geo.Point;
 @Builder
 public record FoundItemSaveCommand(
     Integer memberId,
-    Resource image,
+    String image,
     Point location,
     FoundItemType type,
     String storageDesc,

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -59,27 +61,23 @@ public class FoundItemControllerTest {
   @Test
   void createFoundItem() throws Exception {
     // given
-    FoundItemCreateRequest request = new FoundItemCreateRequest(FoundItemType.OTHER,
-        new Point(39.329034, 128.349023), LocalDateTime.now(), "프론트 데스크에 맡겨두었어요.", "빨간색 우산입니다.");
-
-    MockMultipartFile foundItemRequest = new MockMultipartFile("foundItemRequest",
-        "foundItemRequest.json", "application/json",
-        objectMapper.writeValueAsString(request).getBytes(StandardCharsets.UTF_8));
-
-    MockMultipartFile image = new MockMultipartFile("image", "image.jpg", "image/jpeg",
-        "dummy image content".getBytes());
+    FoundItemCreateRequest request = FoundItemCreateRequest.builder()
+        .category(FoundItemType.OTHER)
+        .foundLocation(new Point(39.329034, 128.349023))
+        .foundAt(LocalDateTime.now())
+        .storageDesc("프론트 데스크에 맡겨두었어요.")
+        .itemDesc("빨간색 우산입니다.")
+        .build();
 
     // when
     ResultActions action = mockMvc.perform(
-        multipart("/founds")
-            .file(foundItemRequest)
-            .file(image)
-            .contentType(MediaType.MULTIPART_FORM_DATA)
-            .characterEncoding("UTF-8"));
+        post("/founds")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsBytes(request)));
 
     // then
     action.andExpect(status().isCreated());
-    verify(foundItemService).save(1, request, image);
+    verify(foundItemService).save(1, request);
   }
 
   @DisplayName("습득물 상세 조회 테스트")

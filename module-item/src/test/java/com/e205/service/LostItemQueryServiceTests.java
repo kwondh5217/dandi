@@ -12,10 +12,8 @@ import static org.mockito.Mockito.verify;
 import com.e205.entity.LostItem;
 import com.e205.entity.LostItemAuth;
 import com.e205.event.LostItemReadEvent;
-import com.e205.events.EventPublisher;
 import com.e205.message.ItemEventPublisher;
 import com.e205.query.LostItemQuery;
-import com.e205.query.LostItemValidRangeQuery;
 import com.e205.query.MembersInRouteQuery;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
@@ -58,9 +56,9 @@ class LostItemQueryServiceTests {
     LostItem lostItem = generateLostItem(memberId);
 
     setRead(lostItem, false);
-    setValidPosition(memberId + 1);
+    setValidPosition(memberId);
 
-    LostItemQuery query = new LostItemQuery(memberId, lostItemId);
+    LostItemQuery query = new LostItemQuery(2, lostItemId);
 
     // when
     ThrowingCallable expectThrow = () -> service.find(query);
@@ -78,7 +76,7 @@ class LostItemQueryServiceTests {
     setRead(lostItem, false);
     lostItem.end();
 
-    LostItemQuery query = new LostItemQuery(memberId, lostItemId);
+    LostItemQuery query = new LostItemQuery(2, lostItemId);
 
     // when
     ThrowingCallable expectThrow = () -> service.find(query);
@@ -111,8 +109,8 @@ class LostItemQueryServiceTests {
     LostItem lostItem = generateLostItem(memberId);
 
     setRead(lostItem, false);
-    setValidPosition(memberId);
-    LostItemQuery query = new LostItemQuery(memberId, lostItemId);
+    setValidPosition(2);
+    LostItemQuery query = new LostItemQuery(2, lostItemId);
 
     // when
     ThrowingCallable notThrow = () -> service.find(query);
@@ -128,8 +126,8 @@ class LostItemQueryServiceTests {
     LostItem lostItem = generateLostItem(memberId);
 
     setRead(lostItem, false);
-    setValidPosition(memberId);
-    LostItemQuery query = new LostItemQuery(memberId, lostItemId);
+    setValidPosition(2);
+    LostItemQuery query = new LostItemQuery(2, lostItemId);
 
     // when
     service.find(query);
@@ -155,16 +153,17 @@ class LostItemQueryServiceTests {
   }
 
   private void setValidPosition(int expectMemberId) {
-    given(routeQueryService.findUserIdsNearPath(any(MembersInRouteQuery.class))).willReturn(List.of(expectMemberId));
+    given(routeQueryService.findUserIdsNearPath(any(MembersInRouteQuery.class))).willReturn(
+        List.of(expectMemberId));
   }
 
   private void setRead(LostItem lostItem, boolean read) {
-    LostItemAuth lostItemAuth = new LostItemAuth(memberId, lostItem);
+    LostItemAuth lostItemAuth = new LostItemAuth(2, lostItem);
     if (read) {
       lostItemAuth.read();
     }
-    given(lostItemAuthRepository.findLostItemAuthByMemberIdAndLostItemId(memberId,
-        lostItemId)).willReturn(Optional.of(lostItemAuth));
+    given(lostItemAuthRepository.findLostItemAuthByMemberIdAndLostItemId(any(),
+        any())).willReturn(Optional.of(lostItemAuth));
   }
 
   private LostItem generateLostItem(Integer memberId) {

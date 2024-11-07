@@ -10,12 +10,14 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @DiscriminatorValue("found_item")
 public class FoundImage extends Image implements LoggableEntity {
 
+  @Setter
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "found_id")
   private FoundItem foundItem;
@@ -26,4 +28,5 @@ public class FoundImage extends Image implements LoggableEntity {
     this.foundItem = foundItem;
     this.createdAt = LocalDateTime.now();
   }
+
 }

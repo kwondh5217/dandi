@@ -24,16 +24,8 @@ public class LostItemService {
   private final LostItemQueryService lostItemQueryService;
 
   @Transactional
-  public void createLostItem(Integer memberId, LostItemCreateRequest request,
-      List<MultipartFile> images) {
-    List<Resource> imageResources = images.stream()
-        .map(MultipartFile::getResource)
-        .toList();
-
-    LostItemSaveCommand command = new LostItemSaveCommand(memberId, imageResources,
-        request.startRoute(), request.endRoute(),
-        request.situationDesc(), request.itemDesc(), request.lostAt());
-
+  public void createLostItem(Integer memberId, LostItemCreateRequest request) {
+    LostItemSaveCommand command = request.toCommand(memberId);
     lostItemCommandService.save(command);
   }
 

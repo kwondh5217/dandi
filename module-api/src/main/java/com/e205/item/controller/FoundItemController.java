@@ -11,11 +11,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RequestMapping("/founds")
@@ -28,10 +27,9 @@ public class FoundItemController {
   @PostMapping
   public void createFoundItem(
       @AuthenticationPrincipal(expression = "id") Integer memberId,
-      @RequestPart("foundItemRequest") FoundItemCreateRequest request,
-      @RequestPart("image") MultipartFile image
+      @RequestBody FoundItemCreateRequest request
   ) {
-    foundItemService.save(memberId, request, image);
+    foundItemService.save(memberId, request);
   }
 
   @GetMapping("/{foundId}")

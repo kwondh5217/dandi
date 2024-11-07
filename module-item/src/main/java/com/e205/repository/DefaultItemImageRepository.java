@@ -1,6 +1,7 @@
 package com.e205.repository;
 
 import static com.e205.entity.QFoundImage.foundImage;
+import static com.e205.entity.QImage.image;
 import static com.e205.entity.QLostImage.lostImage;
 
 import com.e205.entity.FoundImage;

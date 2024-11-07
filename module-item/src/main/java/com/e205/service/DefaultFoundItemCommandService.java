@@ -24,7 +24,6 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
 
   private final FoundItemCommandRepository foundItemCommandRepository;
   private final ItemImageRepository itemImageRepository;
-  private final ImageService imageService;
   private final QuizCommandService quizCommandService;
   private final ItemEventPublisher eventPublisher;
 
@@ -49,23 +48,16 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
     if (command.image() == null) {
       throw new RuntimeException("이미지는 필수입니다.");
     }
-    String imageName = imageService.save(command.image());
+    FoundItem foundItem = foundItemCommandRepository.save(new FoundItem(command));
 
-    try {
-      FoundItem foundItem = foundItemCommandRepository.save(new FoundItem(command));
-      UUID imageId = UUID.fromString(FilenameUtils.getBaseName(imageName));
-      String type = FilenameUtils.getExtension(imageName);
-      FoundImage image = itemImageRepository.save(new FoundImage(imageId, type, foundItem));
-      quizCommandService.make(
-          new QuizMakeCommand(foundItem.getId(), command.memberId(), image.getId()));
+    UUID imageId = UUID.fromString(FilenameUtils.getBaseName(command.image()));
+    FoundImage image = saveImage(foundItem, imageId);
 
-      FoundItemSaveEvent event = new FoundItemSaveEvent(foundItem.toPayload(),
-          LocalDateTime.now());
-      eventPublisher.publish(event);
-    } catch (Exception e) {
-      imageService.delete(imageName);
-      throw e;
-    }
+    quizCommandService.make(
+        new QuizMakeCommand(foundItem.getId(), command.memberId(), image.getId()));
+
+    FoundItemSaveEvent event = new FoundItemSaveEvent(foundItem.toPayload(), LocalDateTime.now());
+    eventPublisher.publish(event);
   }
 
   private void processCard(FoundItemSaveCommand command) {
@@ -74,8 +66,14 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
     }
     // TODO <fosong98> 퀴즈는 다음에 고민
     FoundItem foundItem = foundItemCommandRepository.save(new FoundItem(command));
-    FoundItemSaveEvent event = new FoundItemSaveEvent(foundItem.toPayload(),
-        LocalDateTime.now());
+    FoundItemSaveEvent event = new FoundItemSaveEvent(foundItem.toPayload(), LocalDateTime.now());
     eventPublisher.publish(event);
+  }
+
+  private FoundImage saveImage(FoundItem item, UUID imageId) {
+    FoundImage image = itemImageRepository.findFoundImageById(imageId)
+        .orElseThrow(() -> new RuntimeException("이미지가 존재하지 않습니다."));
+    image.setFoundItem(item);
+    return image;
   }
 }

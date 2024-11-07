@@ -23,4 +23,8 @@ public class LostImage extends Image implements LoggableEntity {
     super(name, type);
     this.lostItem = lostItem;
   }
+
+  public void setLostItem(LostItem lostItem) {
+    this.lostItem = lostItem;
+  }
 }

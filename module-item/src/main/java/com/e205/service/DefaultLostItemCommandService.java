@@ -12,8 +12,6 @@ import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
 import com.e205.repository.LostItemCommandRepository;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
@@ -31,7 +29,6 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
 
   private final LostItemCommandRepository lostItemCommandRepository;
   private final ItemEventPublisher eventPublisher;
-  private final ImageService imageService;
   private final ItemImageRepository itemImageRepository;
   private final LostItemAuthRepository lostItemAuthRepository;
 
@@ -40,22 +37,15 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
     verifyImageCount(command);
     verifyCoolTime(command);
 
-    List<String> savedImages = new ArrayList<>();
-    try {
-      command.images().stream().map(imageService::save).forEach(savedImages::add);
-      LostItem lostItem = saveLostItem(command);
+    LostItem lostItem = saveLostItem(command);
+    command.images().stream()
+        .map(FilenameUtils::getBaseName)
+        .map(UUID::fromString)
+        .forEach(image -> saveImage(lostItem, image));
 
-      savedImages.stream()
-          .map(name -> toLostImage(name, lostItem))
-          .forEach(itemImageRepository::save);
+    grant(new LostItemGrantCommand(lostItem.getMemberId(), lostItem.getId()));
 
-      grant(new LostItemGrantCommand(lostItem.getMemberId(), lostItem.getId()));
-
-      eventPublisher.publish(new LostItemSaveEvent(lostItem.toPayload(), LocalDateTime.now()));
-    } catch (Exception e) {
-      savedImages.forEach(imageService::delete);
-      throw e;
-    }
+    eventPublisher.publish(new LostItemSaveEvent(lostItem.toPayload(), LocalDateTime.now()));
   }
 
   @Override
@@ -84,16 +74,9 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
     lostItemCommandRepository.deleteById(command.lostId());
   }
 
-  private LostImage toLostImage(String imageName, LostItem lostItem) {
-    String baseName = FilenameUtils.getBaseName(imageName);
-    String type = FilenameUtils.getExtension(imageName);
-    return new LostImage(UUID.fromString(baseName), type, lostItem);
-  }
-
   private LostItem saveLostItem(LostItemSaveCommand command) {
     LostItem lostItem = new LostItem(command);
-    lostItemCommandRepository.save(lostItem);
-    return lostItem;
+    return lostItemCommandRepository.save(lostItem);
   }
 
   private void verifyCoolTime(LostItemSaveCommand command) {
@@ -103,6 +86,13 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
         .ifPresent(recent -> {
           throw new RuntimeException("제한 시간 내에 재등록했을 때");
         });
+  }
+
+  private LostImage saveImage(LostItem item, UUID imageId) {
+    LostImage image = itemImageRepository.findLostImageById(imageId)
+        .orElseThrow(() -> new RuntimeException("이미지가 존재하지 않습니다."));
+    image.setLostItem(item);
+    return image;
   }
 
   private static void verifyImageCount(LostItemSaveCommand command) {
