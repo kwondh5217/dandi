@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import com.e205.command.RouteCreateCommand;
 import com.e205.command.RouteEndCommand;
 import com.e205.command.SnapshotUpdateCommand;
+import com.e205.command.bag.service.BagQueryService;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
@@ -19,8 +20,8 @@ import com.e205.event.RouteSavedEvent;
 import com.e205.events.EventPublisher;
 import com.e205.exception.RouteError;
 import com.e205.exception.RouteException;
-import com.e205.interaction.queries.BagItemQueryService;
 import com.e205.repository.RouteRepository;
+import com.e205.service.reader.SnapshotHelper;
 import com.e205.service.validator.RouteValidator;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,7 +35,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -45,24 +45,20 @@ public class RouteCommandServiceTests {
   private static final Integer BAG_ID = 1;
   private static final Integer INVALID_ROUTE_ID = 0;
   private static final Integer VALID_ROUTE_ID = 1;
-
-  @InjectMocks
-  private DirectRouteCommandService commandService;
-
-  @Mock
-  private RouteRepository routeRepository;
-
-  @Mock
-  private BagItemQueryService bagItemQueryService;
-
-  @Mock
-  private RouteValidator validator;
-
-  @Mock
-  private ApplicationEventPublisher eventPublisher;
-
   List<SnapshotItem> basedBagItems;
   Snapshot snapshot;
+  @InjectMocks
+  private DirectRouteCommandService commandService;
+  @Mock
+  private RouteRepository routeRepository;
+  @Mock
+  private BagQueryService bagQueryService;
+  @Mock
+  private RouteValidator validator;
+  @Mock
+  private EventPublisher eventPublisher;
+  @Mock
+  private SnapshotHelper snapshotHelper;
 
   @BeforeEach
   void setUp() {
@@ -90,7 +86,7 @@ public class RouteCommandServiceTests {
     // then
     verify(routeRepository).save(any(Route.class));
     ArgumentCaptor<RouteSavedEvent> eventCaptor = ArgumentCaptor.forClass(RouteSavedEvent.class);
-    verify(eventPublisher).publishEvent(eventCaptor.capture());
+    verify(eventPublisher).publicEvent(eventCaptor.capture());
     RouteSavedEvent publishedEvent = eventCaptor.getValue();
     assertThat(MEMBER_ID).isEqualTo(publishedEvent.memberId());
     assertThat(publishedEvent.payload()).isNotNull();

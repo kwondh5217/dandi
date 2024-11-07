@@ -25,6 +25,8 @@ public interface RouteRepository extends JpaRepository<Route, Integer> {
       Integer routeId
   );
 
+  Optional<Route> findFirstByMemberIdAndEndedAtIsNull(Integer memberId);
+
   @Query("SELECT r "
       + "FROM Route r "
       + "WHERE r.memberId = :memberId "

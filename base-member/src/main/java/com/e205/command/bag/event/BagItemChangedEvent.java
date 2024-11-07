@@ -4,6 +4,7 @@ import com.e205.command.item.payload.ItemPayload;
 import com.e205.events.Event;
 
 public record BagItemChangedEvent(
+    ItemPayload previousItemPayload,
     ItemPayload itemPayload
 ) implements Event {
 

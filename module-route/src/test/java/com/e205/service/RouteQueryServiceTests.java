@@ -4,10 +4,8 @@ import static com.e205.env.TestConstant.MEMBER_ID_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
-import com.e205.TestConfiguration;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
-import com.e205.events.EventPublisher;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
@@ -31,37 +29,42 @@ import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 @Sql("/test-sql/route.sql")
-@ActiveProfiles(value = "test")
 @AutoConfigureTestDatabase(replace = Replace.NONE)
+@ActiveProfiles(value = "test")
 @SpringBootTest(classes = TestConfiguration.class)
 class RouteQueryServiceTests {
 
   GeometryFactory geometryFactory = new GeometryFactory();
+
   @Mock
   private RouteRepository routeRepository;
+
   @Mock
   private GeometryUtils geometryUtils;
+
   @InjectMocks
   private DirectRouteQueryService routeQueryService;
+
   @Mock
   private Route route;
+
   @Mock
   private Route nextRoute;
+
   @Mock
   private RouteReadQuery routeReadQuery;
+
   @Mock
   private DailyRouteReadQuery dailyRouteQuery;
+
   @Mock
   private Route unfinishedRoute;
-  @MockBean
-  private EventPublisher eventPublisher;
+
   private LineString lineString;
 
   @BeforeEach

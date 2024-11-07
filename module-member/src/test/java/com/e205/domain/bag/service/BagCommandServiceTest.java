@@ -255,13 +255,13 @@ class BagCommandServiceTest {
     // 타겟 가방의 아이템 생성
     BagItem item1 = BagItem.builder().bagId(targetBagId).itemId(1).itemOrder((byte) 1).build();
     BagItem item2 = BagItem.builder().bagId(targetBagId).itemId(2).itemOrder((byte) 2).build();
-    Item itemEntity1 = Item.builder().id(1).memberId(memberId).emoticon("🙂").name("Item1").colorKey((byte)1).itemOrder((byte)1).build();
-    Item itemEntity2 = Item.builder().id(2).memberId(memberId).emoticon("😊").name("Item2").colorKey((byte)2).itemOrder((byte)2).build();
+    // Item itemEntity1 = Item.builder().id(1).memberId(memberId).emoticon("🙂").name("Item1").colorKey((byte)1).itemOrder((byte)1).build();
+    // Item itemEntity2 = Item.builder().id(2).memberId(memberId).emoticon("😊").name("Item2").colorKey((byte)2).itemOrder((byte)2).build();
 
     given(bagRepository.findById(myBagId)).willReturn(Optional.of(originalBag));
     given(bagRepository.findById(targetBagId)).willReturn(Optional.of(targetBag));
     given(bagItemRepository.findAllByBagId(targetBagId)).willReturn(List.of(item1, item2));
-    given(itemRepository.findAllById(anyList())).willReturn(List.of(itemEntity1, itemEntity2));
+    // given(itemRepository.findAllById(anyList())).willReturn(List.of(itemEntity1, itemEntity2));
 
     // When
     bagCommandService.selectBag(command);

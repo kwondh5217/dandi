@@ -10,7 +10,6 @@ public interface RouteCommandService {
    * 새로운 이동를 생성합니다.
    *
    * @param command 이동 생성 명령
-   * @param memberId 회원 ID
    */
   void createRoute(RouteCreateCommand command);
 

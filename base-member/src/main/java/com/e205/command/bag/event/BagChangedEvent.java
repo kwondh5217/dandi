@@ -1,11 +1,10 @@
 package com.e205.command.bag.event;
 
-import com.e205.command.item.payload.ItemPayload;
 import com.e205.events.Event;
-import java.util.List;
 
 public record BagChangedEvent(
-    List<ItemPayload> itemPayloads
+    Integer memberId,
+    Integer bagId
 ) implements Event {
 
   @Override

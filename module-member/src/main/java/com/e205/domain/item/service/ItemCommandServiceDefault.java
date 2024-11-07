@@ -3,6 +3,7 @@ package com.e205.domain.item.service;
 import com.e205.command.bag.event.BagItemAddEvent;
 import com.e205.command.bag.event.BagItemChangedEvent;
 import com.e205.command.bag.event.BagItemDeleteEvent;
+import com.e205.command.item.payload.ItemPayload;
 import com.e205.command.item.service.ItemCommandService;
 import com.e205.command.item.command.CreateItemCommand;
 import com.e205.command.item.command.DeleteItemCommand;
@@ -83,6 +84,8 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     Item item = itemRepository.findById(updateCommand.itemId())
         .orElseThrow(RuntimeException::new);
 
+    ItemPayload previousItemPayload = item.toPayload();
+
     if(item.getMemberId() != updateCommand.memberId()) {
       throw new RuntimeException();
     }
@@ -98,7 +101,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     item.updateEmoticon(updateCommand.emoticon());
     item.updateColorKey(updateCommand.colorKey());
 
-    eventPublisher.publish(new BagItemChangedEvent(item.toPayload()));
+    eventPublisher.publish(new BagItemChangedEvent(previousItemPayload, item.toPayload()));
   }
 
   @Override

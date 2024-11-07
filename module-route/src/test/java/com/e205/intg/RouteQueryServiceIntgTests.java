@@ -16,6 +16,7 @@ import static com.e205.env.TestConstant.ROUTE_ID_7;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.e205.TestConfiguration;
+import com.e205.command.bag.service.BagQueryService;
 import com.e205.domain.Route;
 import com.e205.dto.RoutePart;
 import com.e205.dto.Snapshot;
@@ -87,6 +88,9 @@ public class RouteQueryServiceIntgTests {
 
   @Autowired
   private EntityManager entityManager;
+
+  @MockBean
+  private BagQueryService bagQueryService;
 
   @MockBean
   private EventPublisher eventPublisher;
@@ -168,8 +172,8 @@ public class RouteQueryServiceIntgTests {
 
   @ParameterizedTest
   @CsvSource({
-      "1440, true",  // 최근 1일, 사용자 4 포함
-      "360, false" // 최근 5분, 사용자 4 미포함
+      "1440, true", // 최근 1일, 사용자 4 포함
+      "360, false" // 최근 6시간, 사용자 4 미포함
   })
   @DisplayName("특정 기간 내 경로 사용자 조회 테스트")
   void 특정_기간_내_경로_사용자_조회_테스트(int minutesAgo, boolean expectedResult) {
@@ -192,20 +196,15 @@ public class RouteQueryServiceIntgTests {
 
   @ParameterizedTest
   @CsvSource({
-      /**
-       * 사용자 1은 현재시간, 사용자 2는 5시간전에 해당 좌표의 이동이 있음
-       * */
-      "37.7749, 127.0, 6, '1,2'",  // 최근 6시간 이내, 예상되는 사용자 ID 1, 2
-      "37.7749, 127.0, 3, '1'",     // 최근 1시간 이내, 예상되는 사용자 ID 1
-      
-      /**
-       * lat : 39.7749, lon : 127.1 좌표에는 사용자 3의 이동밖에 없음
-       * */
-      "39.7749, 127.1, 3, '3'"      // 좌표 39.7749, 127.1 반경 내, 예상되는 사용자 ID 3
+      // 사용자 1은 현재시간, 사용자 2는 5시간전에 해당 좌표의 이동이 있음
+      "37.7749, 127.0, 6, '1,2'", // 최근 6시간 이내, 예상되는 사용자 ID 1, 2
+      "37.7749, 127.0, 3, '1'", // 최근 1시간 이내, 예상되는 사용자 ID 1
+
+      // lat : 39.7749, lon : 127.1 좌표에는 사용자 3의 이동밖에 없음
+      "39.7749, 127.1, 3, '3'" // 좌표 39.7749, 127.1 반경 내, 예상되는 사용자 ID 3
   })
   @DisplayName("특정 좌표 반경 내의 사용자를 시간 기준으로 조회 테스트")
-  void 특정_좌표_반경_내_사용자_조회_테스트(double lat, double lon, int subtractionTime,
-      String expectedMemberIdsStr) {
+  void 특정_좌표_반경_내_사용자_조회_테스트(double lat, double lon, int subtractionTime, String ids) {
     // given
     MembersInPointQuery query = MembersInPointQuery.builder()
         .lat(lat)
@@ -213,7 +212,7 @@ public class RouteQueryServiceIntgTests {
         .subtractionTime(subtractionTime)
         .build();
 
-    List<Integer> expectedIds = Stream.of(expectedMemberIdsStr.split(","))
+    List<Integer> expectedIds = Stream.of(ids.split(","))
         .map(Integer::parseInt)
         .collect(Collectors.toList());
 
@@ -223,7 +222,6 @@ public class RouteQueryServiceIntgTests {
     // then
     assertThat(userIds).containsAll(expectedIds);
   }
-
 
   private void initTracksPoints() {
     trackPoints1 = List.of(

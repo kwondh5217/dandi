@@ -5,11 +5,11 @@ import com.e205.command.bag.command.BagItemDeleteCommand;
 import com.e205.command.bag.command.BagItemOrderUpdateCommand;
 import com.e205.command.bag.command.BagNameUpdateCommand;
 import com.e205.command.bag.command.BagOrderUpdateCommand;
-import com.e205.command.bag.event.BagChangedEvent;
-import com.e205.command.bag.payload.BagPayload;
 import com.e205.command.bag.command.CopyBagCommand;
 import com.e205.command.bag.command.CreateBagCommand;
 import com.e205.command.bag.command.SelectBagCommand;
+import com.e205.command.bag.event.BagChangedEvent;
+import com.e205.command.bag.payload.BagPayload;
 import com.e205.command.bag.service.BagCommandService;
 import com.e205.command.item.payload.ItemPayload;
 import com.e205.domain.bag.entity.Bag;
@@ -18,7 +18,6 @@ import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
-import com.e205.domain.member.entity.Member;
 import com.e205.domain.message.MemberEventPublisher;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -103,6 +102,7 @@ public class BagCommandServiceDefault implements BagCommandService {
 
   @Override
   public void selectBag(SelectBagCommand selectBagCommand) {
+    Integer memberId = selectBagCommand.memberId();
     // TODO: <홍성우> Exception 상세화
     Bag originalBag = bagRepository.findById(selectBagCommand.myBagId())
         .orElseThrow(RuntimeException::new);
@@ -112,16 +112,17 @@ public class BagCommandServiceDefault implements BagCommandService {
 
     bagItemRepository.deleteAllByBagId(originalBag.getId());
 
-    List<BagItem> newBagItems = bagItemRepository.findAllByBagId(targetBag.getId()).stream()
+    Integer targetBagId = targetBag.getId();
+    List<BagItem> newBagItems = bagItemRepository.findAllByBagId(targetBagId).stream()
         .map(bagItem -> BagItem.builder()
             .bagId(originalBag.getId())
             .itemId(bagItem.getItemId())
             .itemOrder(bagItem.getItemOrder())
             .build())
         .toList();
-    bagItemRepository.saveAll(newBagItems);
 
-    convertAndPublishBagChangedEvent(newBagItems);
+    bagItemRepository.saveAll(newBagItems);
+    eventPublisher.publish(new BagChangedEvent(memberId, targetBagId));
   }
 
   private void convertAndPublishBagChangedEvent(List<BagItem> bagItems) {
@@ -138,8 +139,6 @@ public class BagCommandServiceDefault implements BagCommandService {
             .orElseThrow(RuntimeException::new)
         )
         .toList();
-
-    eventPublisher.publish(new BagChangedEvent(itemPayloads));
   }
 
   @Override

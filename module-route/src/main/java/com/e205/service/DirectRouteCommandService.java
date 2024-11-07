@@ -4,22 +4,18 @@ import com.e205.command.RouteCreateCommand;
 import com.e205.command.RouteEndCommand;
 import com.e205.command.SnapshotUpdateCommand;
 import com.e205.domain.Route;
+import com.e205.dto.RouteEventPayload;
 import com.e205.dto.Snapshot;
-import com.e205.dto.SnapshotItem;
 import com.e205.event.RouteSavedEvent;
 import com.e205.events.EventPublisher;
 import com.e205.exception.RouteError;
 import com.e205.exception.RouteException;
-import com.e205.interaction.queries.BagItemQueryService;
-import com.e205.dto.RouteEventPayload;
-import com.e205.query.BagItemsOfMemberQuery;
 import com.e205.repository.RouteRepository;
+import com.e205.service.reader.SnapshotHelper;
 import com.e205.service.validator.RouteValidator;
 import com.e205.util.GeometryUtils;
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,36 +24,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class DirectRouteCommandService implements RouteCommandService {
 
+  private final EventPublisher eventPublisher;
   private final RouteRepository routeRepository;
   private final RouteValidator routeValidator;
-  private final BagItemQueryService bagItemQueryService;
-  private final ApplicationEventPublisher eventPublisher;
+  private final SnapshotHelper snapshotHelper;
 
   @Override
   public void createRoute(RouteCreateCommand command) {
+    Integer memberId = command.memberId();
+    Integer bagId = command.bagId();
     Optional<Route> route = routeRepository.findFirstByMemberIdOrderByIdDesc(command.memberId());
     String determinedSnapshot = route.map(findRoute -> {
-          Snapshot defaultSnapshot = loadBaseSnapshot(command);
-          Snapshot currentSnapshot = loadCurrentSnapshot(findRoute);
+          Snapshot defaultSnapshot = snapshotHelper.loadBaseSnapshot(memberId, bagId);
+          Snapshot currentSnapshot = snapshotHelper.loadCurrentSnapshot(findRoute);
           return Route.determineSnapshot(command, defaultSnapshot, currentSnapshot);
         })
         .orElseGet(() -> {
-          return Snapshot.toJson(loadBaseSnapshot(command));
+          return Snapshot.toJson(snapshotHelper.loadBaseSnapshot(memberId, bagId));
         });
 
-    Route savedRoute = routeRepository.save(Route.toEntity(command.memberId(), determinedSnapshot));
+    Route savedRoute = routeRepository.save(Route.toEntity(memberId, determinedSnapshot));
     String payload = RouteEventPayload.toJson(getPayload(savedRoute, determinedSnapshot));
-    eventPublisher.publishEvent(new RouteSavedEvent(command.memberId(), payload));
-  }
-
-  private Snapshot loadBaseSnapshot(RouteCreateCommand command) {
-    BagItemsOfMemberQuery query = new BagItemsOfMemberQuery(command.memberId(), command.bagId());
-    List<SnapshotItem> snapshotItems = bagItemQueryService.bagItemsOfMember(query);
-    return new Snapshot(command.bagId(), snapshotItems);
-  }
-
-  private Snapshot loadCurrentSnapshot(Route previousRoute) {
-    return Snapshot.fromJson(previousRoute.getSnapshot());
+    eventPublisher.publicEvent(new RouteSavedEvent(memberId, payload));
   }
 
   private RouteEventPayload getPayload(Route savedRoute, String determinedSnapshot) {
