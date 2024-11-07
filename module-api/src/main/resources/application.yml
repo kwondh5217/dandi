@@ -1,6 +1,13 @@
 spring:
   profiles:
     include: secret
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+      hibernate.cache.use_second_level_cache: false
 
 app:
   push:
@@ -13,15 +20,6 @@ firebase:
 noti:
   until:
     time: 3
-  jpa:
-    properties:
-      .hibernate:
-        cache:
-          region:
-            timeToLiveSeconds: 3600
-          use_second_level_cache: true
-  profiles:
-    include: secret
 
   h2:
     console:
