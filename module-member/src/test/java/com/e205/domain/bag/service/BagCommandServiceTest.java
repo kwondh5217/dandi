@@ -20,6 +20,7 @@ import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.domain.message.MemberEventPublisher;
+import com.e205.events.EventPublisher;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 @ExtendWith(MockitoExtension.class)
 class BagCommandServiceTest {
@@ -48,7 +50,7 @@ class BagCommandServiceTest {
   private ItemRepository itemRepository;
 
   @Mock
-  private MemberEventPublisher eventPublisher;
+  private EventPublisher eventPublisher;
 
   @InjectMocks
   private BagCommandServiceDefault bagCommandService;
@@ -278,7 +280,7 @@ class BagCommandServiceTest {
               .anyMatch(bagItem -> bagItem.getItemId() == 2 && bagItem.getItemOrder() == (byte) 2);
     }));
 
-    verify(eventPublisher, times(1)).publish(any(BagChangedEvent.class));
+    verify(eventPublisher, times(1)).publicEvent(any(BagChangedEvent.class));
   }
 
   @DisplayName("가방 복사 실패 - 최대 가방 개수 초과")

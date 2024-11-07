@@ -20,6 +20,7 @@ import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.domain.message.MemberEventPublisher;
+import com.e205.events.EventPublisher;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +47,7 @@ class ItemServiceTest {
   private BagItemRepository bagItemRepository;
 
   @Mock
-  private MemberEventPublisher memberEventPublisher;
+  private EventPublisher eventPublisher;
 
   @InjectMocks
   private ItemCommandServiceDefault itemCommandService;

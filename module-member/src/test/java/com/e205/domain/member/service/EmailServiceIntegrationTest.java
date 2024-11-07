@@ -26,7 +26,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class EmailServiceIntegrationTest extends AbstractRedisTestContainer {
 
   private static final String TEST_EMAIL = "sungwoo166@gmail.com";
-  private static final Integer TEST_USER_ID = 1;
   private static final String TEST_VERIFICATION_NUMBER = "123456";
 
   @Autowired

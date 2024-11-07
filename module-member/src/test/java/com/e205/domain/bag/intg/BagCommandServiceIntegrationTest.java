@@ -7,7 +7,7 @@ import com.e205.domain.bag.service.BagCommandServiceDefault;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.domain.item.service.ItemCommandServiceDefault;
-import com.e205.domain.message.MemberEventPublisher;
+import com.e205.events.EventPublisher;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,15 +21,16 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest
-@Transactional
+//@Transactional
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class BagCommandServiceIntegrationTest {
 
-  @Autowired
-  private MemberEventPublisher memberEventPublisher;
+  @MockBean
+  private EventPublisher eventPublisher;
 
   @Autowired
   private BagCommandServiceDefault bagCommandService;

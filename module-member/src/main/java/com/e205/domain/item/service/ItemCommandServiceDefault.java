@@ -14,6 +14,7 @@ import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.domain.message.MemberEventPublisher;
+import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
   private static final int MAX_BAG_ITEM_COUNT = 20;
   private final ItemRepository itemRepository;
   private final BagItemRepository bagItemRepository;
-  private final MemberEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
 
   @Override
   public void save(CreateItemCommand createItemCommand) {
@@ -76,7 +77,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
         .build();
     bagItemRepository.save(bagItem);
 
-    eventPublisher.publish(new BagItemAddEvent(item.toPayload()));
+    eventPublisher.publicEvent(new BagItemAddEvent(item.toPayload()));
   }
 
   @Override
@@ -101,7 +102,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     item.updateEmoticon(updateCommand.emoticon());
     item.updateColorKey(updateCommand.colorKey());
 
-    eventPublisher.publish(new BagItemChangedEvent(previousItemPayload, item.toPayload()));
+    eventPublisher.publicEvent(new BagItemChangedEvent(previousItemPayload, item.toPayload()));
   }
 
   @Override
@@ -132,6 +133,6 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     bagItemRepository.deleteAll(bagItems);
 
     itemRepository.delete(item);
-    eventPublisher.publish(new BagItemDeleteEvent(item.toPayload()));
+    eventPublisher.publicEvent(new BagItemDeleteEvent(item.toPayload()));
   }
 }

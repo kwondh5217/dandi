@@ -18,7 +18,7 @@ import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
-import com.e205.domain.message.MemberEventPublisher;
+import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class BagCommandServiceDefault implements BagCommandService {
   private final BagRepository bagRepository;
   private final BagItemRepository bagItemRepository;
   private final ItemRepository itemRepository;
-  private final MemberEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
 
   @Override
   public void save(CreateBagCommand createBagCommand) {
@@ -122,7 +122,7 @@ public class BagCommandServiceDefault implements BagCommandService {
         .toList();
 
     bagItemRepository.saveAll(newBagItems);
-    eventPublisher.publish(new BagChangedEvent(memberId, targetBagId));
+    eventPublisher.publicEvent(new BagChangedEvent(memberId, targetBagId));
   }
 
   private void convertAndPublishBagChangedEvent(List<BagItem> bagItems) {
