@@ -1,6 +1,7 @@
 package com.e205.auth.jwt.filter;
 
-import static com.e205.exception.ApplicationError.EXAMPLE;
+import static com.e205.auth.exception.AuthError.FAILED_VERIFY_TOKEN;
+import static com.e205.auth.exception.AuthError.IS_EXPIRED_TOKEN;
 
 import com.e205.auth.dto.MemberDetails;
 import com.e205.auth.exception.AuthException;
@@ -20,7 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+  private final JwtAuthenticationEntryPoint jwtAuthEntryPoint;
   private final JwtProvider jwtProvider;
 
   @Override
@@ -37,7 +38,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     token = token.substring(7);
     if (!isValidateIfNotCallCommence(request, response, token)) {
-      filterChain.doFilter(request, response);
       return;
     }
 
@@ -55,14 +55,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       String token
   ) throws IOException {
     if (!jwtProvider.verifyToken(token)) {
-      // TODO <이현수> : 토큰 예외 메시지 전달 : 검증할 수 없는 토큰
-      jwtAuthenticationEntryPoint.commence(request, response, new AuthException(EXAMPLE));
+      jwtAuthEntryPoint.commence(request, response, new AuthException(FAILED_VERIFY_TOKEN));
       return false;
     }
 
     if (jwtProvider.isExpired(token)) {
-      // TODO <이현수> : 토큰 예외 메시지 전달 : 만료된 토큰
-      jwtAuthenticationEntryPoint.commence(request, response, new AuthException(EXAMPLE));
+      jwtAuthEntryPoint.commence(request, response, new AuthException(IS_EXPIRED_TOKEN));
       return false;
     }
     return true;

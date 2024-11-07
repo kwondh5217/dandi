@@ -8,6 +8,7 @@ import com.e205.dto.RouteEventPayload;
 import com.e205.dto.Snapshot;
 import com.e205.event.RouteSavedEvent;
 import com.e205.events.EventPublisher;
+import com.e205.exception.GlobalException;
 import com.e205.exception.RouteError;
 import com.e205.exception.RouteException;
 import com.e205.repository.RouteRepository;
@@ -74,6 +75,6 @@ public class DirectRouteCommandService implements RouteCommandService {
 
   private Route getRoute(Integer routeId) {
     return routeRepository.findById(routeId)
-        .orElseThrow(() -> new RouteException(RouteError.NOT_FOUND_ROUTE));
+        .orElseThrow(() -> new GlobalException("E104"));
   }
 }

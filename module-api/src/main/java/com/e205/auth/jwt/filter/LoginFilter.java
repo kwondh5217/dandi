@@ -1,6 +1,6 @@
 package com.e205.auth.jwt.filter;
 
-import static com.e205.exception.ApplicationError.EXAMPLE;
+import static com.e205.auth.exception.AuthError.FAILED_AUTHENTICATION;
 
 import com.e205.auth.dto.LoginRequest;
 import com.e205.auth.dto.MemberDetails;
@@ -28,7 +28,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
   private static final String ACCESS_TOKEN_HEADER_NAME = "Authorization";
   private static final String REFRESH_TOKEN_HEADER_NAME = "RefreshToken";
 
-  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+  private final JwtAuthenticationEntryPoint jwtAuthEntryPoint;
   private final AuthenticationManager authenticationManager;
   private final JwtRepository jwtRepository;
   private final JwtProvider provider;
@@ -70,8 +70,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
   @Override
   protected void unsuccessfulAuthentication(HttpServletRequest request,
       HttpServletResponse response, AuthenticationException failed) throws IOException {
-    // TODO <이현수> : 인증 실패 예외 처리
-    jwtAuthenticationEntryPoint.commence(request, response, new AuthException(EXAMPLE) {
+    jwtAuthEntryPoint.commence(request, response, new AuthException(FAILED_AUTHENTICATION) {
     });
   }
 }
