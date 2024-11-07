@@ -1,7 +1,6 @@
 package com.e205.domain.bag.repository;
 
 import com.e205.domain.bag.entity.BagItem;
-
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 

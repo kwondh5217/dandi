@@ -16,4 +16,6 @@ public interface MemberQueryService {
   List<MemberWithFcm> membersWithFcmQuery(List<Integer> members);
 
   String findMemberFcmById(Integer memberId);
+
+  String checkPastPassword(Integer memberId);
 }

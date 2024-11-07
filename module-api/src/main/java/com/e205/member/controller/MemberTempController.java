@@ -1,13 +1,15 @@
 package com.e205.member.controller;
 
 import com.e205.auth.jwt.JwtProvider;
-import com.e205.command.bag.payload.EmailStatus;
+import com.e205.command.member.payload.EmailStatus;
+import com.e205.command.member.payload.MemberStatus;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +23,7 @@ public class MemberTempController {
   private final MemberRepository memberRepository;
   private final BagRepository bagRepository;
   private final JwtProvider jwtProvider;
+  private final PasswordEncoder passwordEncoder;
 
   @PostMapping("/{nickname}")
   public String createOrGetTempMember(@PathVariable String nickname) {
@@ -31,13 +34,15 @@ public class MemberTempController {
       return "Bearer " + token;
 
     } else {
+      String password = passwordEncoder.encode("password");
+
       Member tempMember = Member.builder()
           .nickname(nickname)
-          .password("TempPass123!")
+          .password(password)
           .email(nickname + "@example.com")
           .status(EmailStatus.VERIFIED)
+          .memberStatus(MemberStatus.ACTIVE)
           .build();
-
       Member savedMember = memberRepository.save(tempMember);
 
       Bag tempBag = Bag.builder()

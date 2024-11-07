@@ -2,24 +2,29 @@ package com.e205.domain.bag.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.anyList;
+import static org.mockito.BDDMockito.argThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.never;
+import static org.mockito.BDDMockito.spy;
+import static org.mockito.BDDMockito.times;
+import static org.mockito.BDDMockito.verify;
 
 import com.e205.command.bag.command.BagItemOrderCommand;
-import com.e205.command.bag.command.SelectBagCommand;
-import com.e205.command.bag.command.CreateBagCommand;
-import com.e205.command.bag.command.CopyBagCommand;
-import com.e205.command.bag.command.BagOrderUpdateCommand;
-import com.e205.command.bag.command.BagOrderCommand;
-import com.e205.command.bag.command.BagNameUpdateCommand;
 import com.e205.command.bag.command.BagItemOrderUpdateCommand;
+import com.e205.command.bag.command.BagNameUpdateCommand;
+import com.e205.command.bag.command.BagOrderCommand;
+import com.e205.command.bag.command.BagOrderUpdateCommand;
+import com.e205.command.bag.command.CopyBagCommand;
+import com.e205.command.bag.command.CreateBagCommand;
+import com.e205.command.bag.command.SelectBagCommand;
 import com.e205.command.bag.event.BagChangedEvent;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
-import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
-import com.e205.domain.message.MemberEventPublisher;
 import com.e205.events.EventPublisher;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +38,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 @ExtendWith(MockitoExtension.class)
 class BagCommandServiceTest {

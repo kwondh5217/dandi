@@ -5,7 +5,8 @@ import lombok.Builder;
 
 @Builder
 public record UpdateItemOrderCommand(
-    Integer memberId, List<ItemOrderCommand> items
+    Integer memberId,
+    List<ItemOrderCommand> items
 ) {
 
 }

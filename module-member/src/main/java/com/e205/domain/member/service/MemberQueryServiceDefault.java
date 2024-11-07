@@ -49,4 +49,12 @@ public class MemberQueryServiceDefault implements MemberQueryService {
         .orElseThrow(RuntimeException::new);
     return member.getFcmCode();
   }
+
+
+  @Override
+  public String checkPastPassword(Integer memberId) {
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(RuntimeException::new);
+    return member.getPassword();
+  }
 }

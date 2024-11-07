@@ -3,10 +3,12 @@ package com.e205.member.service;
 import com.e205.auth.helper.AuthHelper;
 import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.bag.query.FindMemberQuery;
+import com.e205.command.member.command.ChangePasswordCommand;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
 import com.e205.command.member.command.CheckVerificationNumberCommand;
 import com.e205.command.member.command.CompleteSignUpCommand;
 import com.e205.command.member.command.CreateVerificationNumberCommand;
+import com.e205.command.member.command.DeleteMemberCommand;
 import com.e205.command.member.command.RegisterMemberCommand;
 import com.e205.command.member.command.RequestEmailVerificationCommand;
 import com.e205.command.member.command.UpdateFcmCodeCommand;
@@ -88,5 +90,23 @@ public class MemberService {
   public void updateFcmCode(Integer memberId, String fcmCode) {
     UpdateFcmCodeCommand command = new UpdateFcmCodeCommand(fcmCode, memberId);
     memberCommandService.updateFcmCode(command);
+  }
+
+  public void changePassword(Integer memberId, String newPassword, String pastPassword) {
+    String beforePassword = memberQueryService.checkPastPassword(memberId);
+    System.out.println("beforePassword " + beforePassword);
+    System.out.println("pastPassword " + pastPassword);
+    if (!passwordEncoder.matches(pastPassword, beforePassword)) {
+      throw new IllegalArgumentException("이전 비밀번호가 일치하지 않습니다.");
+    }
+    String encryptedPassword = passwordEncoder.encode(newPassword);
+    ChangePasswordCommand command = new ChangePasswordCommand(memberId, encryptedPassword,
+        pastPassword);
+    memberCommandService.changePassword(command);
+  }
+
+  public void deleteMember(Integer memberId) {
+    DeleteMemberCommand command = new DeleteMemberCommand(memberId);
+    memberCommandService.deleteMember(command);
   }
 }

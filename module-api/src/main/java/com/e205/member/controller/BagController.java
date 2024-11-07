@@ -95,9 +95,7 @@ public class BagController {
 
   @ResponseStatus(HttpStatus.OK)
   @PostMapping("/{bagId}/items")
-  public void addItemsToBag(
-      @PathVariable Integer bagId,
-      @RequestBody List<Integer> itemIds) {
+  public void addItemsToBag(@PathVariable Integer bagId, @RequestBody List<Integer> itemIds) {
     bagService.addItemsToBag(new AddItemsToBagRequest(bagId, authHelper.getMemberId(), itemIds));
   }
 

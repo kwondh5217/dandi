@@ -12,14 +12,13 @@ import static org.mockito.BDDMockito.verify;
 import com.e205.command.bag.query.ReadAllItemQuery;
 import com.e205.command.item.command.CreateItemCommand;
 import com.e205.command.item.command.ItemOrderCommand;
-import com.e205.command.item.payload.ItemPayload;
 import com.e205.command.item.command.UpdateItemCommand;
 import com.e205.command.item.command.UpdateItemOrderCommand;
+import com.e205.command.item.payload.ItemPayload;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
-import com.e205.domain.message.MemberEventPublisher;
 import com.e205.events.EventPublisher;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 
 @ExtendWith(MockitoExtension.class)

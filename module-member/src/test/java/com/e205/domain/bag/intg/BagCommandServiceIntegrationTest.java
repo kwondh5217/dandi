@@ -1,26 +1,24 @@
 package com.e205.domain.bag.intg;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.e205.command.bag.command.BagDeleteCommand;
 import com.e205.command.bag.command.BagItemDeleteCommand;
 import com.e205.command.item.command.DeleteItemCommand;
+import com.e205.domain.bag.entity.Bag;
+import com.e205.domain.bag.entity.BagItem;
+import com.e205.domain.bag.repository.BagItemRepository;
+import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.bag.service.BagCommandServiceDefault;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.domain.item.service.ItemCommandServiceDefault;
 import com.e205.events.EventPublisher;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.e205.domain.bag.entity.Bag;
-import com.e205.domain.bag.entity.BagItem;
-import com.e205.domain.bag.repository.BagItemRepository;
-import com.e205.domain.bag.repository.BagRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 

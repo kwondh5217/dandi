@@ -1,15 +1,18 @@
 package com.e205.domain.member.service;
 
-import com.e205.command.bag.payload.EmailStatus;
+import com.e205.command.member.command.ChangePasswordCommand;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
 import com.e205.command.member.command.CompleteSignUpCommand;
+import com.e205.command.member.command.CreateEmailTokenCommand;
+import com.e205.command.member.command.DeleteMemberCommand;
+import com.e205.command.member.command.RegisterMemberCommand;
 import com.e205.command.member.command.RequestEmailVerificationCommand;
+import com.e205.command.member.command.SendVerificationEmailCommand;
 import com.e205.command.member.command.UpdateFcmCodeCommand;
 import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
+import com.e205.command.member.payload.EmailStatus;
+import com.e205.command.member.payload.MemberStatus;
 import com.e205.command.member.service.MemberCommandService;
-import com.e205.command.member.command.CreateEmailTokenCommand;
-import com.e205.command.member.command.RegisterMemberCommand;
-import com.e205.command.member.command.SendVerificationEmailCommand;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.member.entity.Member;
@@ -123,6 +126,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
         .email(email)
         .nickname(nickname)
         .status(EmailStatus.VERIFIED)
+        .memberStatus(MemberStatus.ACTIVE)
         .build();
 
     Member member = memberRepository.save(newMember);
@@ -151,5 +155,22 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     Member member = memberRepository.findById(command.memberId())
         .orElseThrow(RuntimeException::new);
     member.updateFcmCode(command.fcmCode());
+  }
+
+  @Override
+  public void changePassword(ChangePasswordCommand command) {
+    Member member = memberRepository.findById(command.memberId())
+        .orElseThrow(RuntimeException::new);
+    member.updatePassword(command.newPassword());
+  }
+
+  @Override
+  public void deleteMember(DeleteMemberCommand command) {
+    Member member = memberRepository.findById(command.memberId())
+        .orElseThrow(RuntimeException::new);
+    member.updateEmail(null);
+    member.updateFcmCode(null);
+    member.updatePassword(null);
+    member.updateMemberStatus(MemberStatus.DISABLED);
   }
 }

@@ -1,6 +1,6 @@
 package com.e205.member.dto;
 
-import com.e205.command.bag.payload.EmailStatus;
+import com.e205.command.member.payload.EmailStatus;
 import com.e205.command.bag.payload.MemberPayload;
 import lombok.Builder;
 

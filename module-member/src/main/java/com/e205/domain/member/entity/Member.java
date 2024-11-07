@@ -1,8 +1,9 @@
 package com.e205.domain.member.entity;
 
-import com.e205.command.bag.payload.EmailStatus;
 import com.e205.command.bag.payload.MemberPayload;
+import com.e205.command.member.payload.EmailStatus;
 import com.e205.command.member.payload.MemberAuthPayload;
+import com.e205.command.member.payload.MemberStatus;
 import com.e205.common.audit.BaseTime;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
@@ -44,6 +45,10 @@ public class Member extends BaseTime implements LoggableEntity {
   @Column(nullable = false, length = 10)
   private EmailStatus status;
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 10)
+  private MemberStatus memberStatus;
+
   private String fcmCode;
 
   public void updateStatus(EmailStatus newStatus) {
@@ -66,11 +71,15 @@ public class Member extends BaseTime implements LoggableEntity {
     this.fcmCode = fcmCode;
   }
 
+  public void updateMemberStatus(MemberStatus memberStatus) {
+    this.memberStatus = memberStatus;
+  }
+
   public MemberPayload toPayload() {
-    return new MemberPayload(id, bagId, nickname, email, status);
+    return new MemberPayload(id, bagId, nickname, email, status, memberStatus);
   }
 
   public MemberAuthPayload toAuthPayload() {
-    return new MemberAuthPayload(id, bagId, nickname, email, password, status);
+    return new MemberAuthPayload(id, bagId, nickname, email, password, status, memberStatus);
   }
 }

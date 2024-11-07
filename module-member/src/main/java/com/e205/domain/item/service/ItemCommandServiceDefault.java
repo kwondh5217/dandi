@@ -3,17 +3,16 @@ package com.e205.domain.item.service;
 import com.e205.command.bag.event.BagItemAddEvent;
 import com.e205.command.bag.event.BagItemChangedEvent;
 import com.e205.command.bag.event.BagItemDeleteEvent;
-import com.e205.command.item.payload.ItemPayload;
-import com.e205.command.item.service.ItemCommandService;
 import com.e205.command.item.command.CreateItemCommand;
 import com.e205.command.item.command.DeleteItemCommand;
 import com.e205.command.item.command.UpdateItemCommand;
 import com.e205.command.item.command.UpdateItemOrderCommand;
+import com.e205.command.item.payload.ItemPayload;
+import com.e205.command.item.service.ItemCommandService;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
-import com.e205.domain.message.MemberEventPublisher;
 import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -116,7 +115,9 @@ public class ItemCommandServiceDefault implements ItemCommandService {
 
     updateItemOrderCommand.items().forEach(itemOrder -> {
       Item item = itemMap.get(itemOrder.itemId());
-      item.updateOrder(itemOrder.order());
+      if (item != null) {
+        item.updateOrder(itemOrder.order());
+      }
     });
   }
 

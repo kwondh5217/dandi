@@ -1,22 +1,19 @@
 package com.e205.domain.member.service;
 
-import com.e205.command.bag.payload.EmailStatus;
-import com.e205.command.member.command.CheckEmailProgressCommand;
 import com.e205.command.member.command.CheckVerificationNumberCommand;
 import com.e205.command.member.command.CreateEmailTokenCommand;
 import com.e205.command.member.command.CreateVerificationNumberCommand;
 import com.e205.command.member.command.SendVerificationEmailCommand;
-import com.e205.command.member.command.VerifyEmailToken;
 import com.e205.command.member.service.EmailCommandService;
-import com.e205.domain.member.repository.MemberRepository;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.Duration;
 import java.util.Random;
-import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,9 +21,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.util.UUID;
 
 @Transactional
 @RequiredArgsConstructor

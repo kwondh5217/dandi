@@ -1,12 +1,13 @@
 package com.e205.domain.member.service;
 
-import com.e205.command.bag.payload.EmailStatus;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
+import com.e205.command.member.command.RegisterMemberCommand;
 import com.e205.command.member.command.RequestEmailVerificationCommand;
 import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
+import com.e205.command.member.payload.EmailStatus;
 import com.e205.command.member.service.MemberCommandService;
-import com.e205.command.member.command.RegisterMemberCommand;
-import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
@@ -19,8 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.annotation.DirtiesContext;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)

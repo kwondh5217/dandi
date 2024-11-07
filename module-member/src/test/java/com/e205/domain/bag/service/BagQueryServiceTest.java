@@ -1,7 +1,9 @@
 package com.e205.domain.bag.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.times;
+import static org.mockito.BDDMockito.verify;
 
 import com.e205.command.bag.payload.BagItemPayload;
 import com.e205.command.bag.payload.BagPayload;

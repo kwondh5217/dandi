@@ -7,7 +7,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 
 import com.e205.MemberWithFcm;
-import com.e205.command.bag.payload.EmailStatus;
+import com.e205.command.member.payload.EmailStatus;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
 import java.util.List;
