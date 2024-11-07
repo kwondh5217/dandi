@@ -76,9 +76,6 @@ public class JwtProvider {
           .before(new Date());
       return flag;
     } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println(e.getMessage());
-      System.out.println("예외");
       return true;
     }
   }

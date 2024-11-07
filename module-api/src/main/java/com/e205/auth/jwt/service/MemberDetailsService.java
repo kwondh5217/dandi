@@ -1,4 +1,4 @@
-package com.e205.auth.service;
+package com.e205.auth.jwt.service;
 
 import com.e205.auth.dto.MemberDetails;
 import com.e205.command.member.payload.MemberAuthPayload;

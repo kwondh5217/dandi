@@ -7,9 +7,9 @@ import com.e205.auth.dto.MemberDetails;
 import com.e205.auth.exception.AuthException;
 import com.e205.auth.jwt.JwtProvider;
 import com.e205.auth.jwt.handler.JwtAuthenticationEntryPoint;
+import com.e205.auth.jwt.repository.JwtRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,8 +24,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
+  private static final String TOKEN_TYPE = "Bearer ";
+  private static final String ACCESS_TOKEN_HEADER_NAME = "Authorization";
+  private static final String REFRESH_TOKEN_HEADER_NAME = "RefreshToken";
+
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
   private final AuthenticationManager authenticationManager;
+  private final JwtRepository jwtRepository;
   private final JwtProvider provider;
 
   @Override
@@ -55,16 +60,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     String accessToken = provider.generateAccessToken(memberId);
     String refreshToken = provider.generateRefreshToken(memberId);
 
-    // TODO <이현수> : refreshToken 저장
+    jwtRepository.saveRefreshToken(memberId, refreshToken);
 
-    response.addHeader("Authorization", "Bearer " + accessToken);
-    response.addHeader("RefreshToken", refreshToken);
+    response.addHeader(ACCESS_TOKEN_HEADER_NAME, TOKEN_TYPE + accessToken);
+    response.addHeader(REFRESH_TOKEN_HEADER_NAME, TOKEN_TYPE + refreshToken);
     response.setStatus(HttpStatus.OK.value());
   }
 
   @Override
   protected void unsuccessfulAuthentication(HttpServletRequest request,
-      HttpServletResponse response, AuthenticationException failed ) throws IOException {
+      HttpServletResponse response, AuthenticationException failed) throws IOException {
     // TODO <이현수> : 인증 실패 예외 처리
     jwtAuthenticationEntryPoint.commence(request, response, new AuthException(EXAMPLE) {
     });
