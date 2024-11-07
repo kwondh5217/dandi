@@ -1,8 +1,10 @@
 package com.e205.member.controller;
 
 import com.e205.auth.helper.AuthHelper;
+import com.e205.member.dto.AddItemsToBagRequest;
 import com.e205.member.dto.BagOrderChangeRequest;
 import com.e205.member.dto.BagResponse;
+import com.e205.member.dto.ChangeBagItemOrderRequest;
 import com.e205.member.dto.ChangeBagNameRequest;
 import com.e205.member.dto.CopySelectBagRequest;
 import com.e205.member.dto.CreateBagRequest;
@@ -89,5 +91,20 @@ public class BagController {
   @DeleteMapping("/{bagId}/items/{itemId}")
   public void deleteItemInBag(@PathVariable Integer bagId, @PathVariable Integer itemId) {
     bagService.deleteItemInBag(bagId, itemId, authHelper.getMemberId());
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping("/{bagId}/items")
+  public void addItemsToBag(
+      @PathVariable Integer bagId,
+      @RequestBody List<Integer> itemIds) {
+    bagService.addItemsToBag(new AddItemsToBagRequest(bagId, authHelper.getMemberId(), itemIds));
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @PutMapping("/{bagId}/items")
+  public void changeOrderItemInBag(@PathVariable Integer bagId,
+      @RequestBody List<ChangeBagItemOrderRequest> request) {
+    bagService.changeOrderItemInBag(bagId, request, authHelper.getMemberId());
   }
 }

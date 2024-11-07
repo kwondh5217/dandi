@@ -1,7 +1,11 @@
 package com.e205.command.item.command;
 
 import java.util.List;
+import lombok.Builder;
 
-public record UpdateItemOrderCommand(Integer memberId, List<ItemOrderCommand> items) {
+@Builder
+public record UpdateItemOrderCommand(
+    Integer memberId, List<ItemOrderCommand> items
+) {
 
 }

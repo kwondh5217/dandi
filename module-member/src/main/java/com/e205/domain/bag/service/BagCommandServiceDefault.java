@@ -1,5 +1,6 @@
 package com.e205.domain.bag.service;
 
+import com.e205.command.bag.command.AddItemsToBagCommand;
 import com.e205.command.bag.command.BagDeleteCommand;
 import com.e205.command.bag.command.BagItemDeleteCommand;
 import com.e205.command.bag.command.BagItemOrderUpdateCommand;
@@ -20,10 +21,12 @@ import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -222,5 +225,41 @@ public class BagCommandServiceDefault implements BagCommandService {
     }
 
     bagItemRepository.deleteByBagIdAndItemId(command.bagId(), command.bagItemId());
+  }
+
+  @Override
+  public void addItemToBag(AddItemsToBagCommand command) {
+    Integer bagId = command.bagId();
+    Integer memberId = command.memberId();
+    List<Integer> itemIds = command.itemIds();
+
+    Bag bag = bagRepository.findById(bagId)
+        .orElseThrow(() -> new RuntimeException("가방을 찾을 수 없습니다."));
+    if (!Objects.equals(bag.getMemberId(), memberId)) {
+      throw new RuntimeException("해당 가방의 소유자가 아닙니다.");
+    }
+
+    List<BagItem> existingBagItems = bagItemRepository.findAllByBagId(bagId);
+    if (existingBagItems.size() + itemIds.size() >= 20) {
+      throw new RuntimeException("가방에 아이템을 더 추가할 수 없습니다. 최대 20개까지 가능합니다.");
+    }
+    // 중복 아이템 제외하기
+    List<Integer> newItemIds = itemIds.stream()
+        .filter(itemId -> existingBagItems.stream()
+            .noneMatch(bagItem -> bagItem.getItemId().equals(itemId)))
+        .toList();
+
+    int initialOrder = existingBagItems.size();
+    List<BagItem> newBagItems = new ArrayList<>();
+
+    for (int i = 0; i < newItemIds.size(); i++) {
+      newBagItems.add(BagItem.builder()
+          .bagId(bagId)
+          .itemId(newItemIds.get(i))
+          .itemOrder((byte) (initialOrder + i))
+          .build());
+    }
+    bagItemRepository.saveAll(newBagItems);
+    eventPublisher.publicEvent(new BagChangedEvent(memberId, bagId));
   }
 }

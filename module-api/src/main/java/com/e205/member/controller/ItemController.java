@@ -1,7 +1,9 @@
 package com.e205.member.controller;
 
 import com.e205.auth.helper.AuthHelper;
+import com.e205.member.dto.ChangeBagItemOrderRequest;
 import com.e205.member.dto.ChangeItemInfo;
+import com.e205.member.dto.ChangeItemOrderRequest;
 import com.e205.member.dto.CreateItemRequest;
 import com.e205.member.dto.ItemResponse;
 import com.e205.member.service.ItemService;
@@ -53,4 +55,9 @@ public class ItemController {
     itemService.deleteItem(authHelper.getMemberId(), itemId);
   }
 
+  @ResponseStatus(HttpStatus.OK)
+  @PutMapping
+  public void changeItemOrder(@RequestBody List<ChangeItemOrderRequest> request) {
+    itemService.changeItemOrder(authHelper.getMemberId(), request);
+  }
 }

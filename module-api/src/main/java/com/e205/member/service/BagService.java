@@ -1,8 +1,11 @@
 package com.e205.member.service;
 
 import com.e205.auth.helper.AuthHelper;
+import com.e205.command.bag.command.AddItemsToBagCommand;
 import com.e205.command.bag.command.BagDeleteCommand;
 import com.e205.command.bag.command.BagItemDeleteCommand;
+import com.e205.command.bag.command.BagItemOrderCommand;
+import com.e205.command.bag.command.BagItemOrderUpdateCommand;
 import com.e205.command.bag.command.BagNameUpdateCommand;
 import com.e205.command.bag.command.BagOrderCommand;
 import com.e205.command.bag.command.BagOrderUpdateCommand;
@@ -21,8 +24,10 @@ import com.e205.command.bag.service.BagQueryService;
 import com.e205.command.item.payload.ItemPayload;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.domain.member.entity.Member;
+import com.e205.member.dto.AddItemsToBagRequest;
 import com.e205.member.dto.BagOrderChangeRequest;
 import com.e205.member.dto.BagResponse;
+import com.e205.member.dto.ChangeBagItemOrderRequest;
 import com.e205.member.dto.ChangeBagNameRequest;
 import com.e205.member.dto.CopySelectBagRequest;
 import com.e205.member.dto.CreateBagRequest;
@@ -124,5 +129,22 @@ public class BagService {
   public void deleteItemInBag(Integer bagId, Integer itemId, Integer memberId) {
     BagItemDeleteCommand command = new BagItemDeleteCommand(memberId, bagId, itemId);
     bagCommandService.deleteBagItem(command);
+  }
+
+  public void changeOrderItemInBag(Integer bagId, List<ChangeBagItemOrderRequest> requests,
+      Integer memberId) {
+    List<BagItemOrderCommand> items = requests.stream()
+        .map(request -> new BagItemOrderCommand(
+            request.itemId(),
+            request.orderId().byteValue()
+        ))
+        .toList();
+    BagItemOrderUpdateCommand command = new BagItemOrderUpdateCommand(memberId, bagId, items);
+    bagCommandService.updateBagItemOrder(command);
+  }
+
+  public void addItemsToBag(AddItemsToBagRequest request) {
+    AddItemsToBagCommand command = request.toCommand();
+    bagCommandService.addItemToBag(command);
   }
 }

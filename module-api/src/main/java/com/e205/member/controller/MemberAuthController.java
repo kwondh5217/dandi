@@ -72,7 +72,10 @@ public class MemberAuthController {
       @RequestParam("token") String token) {
     memberService.verifyEmail(new VerifyEmailRequest(email, token));
     String responseHtml = "<html><body>" +
-        "<script>window.close();</script>" +
+        "<script>" +
+        "alert('이메일 인증이 완료되었습니다!');" +
+        "window.close();" +
+        "</script>" +
         "</body></html>";
     return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(responseHtml);
   }
