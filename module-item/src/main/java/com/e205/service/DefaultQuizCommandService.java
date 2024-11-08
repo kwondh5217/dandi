@@ -92,6 +92,10 @@ public class DefaultQuizCommandService implements QuizCommandService {
       throw new RuntimeException("퀴즈를 생성할 권한이 없습니다.");
     }
 
+    if (foundItem.isEnded()) {
+      throw new RuntimeException("이미 종료된 습득물입니다.");
+    }
+
     return foundItem;
   }
 

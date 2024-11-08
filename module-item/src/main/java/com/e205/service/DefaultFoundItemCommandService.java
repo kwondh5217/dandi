@@ -41,7 +41,8 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
 
   @Override
   public void delete(FoundItemDeleteCommand command) {
-    foundItemCommandRepository.deleteById(command.foundId());
+    foundItemCommandRepository.findById(command.foundId())
+        .ifPresent(FoundItem::end);
   }
 
   private void processOther(FoundItemSaveCommand command) {

@@ -17,6 +17,7 @@ import com.e205.query.LostItemQuery;
 import com.e205.query.MembersInRouteQuery;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
+import com.e205.repository.LostItemRepository;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -42,11 +43,13 @@ class LostItemQueryServiceTests {
   ItemEventPublisher eventPublisher;
   @Mock
   ItemImageRepository imageRepository;
+  @Mock
+  LostItemRepository lostItemRepository;
 
   @BeforeEach
   void setUp() {
     service = new DefaultLostItemQueryService(lostItemAuthRepository, routeQueryService,
-        imageRepository, eventPublisher);
+        imageRepository, eventPublisher, lostItemRepository);
   }
 
   @DisplayName("확인한 적 없고 조회 가능 범위 내에 없으면, 상세조회할 수 없다.")

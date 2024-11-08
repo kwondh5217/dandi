@@ -36,6 +36,7 @@ public class FoundItem implements LoggableEntity {
   private FoundItemType type;
   private LocalDateTime foundAt;
   private LocalDateTime createdAt;
+  private LocalDateTime endedAt;
 
   @Builder
   public FoundItem(Integer memberId, Double lat, Double lon, String description, String savePlace,
@@ -72,5 +73,14 @@ public class FoundItem implements LoggableEntity {
         .type(type)
         .foundAt(foundAt)
         .build();
+  }
+
+  public boolean isEnded() {
+    return endedAt != null;
+  }
+
+  public void end() {
+    if (!isEnded())
+      endedAt = LocalDateTime.now();
   }
 }

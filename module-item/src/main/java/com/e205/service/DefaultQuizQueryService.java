@@ -30,6 +30,10 @@ public class DefaultQuizQueryService implements QuizQueryService {
     FoundItem foundItem = foundItemQueryRepository.findById(query.foundId())
         .orElseThrow(() -> new RuntimeException("습득물이 존재하지 않습니다."));
 
+    if (foundItem.isEnded()) {
+      throw new RuntimeException("이미 종료된 습득물입니다.");
+    }
+
     if (foundItem.getMemberId().equals(query.memberId())) {
       throw new RuntimeException("습득물을 등록한 사람은 퀴즈를 풀 수 없습니다.");
     }

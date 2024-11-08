@@ -60,6 +60,12 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
     }
   }
 
+  @Override
+  public void delete(LostItemDeleteCommand command) {
+    lostItemRepository.findById(command.lostId())
+        .ifPresent(LostItem::end);
+  }
+
   private boolean isExistsAuth(LostItemGrantCommand command) {
     return lostItemAuthRepository.existsByMemberIdAndLostItemId(command.memberId(),
         command.lostId());
@@ -67,11 +73,6 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
 
   private boolean isExistsLostItem(int lostId) {
     return lostItemRepository.exists(Example.of(new LostItem(lostId)));
-  }
-
-  @Override
-  public void delete(LostItemDeleteCommand command) {
-    lostItemRepository.deleteById(command.lostId());
   }
 
   private LostItem saveLostItem(LostItemSaveCommand command) {

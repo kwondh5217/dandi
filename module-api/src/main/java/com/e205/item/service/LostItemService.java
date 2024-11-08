@@ -3,18 +3,18 @@ package com.e205.item.service;
 import com.e205.command.LostItemDeleteCommand;
 import com.e205.command.LostItemSaveCommand;
 import com.e205.item.dto.LostItemCreateRequest;
+import com.e205.item.dto.LostItemListResponse;
 import com.e205.item.dto.LostItemResponse;
 import com.e205.payload.ItemImagePayload;
 import com.e205.payload.LostItemPayload;
+import com.e205.query.LostItemListQuery;
 import com.e205.query.LostItemQuery;
 import com.e205.service.LostItemCommandService;
 import com.e205.service.LostItemQueryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
@@ -46,9 +46,20 @@ public class LostItemService {
     LostItemQuery query = new LostItemQuery(memberId, lostItemId);
     LostItemPayload payload = lostItemQueryService.find(query);
 
-    List<String> images = lostItemQueryService.findImages(lostItemId).stream()
-        .map(ItemImagePayload::image).toList();
+    return makeResponse(payload);
+  }
 
+  @Transactional(readOnly = true)
+  public LostItemListResponse getLostItems(Integer memberId) {
+    LostItemListQuery query = new LostItemListQuery(memberId);
+    return LostItemListResponse.from(lostItemQueryService.find(query).stream()
+        .map(this::makeResponse)
+        .toList());
+  }
+
+  private LostItemResponse makeResponse(LostItemPayload payload) {
+    List<String> images = lostItemQueryService.findImages(payload.id()).stream()
+        .map(ItemImagePayload::image).toList();
     return LostItemResponse.from(payload, images);
   }
 }

@@ -3,9 +3,11 @@ package com.e205.item.service;
 import com.e205.command.FoundItemDeleteCommand;
 import com.e205.command.FoundItemSaveCommand;
 import com.e205.item.dto.FoundItemCreateRequest;
+import com.e205.item.dto.FoundItemListResponse;
 import com.e205.item.dto.FoundItemResponse;
 import com.e205.payload.FoundItemPayload;
 import com.e205.payload.ItemImagePayload;
+import com.e205.query.FoundItemListQuery;
 import com.e205.query.FoundItemQuery;
 import com.e205.service.FoundItemCommandService;
 import com.e205.service.FoundItemQueryService;
@@ -28,9 +30,16 @@ public class FoundItemService {
 
   @Transactional
   public FoundItemResponse get(int memberId, int foundId) {
-    FoundItemPayload payload = foundItemQueryService.find(new FoundItemQuery(memberId, foundId));
-    ItemImagePayload imagePayload = foundItemQueryService.findFoundItemImage(foundId);
-    return FoundItemResponse.from(payload, imagePayload.image());
+    FoundItemPayload payload = foundItemQueryService.find(
+        new FoundItemQuery(memberId, foundId));
+    return makeResponse(payload);
+  }
+
+  @Transactional(readOnly = true)
+  public FoundItemListResponse getItems(int memberId) {
+    FoundItemListQuery query = new FoundItemListQuery(memberId);
+    return FoundItemListResponse.from(foundItemQueryService.find(query).stream()
+        .map(this::makeResponse).toList());
   }
 
   @Transactional
@@ -41,5 +50,10 @@ public class FoundItemService {
       throw new RuntimeException("습득물을 삭제할 권한이 없습니다.");
     }
     foundItemCommandService.delete(command);
+  }
+
+  private FoundItemResponse makeResponse(FoundItemPayload payload) {
+    ItemImagePayload imagePayload = foundItemQueryService.findFoundItemImage(payload.id());
+    return FoundItemResponse.from(payload, imagePayload.image());
   }
 }

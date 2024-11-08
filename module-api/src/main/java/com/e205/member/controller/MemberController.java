@@ -2,11 +2,16 @@ package com.e205.member.controller;
 
 import com.e205.auth.helper.AuthHelper;
 import com.e205.member.dto.ChangePasswordRequest;
+import com.e205.item.dto.LostItemListResponse;
+import com.e205.item.service.LostItemService;
 import com.e205.member.dto.FcmCodeUpdateRequest;
 import com.e205.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +25,7 @@ public class MemberController {
 
   private final MemberService memberService;
   private final AuthHelper authHelper;
+  private final LostItemService lostItemService;
 
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/fcm")
@@ -38,5 +44,12 @@ public class MemberController {
   @DeleteMapping
   public void deleteMember(@RequestBody ChangePasswordRequest request) {
     memberService.deleteMember(authHelper.getMemberId());
+  }
+
+  @GetMapping("/losts")
+  public ResponseEntity<LostItemListResponse> findMemberLostItems(
+      @AuthenticationPrincipal(expression = "id") Integer memberId
+  ) {
+    return ResponseEntity.ok(lostItemService.getLostItems(memberId));
   }
 }

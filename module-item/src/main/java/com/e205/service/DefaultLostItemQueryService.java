@@ -6,10 +6,12 @@ import com.e205.event.LostItemReadEvent;
 import com.e205.message.ItemEventPublisher;
 import com.e205.payload.ItemImagePayload;
 import com.e205.payload.LostItemPayload;
+import com.e205.query.LostItemListQuery;
 import com.e205.query.LostItemQuery;
 import com.e205.query.MembersInRouteQuery;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
+import com.e205.repository.LostItemRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
   private final RouteQueryService routeQueryService;
   private final ItemImageRepository itemImageRepository;
   private final ItemEventPublisher itemEventPublisher;
+  private final LostItemRepository lostItemRepository;
 
   @Override
   public LostItemPayload find(LostItemQuery query) {
@@ -49,6 +52,13 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
       itemEventPublisher.publish(new LostItemReadEvent(lostItem.getId(), LocalDateTime.now()));
     }
     return lostItem.toPayload();
+  }
+
+  @Override
+  public List<LostItemPayload> find(LostItemListQuery query) {
+    return lostItemRepository.findAllByMemberId(query.memberId()).stream()
+        .map(LostItem::toPayload)
+        .toList();
   }
 
   @Override
