@@ -12,7 +12,6 @@ import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.matcher.ElementMatchers;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 @Slf4j
@@ -52,9 +51,6 @@ public class EventAgent {
         @FieldValue(value = "status", readOnly = false) EventStatus status) {
       if (!StringUtils.hasText(eventId)) {
         eventId = UUID.randomUUID().toString();
-      }
-      if (ObjectUtils.isEmpty(status)) {
-        status = EventStatus.PENDING;
       }
     }
   }

@@ -17,4 +17,9 @@ public class TestEventService {
   public void save(TestEvent event) {
     eventPublisher.publishEvent(event);
   }
+
+  @Transactional
+  public void saveNotOutbox(TestEvent event) {
+    eventPublisher.publishEvent(event);
+  }
 }

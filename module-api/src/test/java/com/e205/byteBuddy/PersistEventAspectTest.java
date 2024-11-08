@@ -49,7 +49,6 @@ class PersistEventAspectTest {
     verify(this.persistEventAspect, times(1)).autoSaveEvent(any());
     verify(this.transactionSynchronizationRegistry, times(1))
         .registerSynchronization(any());
-    assertThat(this.logCaptor.getInfoLogs().get(0).contains("PENDING")).isTrue();
   }
 
   @Test
@@ -64,5 +63,19 @@ class PersistEventAspectTest {
     verify(this.eventConverter).toOutboxEvent(any());
     assertThat(EventStatus.COMPLETED).isEqualTo(outboxEvent.getStatus());
     assertThat(this.logCaptor.getInfoLogs().get(0).contains("COMPLETE")).isTrue();
+  }
+
+  @Test
+  void afterEventTestFail() {
+    TestEvent testEvent = new TestEvent("testId", "title", "content");
+    OutboxEvent outboxEvent = new OutboxEvent("testId", null, "payload",
+        LocalDateTime.now(), "testEvent");
+    given(this.eventConverter.toOutboxEvent(testEvent)).willReturn(outboxEvent);
+
+    this.testEventService.saveNotOutbox(testEvent);
+
+    verify(this.eventConverter).toOutboxEvent(any());
+    assertThat(outboxEvent.getStatus()).isNull();
+    assertThat(this.logCaptor.getInfoLogs()).isEmpty();
   }
 }

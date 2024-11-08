@@ -1,6 +1,7 @@
 package com.e205.byteBuddy;
 
 import com.e205.events.Event;
+import com.e205.exception.GlobalException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.lang.Assert;
 import java.lang.reflect.Method;
@@ -35,7 +36,8 @@ public class EventConverter {
 
       return event;
     } catch (Exception e) {
-      throw new RuntimeException("Failed to convert OutboxEvent to Event", e);
+      log.warn("Failed to convert event to OutboxEvent", e);
+      throw new GlobalException("E004");
     }
   }
 
@@ -50,7 +52,8 @@ public class EventConverter {
       return new OutboxEvent(eventId, status, payload, LocalDateTime.now(),
           event.getType());
     } catch (Exception e) {
-      throw new RuntimeException("Failed to convert event to OutboxEvent", e);
+      log.warn("Failed to convert event to OutboxEvent", e);
+      throw new GlobalException("E004");
     }
   }
 
@@ -66,7 +69,8 @@ public class EventConverter {
       return new OutboxEvent(eventId, status, payload, LocalDateTime.now(),
           event.getType());
     } catch (Exception e) {
-      throw new RuntimeException("Failed to convert event to OutboxEvent", e);
+      log.warn("Failed to convert event to OutboxEvent", e);
+      throw new GlobalException("E004");
     }
   }
 }

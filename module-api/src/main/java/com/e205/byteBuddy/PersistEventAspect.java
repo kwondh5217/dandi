@@ -43,7 +43,8 @@ public class PersistEventAspect {
     if (object instanceof Event event) {
       try {
         OutboxEvent outboxEvent = this.converter.toOutboxEvent(event);
-        if (outboxEvent.getStatus().equals(EventStatus.PENDING)) {
+        if (outboxEvent.getStatus() != null &&
+            outboxEvent.getStatus().equals(EventStatus.PENDING)) {
           outboxEvent.complete();
           logOutboxEvent(outboxEvent);
         }
