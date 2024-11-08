@@ -37,7 +37,7 @@ public class EventConverter {
       return event;
     } catch (Exception e) {
       log.warn("Failed to convert event to OutboxEvent", e);
-      throw new GlobalException("E004");
+      throw new GlobalException("E008");
     }
   }
 
@@ -53,7 +53,7 @@ public class EventConverter {
           event.getType());
     } catch (Exception e) {
       log.warn("Failed to convert event to OutboxEvent", e);
-      throw new GlobalException("E004");
+      throw new GlobalException("E008");
     }
   }
 
@@ -70,7 +70,7 @@ public class EventConverter {
           event.getType());
     } catch (Exception e) {
       log.warn("Failed to convert event to OutboxEvent", e);
-      throw new GlobalException("E004");
+      throw new GlobalException("E008");
     }
   }
 }

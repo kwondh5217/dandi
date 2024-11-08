@@ -22,7 +22,7 @@ public class RecoveryService {
     Assert.notNull(eventId, "eventId must not be null");
 
     OutboxEvent outboxEvent = this.outboxEventRepository.findById(eventId)
-        .orElseThrow(() -> new GlobalException("E005"));
+        .orElseThrow(() -> new GlobalException("E009"));
 
     Assert.state(outboxEvent.getStatus().equals(EventStatus.PENDING),
         "진행 중이지 않은 이벤트입니다. EventId: " + eventId);
