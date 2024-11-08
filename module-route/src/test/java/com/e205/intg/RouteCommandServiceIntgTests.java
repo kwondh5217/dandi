@@ -84,59 +84,45 @@ public class RouteCommandServiceIntgTests {
   }
 
   @Test
-  @DisplayName("이동 생성 시 이전 가방과 현재 가방이 같은 경우 이전 스냅샷 제공 테스트")
-  void 이동_생성시_이전_가방과_현재_가방이_같은_경우_이전_스냅샷_제공_테스트() {
+  @DisplayName("이동 생성 시 이전 스냅샷과 현재 가방 아이템을 비교하여 일치하는 경우 상태 유지, 새로운 아이템은 isChecked가 false로 설정되는지 테스트")
+  void 이동_생성시_이전_스냅샷과_현재_가방_아이템_비교_테스트() {
+    // Given: 이전 스냅샷 초기화 및 이전 경로 설정
     initializeSnapshot(requestBagId1.bagId(), currentBagItems);
     Route previousRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
 
+    // 현재 가방의 아이템 모의 설정
     mockBagQueryService(
         List.of(
-            new BagItemPayload(1, BAG_ID_1, 1, (byte) 1),
-            new BagItemPayload(2, BAG_ID_1, 2, (byte) 2)
+            new BagItemPayload(1, BAG_ID_1, 1, (byte) 1), // 기존 아이템
+            new BagItemPayload(3, BAG_ID_1, 3, (byte) 2)  // 새로운 아이템
         ),
         List.of(
             new ItemPayload(1, MEMBER_ID_1, "👛", "지갑", (byte) 1, (byte) 1),
-            new ItemPayload(2, MEMBER_ID_1, "💍", "반지", (byte) 1, (byte) 2)
+            new ItemPayload(3, MEMBER_ID_1, "📱", "폰", (byte) 2, (byte) 2)
         )
     );
 
+    // When: 이동 생성
     routeCommandService.createRoute(requestBagId1);
     Route currentRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
 
+    // Then: 이전 스냅샷과 현재 스냅샷 비교
     Snapshot previousSnapshot = Snapshot.fromJson(previousRoute.getSnapshot());
     Snapshot currentSnapshot = Snapshot.fromJson(currentRoute.getSnapshot());
 
-    assertThat(currentSnapshot.bagId()).isEqualTo(previousSnapshot.bagId());
-    assertThat(currentSnapshot.items()).isEqualTo(previousSnapshot.items());
-  }
-
-  @Test
-  @DisplayName("이동 생성 시 이전 가방과 현재 가방이 다른 경우 기본 스냅샷 제공 테스트")
-  void 이동_생성시_이전_가방과_현재_가방이_다른_경우_기본_스냅샷_제공_테스트() {
-    initializeSnapshot(requestBagId1.bagId(), currentBagItems);
-    Route previousRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
-
-    mockBagQueryService(
-        List.of(
-            new BagItemPayload(3, BAG_ID_2, 3, (byte) 1),
-            new BagItemPayload(4, BAG_ID_2, 4, (byte) 2)
-        ),
-        List.of(
-            new ItemPayload(3, MEMBER_ID_1, "📱", "폰", (byte) 2, (byte) 1),
-            new ItemPayload(4, MEMBER_ID_1, "💼", "가방", (byte) 2, (byte) 2)
-        )
+    // 이전 스냅샷에 존재하는 아이템의 상태 유지 확인
+    assertThat(currentSnapshot.items()).anyMatch(item ->
+        item.name().equals("지갑") && item.isChecked() == previousSnapshot.items().stream()
+            .filter(prevItem -> prevItem.name().equals("지갑"))
+            .findFirst().orElseThrow().isChecked()
     );
 
-    routeCommandService.createRoute(requestBagId2);
-    Route currentRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
-
-    Snapshot previousSnapshot = Snapshot.fromJson(previousRoute.getSnapshot());
-    Snapshot currentSnapshot = Snapshot.fromJson(currentRoute.getSnapshot());
-
-    assertThat(currentSnapshot.bagId()).isNotEqualTo(previousSnapshot.bagId());
-    assertThat(currentSnapshot.items()).isNotEqualTo(previousSnapshot.items());
-    assertThat(currentSnapshot.items()).allMatch(item -> !item.isChecked());
+    // 새로운 아이템의 isChecked가 false인지 확인
+    assertThat(currentSnapshot.items()).anyMatch(item ->
+        item.name().equals("폰") && !item.isChecked()
+    );
   }
+
 
   @Test
   @DisplayName("최근 이동이 없는 경우 기본 스냅샷을 포함한 이동 생성 테스트")

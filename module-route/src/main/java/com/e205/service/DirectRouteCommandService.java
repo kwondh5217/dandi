@@ -30,17 +30,14 @@ public class DirectRouteCommandService implements RouteCommandService {
   public void createRoute(RouteCreateCommand command) {
     Integer memberId = command.memberId();
     Integer bagId = command.bagId();
-    Optional<Route> route = routeRepository.findFirstByMemberIdOrderByIdDesc(command.memberId());
-    String determinedSnapshot = route.map(findRoute -> {
-          Snapshot defaultSnapshot = snapshotHelper.loadBaseSnapshot(memberId, bagId);
-          Snapshot currentSnapshot = snapshotHelper.loadCurrentSnapshot(findRoute);
-          return Route.determineSnapshot(command, defaultSnapshot, currentSnapshot);
-        })
-        .orElseGet(() -> {
-          return Snapshot.toJson(snapshotHelper.loadBaseSnapshot(memberId, bagId));
-        });
+    Optional<Route> route = routeRepository.findFirstByMemberIdOrderByIdDesc(memberId);
 
+    Snapshot currentSnapshot = route.map(snapshotHelper::loadCurrentSnapshot).orElse(null);
+    Snapshot baseSnapshot = snapshotHelper.loadBaseSnapshot(memberId, bagId);
+
+    String determinedSnapshot = SnapshotHelper.mergeSnapshots(baseSnapshot, currentSnapshot);
     Route savedRoute = routeRepository.save(Route.toEntity(memberId, determinedSnapshot));
+
     String payload = RouteEventPayload.toJson(getPayload(savedRoute, determinedSnapshot));
     eventPublisher.publicEvent(new RouteSavedEvent(memberId, payload));
   }

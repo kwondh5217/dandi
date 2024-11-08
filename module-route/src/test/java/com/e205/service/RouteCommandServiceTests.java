@@ -13,7 +13,11 @@ import static org.mockito.Mockito.verify;
 import com.e205.command.RouteCreateCommand;
 import com.e205.command.RouteEndCommand;
 import com.e205.command.SnapshotUpdateCommand;
+import com.e205.command.bag.payload.BagItemPayload;
+import com.e205.command.bag.query.ReadAllBagItemsQuery;
+import com.e205.command.bag.query.ReadAllItemInfoQuery;
 import com.e205.command.bag.service.BagQueryService;
+import com.e205.command.item.payload.ItemPayload;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
@@ -76,6 +80,8 @@ public class RouteCommandServiceTests {
     // given
     RouteCreateCommand command = new RouteCreateCommand(MEMBER_ID, BAG_ID);
     Route savedRoute = getRoute();
+
+    given(snapshotHelper.loadBaseSnapshot(MEMBER_ID, BAG_ID)).willReturn(snapshot);
     given(routeRepository.save(any(Route.class))).willReturn(savedRoute);
 
     // when
