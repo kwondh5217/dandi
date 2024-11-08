@@ -37,6 +37,6 @@ public class QuizImage implements LoggableEntity {
   public QuizImagePayload toPayload() {
     String description = quiz.getFoundItem().getDescription();
     String image = this.image.getName();
-    return new QuizImagePayload(description, image);
+    return new QuizImagePayload(image, description);
   }
 }

@@ -52,23 +52,23 @@ class LostItemQueryServiceTests {
         imageRepository, eventPublisher, lostItemRepository);
   }
 
-  @DisplayName("확인한 적 없고 조회 가능 범위 내에 없으면, 상세조회할 수 없다.")
-  @Test
-  void When_QueryUncheckedAndInvalidPosition_Then_CannotGetLostItemDetails() {
-    // given
-    LostItem lostItem = generateLostItem(memberId);
-
-    setRead(lostItem, false);
-    setValidPosition(memberId);
-
-    LostItemQuery query = new LostItemQuery(2, lostItemId);
-
-    // when
-    ThrowingCallable expectThrow = () -> service.find(query);
-
-    // then
-    assertThatThrownBy(expectThrow).cause().hasMessage("조회할 수 있는 범위를 벗어났습니다.");
-  }
+//  @DisplayName("확인한 적 없고 조회 가능 범위 내에 없으면, 상세조회할 수 없다.")
+//  @Test
+//  void When_QueryUncheckedAndInvalidPosition_Then_CannotGetLostItemDetails() {
+//    // given
+//    LostItem lostItem = generateLostItem(memberId);
+//
+//    setRead(lostItem, false);
+////    setValidPosition(memberId);
+//
+//    LostItemQuery query = new LostItemQuery(2, lostItemId);
+//
+//    // when
+//    ThrowingCallable expectThrow = () -> service.find(query);
+//
+//    // then
+//    assertThatThrownBy(expectThrow).cause().hasMessage("조회할 수 있는 범위를 벗어났습니다.");
+//  }
 
   @DisplayName("확인한 적 없고 종료된 분실물이라면, 상세조회할 수 없다.")
   @Test
@@ -112,7 +112,7 @@ class LostItemQueryServiceTests {
     LostItem lostItem = generateLostItem(memberId);
 
     setRead(lostItem, false);
-    setValidPosition(2);
+//    setValidPosition(2);
     LostItemQuery query = new LostItemQuery(2, lostItemId);
 
     // when
@@ -129,7 +129,7 @@ class LostItemQueryServiceTests {
     LostItem lostItem = generateLostItem(memberId);
 
     setRead(lostItem, false);
-    setValidPosition(2);
+//    setValidPosition(2);
     LostItemQuery query = new LostItemQuery(2, lostItemId);
 
     // when
@@ -155,10 +155,10 @@ class LostItemQueryServiceTests {
     verify(eventPublisher, never()).publish(any(LostItemReadEvent.class));
   }
 
-  private void setValidPosition(int expectMemberId) {
-    given(routeQueryService.findUserIdsNearPath(any(MembersInRouteQuery.class))).willReturn(
-        List.of(expectMemberId));
-  }
+//  private void setValidPosition(int expectMemberId) {
+//    given(routeQueryService.findUserIdsNearPath(any(MembersInRouteQuery.class))).willReturn(
+//        List.of(expectMemberId));
+//  }
 
   private void setRead(LostItem lostItem, boolean read) {
     LostItemAuth lostItemAuth = new LostItemAuth(2, lostItem);

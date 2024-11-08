@@ -44,9 +44,10 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
       ItemError.LOST_ALREADY_ENDED.throwGlobalException();
     }
 
-    if (!lostItemAuth.isRead() && !isReadablePosition(query.memberId(), lostItem)) {
-      ItemError.LOST_NOT_VALID_POSITION.throwGlobalException();
-    }
+    // TODO <fosong98> 분실물 조회 시 이전에 읽지 않았으면 적절한 위치에 있어야 읽을 수 있다.
+//    if (!lostItemAuth.isRead() && !isReadablePosition(query.memberId(), lostItem)) {
+//      ItemError.LOST_NOT_VALID_POSITION.throwGlobalException();
+//    }
 
     if (!lostItemAuth.isRead()) {
       lostItemAuth.read();

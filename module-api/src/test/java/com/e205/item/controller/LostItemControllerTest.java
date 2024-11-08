@@ -92,7 +92,7 @@ public class LostItemControllerTest {
   void getLostItem() throws Exception {
     // given
     int lostItemId = 1;
-    LostItemResponse response = new LostItemResponse("검정색 지갑", "집에 없음", List.of(), now());
+    LostItemResponse response = new LostItemResponse(lostItemId, "검정색 지갑", "집에 없음", List.of(), now());
 
     given(lostItemService.getLostItem(1, lostItemId)).willReturn(response);
 

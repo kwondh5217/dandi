@@ -1,7 +1,9 @@
 package com.e205.item.service;
 
+import com.e205.FoundItemType;
 import com.e205.command.FoundItemDeleteCommand;
 import com.e205.command.FoundItemSaveCommand;
+import com.e205.exception.ItemError;
 import com.e205.item.dto.FoundItemCreateRequest;
 import com.e205.item.dto.FoundItemListResponse;
 import com.e205.item.dto.FoundItemResponse;
@@ -47,12 +49,16 @@ public class FoundItemService {
     FoundItemDeleteCommand command = new FoundItemDeleteCommand(memberId, foundId);
     FoundItemPayload payload = foundItemQueryService.find(new FoundItemQuery(memberId, foundId));
     if (payload.memberId() != memberId) {
-      throw new RuntimeException("습득물을 삭제할 권한이 없습니다.");
+      ItemError.LOST_NOT_AUTH.throwGlobalException();
     }
     foundItemCommandService.delete(command);
   }
 
   private FoundItemResponse makeResponse(FoundItemPayload payload) {
+    if (payload.type() != FoundItemType.OTHER) {
+      return FoundItemResponse.from(payload, null);
+    }
+
     ItemImagePayload imagePayload = foundItemQueryService.findFoundItemImage(payload.id());
     return FoundItemResponse.from(payload, imagePayload.image());
   }
