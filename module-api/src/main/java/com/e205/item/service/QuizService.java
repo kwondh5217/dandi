@@ -26,8 +26,8 @@ public class QuizService {
   }
 
   @Transactional
-  public boolean submitQuiz(int memberId, int quizId, QuizSubmitRequest request) {
-    QuizQuery query = new QuizQuery(memberId, quizId);
+  public boolean submitQuiz(int memberId, int foundId, QuizSubmitRequest request) {
+    QuizQuery query = new QuizQuery(memberId, foundId);
     QuizPayload quiz = quizQueryService.findQuiz(query);
     QuizSubmitCommand command = new QuizSubmitCommand(memberId, quiz.id(), request.getAnswerId());
     quizCommandService.submit(command);

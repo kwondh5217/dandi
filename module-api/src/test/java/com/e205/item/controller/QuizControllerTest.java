@@ -86,10 +86,10 @@ public class QuizControllerTest {
     int quizId = 1;
     QuizSubmitRequest request = new QuizSubmitRequest(UUID.randomUUID() + ".png");
 
-    given(quizService.submitQuiz(1, quizId, request)).willReturn(true);
+    given(quizService.submitQuiz(1, 1, request)).willReturn(true);
 
     // when, then
-    mockMvc.perform(post("/founds/{foundId}/quiz/{quizId}", 1, quizId)
+    mockMvc.perform(post("/founds/{foundId}/quiz", 1)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request))
         )

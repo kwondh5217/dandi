@@ -30,13 +30,13 @@ public class QuizController {
     return ResponseEntity.ok(response);
   }
 
-  @PostMapping("/{quizId}")
+  @PostMapping
   public ResponseEntity<QuizResultResponse> submitQuiz(
       @AuthenticationPrincipal(expression = "id") Integer memberId,
-      @PathVariable("quizId") Integer quizId,
+      @PathVariable("foundId") Integer foundId,
       @RequestBody QuizSubmitRequest request
   ) {
     return ResponseEntity.ok(
-        new QuizResultResponse(quizService.submitQuiz(memberId, quizId, request)));
+        new QuizResultResponse(quizService.submitQuiz(memberId, foundId, request)));
   }
 }
