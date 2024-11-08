@@ -22,7 +22,7 @@ class LostItemAuthRepositoryTest {
   @Autowired
   LostItemAuthRepository lostItemAuthRepository;
   @Autowired
-  LostItemCommandRepository lostItemCommandRepository;
+  LostItemRepository lostItemRepository;
 
   @DisplayName("LostItemAuth를 조회하면 LostItem이 즉시 로딩된다.")
   @Test
@@ -31,7 +31,7 @@ class LostItemAuthRepositoryTest {
 
     LostItem lostItem = new LostItem(1, 1, 2, "상황묘사", "물건묘사", now());
     LostItemAuth lostItemAuth = new LostItemAuth(1, lostItem);
-    lostItemCommandRepository.save(lostItem);
+    lostItemRepository.save(lostItem);
     lostItemAuthRepository.save(lostItemAuth);
     entityManager.flush();
     entityManager.clear();

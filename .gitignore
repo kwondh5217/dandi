@@ -152,3 +152,4 @@ module-member/src/main/resources/application-secret.yml
 /module-item/src/main/resources/application-prod.yml
 /module-api/src/main/resources/redisson.yaml
 /module-api/logs
+/logs/app.log

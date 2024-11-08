@@ -17,7 +17,7 @@ import com.e205.event.LostItemSaveEvent;
 import com.e205.message.ItemEventPublisher;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
-import com.e205.repository.LostItemCommandRepository;
+import com.e205.repository.LostItemRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,14 +34,14 @@ class LostItemCommandServiceTests {
 
   LostItemCommandService service;
   ItemEventPublisher eventPublisher;
-  LostItemCommandRepository repository;
+  LostItemRepository repository;
   ItemImageRepository itemImageRepository;
   LostItemAuthRepository lostItemAuthRepository;
 
   @BeforeEach
   void setUp() {
     eventPublisher = mock(ItemEventPublisher.class);
-    repository = mock(LostItemCommandRepository.class);
+    repository = mock(LostItemRepository.class);
     itemImageRepository = mock(ItemImageRepository.class);
     lostItemAuthRepository = mock(LostItemAuthRepository.class);
     service = new DefaultLostItemCommandService(repository, eventPublisher,

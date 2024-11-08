@@ -29,7 +29,7 @@ class DefaultItemImageRepositoryTest {
   @Autowired
   ItemImageRepository repository;
   @Autowired
-  LostItemCommandRepository lostItemCommandRepository;
+  LostItemRepository lostItemRepository;
   @Autowired
   FoundItemCommandRepository foundItemCommandRepository;
 
@@ -38,7 +38,7 @@ class DefaultItemImageRepositoryTest {
   void When_FindWithLostItemId_Then_ReturnAllImageForLostItem() {
     // given
     LostItem lostItem = new LostItem(1, 1, 2, "상황묘사", "물건묘사", now());
-    lostItemCommandRepository.save(lostItem);
+    lostItemRepository.save(lostItem);
 
     List<LostImage> images = Stream.generate(UUID::randomUUID).limit(3)
         .map(uuid -> new LostImage(uuid, "png", lostItem))

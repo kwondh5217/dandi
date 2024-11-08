@@ -12,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 @DataJpaTest
-class LostItemCommandRepositoryTests {
+class LostItemRepositoryTests {
 
   @Autowired
-  LostItemCommandRepository lostItemCommandRepository;
+  LostItemRepository lostItemRepository;
 
   @DisplayName("사용자의 SOS 요청 중 최신을 가져오는 쿼리 동작 확인")
   @Test
@@ -30,10 +30,10 @@ class LostItemCommandRepositoryTests {
       }
     }).limit(10).toList();
 
-    lostItemCommandRepository.saveAll(lostItems);
+    lostItemRepository.saveAll(lostItems);
 
     // when
-    Optional<LostItem> result = lostItemCommandRepository.findFirstByMemberIdOrderByCreatedAtDesc(1);
+    Optional<LostItem> result = lostItemRepository.findFirstByMemberIdOrderByCreatedAtDesc(1);
 
     // then
     assertThat(result).isPresent();

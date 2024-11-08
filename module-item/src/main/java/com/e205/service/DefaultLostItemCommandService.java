@@ -10,7 +10,7 @@ import com.e205.event.LostItemSaveEvent;
 import com.e205.message.ItemEventPublisher;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
-import com.e205.repository.LostItemCommandRepository;
+import com.e205.repository.LostItemRepository;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
   private static final int MAX_IMAGE_COUNT = 3;
   private static final int LOST_ITEM_COOL_TIME = 24;
 
-  private final LostItemCommandRepository lostItemCommandRepository;
+  private final LostItemRepository lostItemRepository;
   private final ItemEventPublisher eventPublisher;
   private final ItemImageRepository itemImageRepository;
   private final LostItemAuthRepository lostItemAuthRepository;
@@ -66,21 +66,21 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
   }
 
   private boolean isExistsLostItem(int lostId) {
-    return lostItemCommandRepository.exists(Example.of(new LostItem(lostId)));
+    return lostItemRepository.exists(Example.of(new LostItem(lostId)));
   }
 
   @Override
   public void delete(LostItemDeleteCommand command) {
-    lostItemCommandRepository.deleteById(command.lostId());
+    lostItemRepository.deleteById(command.lostId());
   }
 
   private LostItem saveLostItem(LostItemSaveCommand command) {
     LostItem lostItem = new LostItem(command);
-    return lostItemCommandRepository.save(lostItem);
+    return lostItemRepository.save(lostItem);
   }
 
   private void verifyCoolTime(LostItemSaveCommand command) {
-    lostItemCommandRepository.findFirstByMemberIdOrderByCreatedAtDesc(command.lostMemberId())
+    lostItemRepository.findFirstByMemberIdOrderByCreatedAtDesc(command.lostMemberId())
         .filter(recent -> recent.getCreatedAt()
             .isAfter(LocalDateTime.now().minusHours(LOST_ITEM_COOL_TIME)))
         .ifPresent(recent -> {
