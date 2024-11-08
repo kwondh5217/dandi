@@ -1,6 +1,8 @@
 package com.e205.member.controller;
 
 import com.e205.auth.helper.AuthHelper;
+import com.e205.item.dto.FoundItemListResponse;
+import com.e205.item.service.FoundItemService;
 import com.e205.member.dto.ChangePasswordRequest;
 import com.e205.item.dto.LostItemListResponse;
 import com.e205.item.service.LostItemService;
@@ -26,6 +28,7 @@ public class MemberController {
   private final MemberService memberService;
   private final AuthHelper authHelper;
   private final LostItemService lostItemService;
+  private final FoundItemService foundItemService;
 
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/fcm")
@@ -51,5 +54,12 @@ public class MemberController {
       @AuthenticationPrincipal(expression = "id") Integer memberId
   ) {
     return ResponseEntity.ok(lostItemService.getLostItems(memberId));
+  }
+
+  @GetMapping("/founds")
+  public ResponseEntity<FoundItemListResponse> findMemberFoundItems(
+      @AuthenticationPrincipal(expression = "id") Integer memberId
+  ) {
+    return ResponseEntity.ok(foundItemService.getItems(memberId));
   }
 }
