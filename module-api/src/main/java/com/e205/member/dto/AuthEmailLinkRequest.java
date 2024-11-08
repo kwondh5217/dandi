@@ -1,13 +1,12 @@
 package com.e205.member.dto;
 
-import com.e205.command.member.command.RequestEmailVerificationCommand;
+import com.e205.command.member.command.MemberVerificationLinkCommand;
 
 public record AuthEmailLinkRequest(
     String email
 ) {
-  public RequestEmailVerificationCommand toCommand(Integer memberId) {
-    return RequestEmailVerificationCommand.builder()
-        .userId(memberId)
+  public MemberVerificationLinkCommand toCommand() {
+    return MemberVerificationLinkCommand.builder()
         .email(email)
         .build();
   }

@@ -10,7 +10,7 @@ import com.e205.command.member.command.CompleteSignUpCommand;
 import com.e205.command.member.command.CreateVerificationNumberCommand;
 import com.e205.command.member.command.DeleteMemberCommand;
 import com.e205.command.member.command.RegisterMemberCommand;
-import com.e205.command.member.command.RequestEmailVerificationCommand;
+import com.e205.command.member.command.MemberVerificationLinkCommand;
 import com.e205.command.member.command.UpdateFcmCodeCommand;
 import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
 import com.e205.command.member.service.EmailCommandService;
@@ -20,12 +20,10 @@ import com.e205.member.dto.AuthEmailLinkRequest;
 import com.e205.member.dto.CheckVerificationNumberRequest;
 import com.e205.member.dto.CompleteSignUpRequest;
 import com.e205.member.dto.CreateMemberRequest;
-import com.e205.member.dto.FcmCodeUpdateRequest;
 import com.e205.member.dto.MemberInfoResponse;
 import com.e205.member.dto.PasswordNumberEmailRequest;
 import com.e205.member.dto.PasswordResetRequest;
 import com.e205.member.dto.VerifyEmailRequest;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -55,8 +53,7 @@ public class MemberService {
   }
 
   public void requestAuthLink(AuthEmailLinkRequest request) {
-    Integer memberId = authHelper.getMemberId();
-    RequestEmailVerificationCommand command = request.toCommand(memberId);
+    MemberVerificationLinkCommand command = request.toCommand();
     memberCommandService.requestEmailVerification(command);
   }
 
@@ -94,8 +91,6 @@ public class MemberService {
 
   public void changePassword(Integer memberId, String newPassword, String pastPassword) {
     String beforePassword = memberQueryService.checkPastPassword(memberId);
-    System.out.println("beforePassword " + beforePassword);
-    System.out.println("pastPassword " + pastPassword);
     if (!passwordEncoder.matches(pastPassword, beforePassword)) {
       throw new IllegalArgumentException("이전 비밀번호가 일치하지 않습니다.");
     }

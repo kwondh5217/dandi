@@ -49,13 +49,13 @@ public class MemberAuthController {
   }
 
   @ResponseStatus(HttpStatus.OK)
-  @PostMapping("/password")
+  @PutMapping("/password")
   public void requestPasswordChangeNumber(@RequestBody PasswordNumberEmailRequest request) {
     memberService.requestPasswordChangeNumber(request);
   }
 
   @ResponseStatus(HttpStatus.OK)
-  @PutMapping("/password")
+  @PostMapping("/password")
   public void changePassword(@RequestBody PasswordResetRequest request) {
     memberService.resetPassword(request);
   }
@@ -71,13 +71,17 @@ public class MemberAuthController {
       @RequestParam("email") String email,
       @RequestParam("token") String token) {
     memberService.verifyEmail(new VerifyEmailRequest(email, token));
-    String responseHtml = "<html><body>" +
+    String responseHtml = "<html><head>" +
+        "<meta charset='UTF-8'>" +
+        "</head><body>" +
         "<script>" +
         "alert('이메일 인증이 완료되었습니다!');" +
         "window.close();" +
         "</script>" +
         "</body></html>";
-    return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(responseHtml);
+    return ResponseEntity.ok()
+        .contentType(MediaType.TEXT_HTML)
+        .body(responseHtml);
   }
 
   @ResponseStatus(HttpStatus.OK)

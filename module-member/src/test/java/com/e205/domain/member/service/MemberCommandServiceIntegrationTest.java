@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
 import com.e205.command.member.command.RegisterMemberCommand;
-import com.e205.command.member.command.RequestEmailVerificationCommand;
+import com.e205.command.member.command.MemberVerificationLinkCommand;
 import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
 import com.e205.command.member.payload.EmailStatus;
 import com.e205.command.member.service.MemberCommandService;
@@ -97,7 +97,7 @@ class MemberCommandServiceIntegrationTest extends AbstractRedisTestContainer {
 
     // When
     memberCommandService.requestEmailVerification(
-        new RequestEmailVerificationCommand(userId, email));
+        new MemberVerificationLinkCommand(userId, email));
 
     // Then
     String redisKey = "verifyEmail:" + email;

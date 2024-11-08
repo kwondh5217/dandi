@@ -6,7 +6,7 @@ import com.e205.command.member.command.CompleteSignUpCommand;
 import com.e205.command.member.command.CreateEmailTokenCommand;
 import com.e205.command.member.command.DeleteMemberCommand;
 import com.e205.command.member.command.RegisterMemberCommand;
-import com.e205.command.member.command.RequestEmailVerificationCommand;
+import com.e205.command.member.command.MemberVerificationLinkCommand;
 import com.e205.command.member.command.SendVerificationEmailCommand;
 import com.e205.command.member.command.UpdateFcmCodeCommand;
 import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
@@ -143,7 +143,12 @@ public class MemberCommandServiceDefault implements MemberCommandService {
 
   @Override
   public void requestEmailVerification(
-      RequestEmailVerificationCommand requestEmailVerificationCommand) {
+      MemberVerificationLinkCommand requestEmailVerificationCommand) {
+
+    if (Boolean.FALSE.equals(redisTemplate.hasKey("verifyEmail:"))) {
+      throw new RuntimeException("회원가입 요청이 존재하지 않습니다.");
+    }
+
     String token = emailService.createAndStoreToken(
         new CreateEmailTokenCommand(requestEmailVerificationCommand.email()));
     emailService.sendVerificationEmail(

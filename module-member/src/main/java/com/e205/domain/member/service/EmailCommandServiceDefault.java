@@ -5,8 +5,11 @@ import com.e205.command.member.command.CreateEmailTokenCommand;
 import com.e205.command.member.command.CreateVerificationNumberCommand;
 import com.e205.command.member.command.SendVerificationEmailCommand;
 import com.e205.command.member.service.EmailCommandService;
+import com.e205.domain.member.entity.Member;
+import com.e205.domain.member.repository.MemberRepository;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +40,7 @@ public class EmailCommandServiceDefault implements EmailCommandService {
 
   private final JavaMailSender mailSender;
   private final RedisTemplate<String, String> redisTemplate;
+  private final MemberRepository memberRepository;
 
   @Value("${spring.mail.username}")
   private String fromEmail;
@@ -83,7 +87,8 @@ public class EmailCommandServiceDefault implements EmailCommandService {
   public void createAndStoreVerificationNumber(
       CreateVerificationNumberCommand createVerificationNumberCommand) {
     String verificationNumber = generateVerificationNumber();
-
+    memberRepository.findByEmail(createVerificationNumberCommand.email())
+        .orElseThrow(() -> new RuntimeException("해당 이메일을 가진 사용자를 찾을 수 없습니다."));
     String redisKey = "verification:" + createVerificationNumberCommand.email();
     redisTemplate.opsForValue().set(redisKey, verificationNumber, VERIFICATION_EXPIRATION);
     sendVerificationNumberEmail(createVerificationNumberCommand.email(), verificationNumber);
