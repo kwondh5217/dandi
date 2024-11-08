@@ -7,6 +7,7 @@ import com.e205.entity.LostImage;
 import com.e205.entity.LostItem;
 import com.e205.entity.LostItemAuth;
 import com.e205.event.LostItemSaveEvent;
+import com.e205.exception.ItemError;
 import com.e205.message.ItemEventPublisher;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
@@ -51,7 +52,7 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
   @Override
   public void grant(LostItemGrantCommand command) {
     if (!isExistsLostItem(command.lostId())) {
-      throw new RuntimeException("분실물이 존재하지 않습니다.");
+      ItemError.LOST_NOT_FOUND.throwGlobalException();
     }
 
     if (!isExistsAuth(command)) {
@@ -85,20 +86,20 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
         .filter(recent -> recent.getCreatedAt()
             .isAfter(LocalDateTime.now().minusHours(LOST_ITEM_COOL_TIME)))
         .ifPresent(recent -> {
-          throw new RuntimeException("제한 시간 내에 재등록했을 때");
+          ItemError.LOST_SAVE_TIMEOUT.throwGlobalException();
         });
   }
 
   private LostImage saveImage(LostItem item, UUID imageId) {
     LostImage image = itemImageRepository.findLostImageById(imageId)
-        .orElseThrow(() -> new RuntimeException("이미지가 존재하지 않습니다."));
+        .orElseThrow(ItemError.LOST_IMAGE_NOT_FOUND::getGlobalException);
     image.setLostItem(item);
     return image;
   }
 
   private static void verifyImageCount(LostItemSaveCommand command) {
     if (command.images().size() > MAX_IMAGE_COUNT) {
-      throw new RuntimeException("최대 이미지 개수를 초과했을 때");
+      ItemError.LOST_MAX_IMAGE_COUNT_EXCEEDED.throwGlobalException();
     }
   }
 }

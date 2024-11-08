@@ -12,6 +12,10 @@ spring:
     properties:
       hibernate.format_sql: true
       hibernate.cache.use_second_level_cache: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 app:
   push:

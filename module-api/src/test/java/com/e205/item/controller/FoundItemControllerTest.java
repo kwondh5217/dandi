@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.e205.FoundItemType;
 import com.e205.auth.dto.MemberDetails;
 import com.e205.domain.member.entity.Member;
+import com.e205.exception.ExceptionLoader;
 import com.e205.item.dto.FoundItemCreateRequest;
 import com.e205.item.dto.FoundItemResponse;
 import com.e205.item.dto.Point;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,6 +39,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(FoundItemController.class)
+@Import(ExceptionLoader.class)
 public class FoundItemControllerTest {
 
   @Autowired

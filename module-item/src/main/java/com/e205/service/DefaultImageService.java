@@ -3,6 +3,7 @@ package com.e205.service;
 import com.e205.command.ImageSaveCommand;
 import com.e205.entity.FoundImage;
 import com.e205.entity.LostImage;
+import com.e205.exception.ItemError;
 import com.e205.repository.FileRepository;
 import com.e205.repository.ItemImageRepository;
 import java.util.Set;
@@ -30,7 +31,7 @@ public class DefaultImageService implements ImageService {
     String extension = FilenameUtils.getExtension(image.getFilename());
 
     if (!IMAGE_EXTENSIONS.contains(extension)) {
-      throw new RuntimeException("이미지 확장자가 잘못되었습니다.");
+      ItemError.IMAGE_EXT_NOT_VALID.throwGlobalException();
     }
 
     String filename = fileRepository.save(image);
@@ -40,12 +41,13 @@ public class DefaultImageService implements ImageService {
       switch (command.type()) {
         case LOST -> imageRepository.save(new LostImage(id, extension, null));
         case FOUND -> imageRepository.save(new FoundImage(id, extension, null));
-        default -> throw new RuntimeException("이미지 타입이 잘못되었습니다.");
+        default -> ItemError.IMAGE_TYPE_NOT_VALID.throwGlobalException();
       }
       return filename;
     } catch (Exception e) {
       fileRepository.delete(filename);
-      throw new RuntimeException("이미지 저장에 실패했습니다.", e);
+      ItemError.IMAGE_SAVE_FAIL.throwGlobalException();
+      return null;
     }
   }
 

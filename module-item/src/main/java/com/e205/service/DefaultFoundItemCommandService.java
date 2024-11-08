@@ -6,6 +6,7 @@ import com.e205.command.QuizMakeCommand;
 import com.e205.entity.FoundImage;
 import com.e205.entity.FoundItem;
 import com.e205.event.FoundItemSaveEvent;
+import com.e205.exception.ItemError;
 import com.e205.message.ItemEventPublisher;
 import com.e205.repository.FoundItemCommandRepository;
 import com.e205.repository.ItemImageRepository;
@@ -30,7 +31,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
   @Override
   public void save(FoundItemSaveCommand command) {
     if (command.foundAt().isAfter(LocalDateTime.now())) {
-      throw new RuntimeException("습득 날짜가 미래입니다.");
+      ItemError.FOUND_AT_FUTURE.throwGlobalException();
     }
 
     switch (command.type()) {
@@ -47,7 +48,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
 
   private void processOther(FoundItemSaveCommand command) {
     if (command.image() == null) {
-      throw new RuntimeException("이미지는 필수입니다.");
+      ItemError.FOUND_OTHER_REQUIRE_IMAGE.throwGlobalException();
     }
     FoundItem foundItem = foundItemCommandRepository.save(new FoundItem(command));
 
@@ -63,9 +64,9 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
 
   private void processCard(FoundItemSaveCommand command) {
     if (command.image() != null) {
-      throw new RuntimeException("카드나 신분증 사진이 포함되어 있습니다.");
+      ItemError.FOUND_CARD_NOT_REQUIRE_IMAGE.throwGlobalException();
     }
-    // TODO <fosong98> 퀴즈는 다음에 고민
+    // TODO <fosong98> 카드 퀴즈는 다음에 고민
     FoundItem foundItem = foundItemCommandRepository.save(new FoundItem(command));
     FoundItemSaveEvent event = new FoundItemSaveEvent(foundItem.toPayload(), LocalDateTime.now());
     eventPublisher.publish(event);
@@ -73,7 +74,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
 
   private FoundImage saveImage(FoundItem item, UUID imageId) {
     FoundImage image = itemImageRepository.findFoundImageById(imageId)
-        .orElseThrow(() -> new RuntimeException("이미지가 존재하지 않습니다."));
+        .orElseThrow(ItemError.FOUND_IMAGE_NOT_FOUND::getGlobalException);
     image.setFoundItem(item);
     return image;
   }

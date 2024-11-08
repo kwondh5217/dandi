@@ -63,7 +63,7 @@ class FoundItemCommandServiceTest {
     ThrowingCallable expectThrow = () -> service.save(command);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("카드나 신분증 사진이 포함되어 있습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("카드나 신분증 사진이 포함되어 있습니다.");
     verify(eventPublisher, never()).publish(any(FoundItemSaveEvent.class));
   }
 
@@ -112,7 +112,7 @@ class FoundItemCommandServiceTest {
     ThrowingCallable expectThrow = () -> service.save(command);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("이미지는 필수입니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("이미지는 필수입니다.");
     verify(eventPublisher, never()).publish(any(FoundItemSaveEvent.class));
   }
 
@@ -130,7 +130,7 @@ class FoundItemCommandServiceTest {
     ThrowingCallable expectThrow = () -> service.save(command);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("습득 날짜가 미래입니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("습득 날짜가 미래입니다.");
     verify(eventPublisher, never()).publish(any(FoundItemSaveEvent.class));
   }
 

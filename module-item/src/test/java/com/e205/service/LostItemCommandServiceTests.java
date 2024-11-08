@@ -182,7 +182,7 @@ class LostItemCommandServiceTests {
     ThrowingCallable expectThrow = () -> service.grant(command);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("분실물이 존재하지 않습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("분실물이 존재하지 않습니다.");
   }
 
   @DisplayName("분실물 권한이 이미 존재하면, 권한을 생성하지 않는다.")

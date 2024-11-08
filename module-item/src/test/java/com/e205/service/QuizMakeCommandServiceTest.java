@@ -71,7 +71,7 @@ class QuizMakeCommandServiceTest {
     ThrowingCallable expectThrow = () -> service.make(command);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("습득물의 이미지가 부족해서 퀴즈를 낼 수 없습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("퀴즈를 생성할 이미지가 부족합니다.");
   }
 
   @DisplayName("타겟 습득물이 존재하지 않으면, 퀴즈를 생성할 수 없다.")
@@ -87,7 +87,7 @@ class QuizMakeCommandServiceTest {
     ThrowingCallable expectThrow = () -> service.make(command);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("습득물이 존재하지 않습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("습득물이 존재하지 않습니다.");
   }
 
 
@@ -107,7 +107,7 @@ class QuizMakeCommandServiceTest {
     ThrowingCallable expectThrow = () -> service.make(command);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("퀴즈를 생성할 권한이 없습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("퀴즈를 생성할 권한이 없습니다.");
   }
 
   @DisplayName("퀴즈의 정답 사진이 존재하지 않으면, 퀴즈를 생성할 수 없다.")
@@ -127,7 +127,7 @@ class QuizMakeCommandServiceTest {
     ThrowingCallable expectThrow = () -> service.make(command);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("이미지가 존재하지 않습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("이미지가 존재하지 않습니다.");
   }
 
   @DisplayName("정상적인 입력이면, 퀴즈가 잘 생성된다.")

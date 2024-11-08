@@ -40,6 +40,6 @@ class ImageServiceTest {
 
     ThrowingCallable expectThrow = () -> imageService.save(new ImageSaveCommand(pdf, imageType));
 
-    assertThatThrownBy(expectThrow).hasMessage("이미지 확장자가 잘못되었습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("이미지 확장자가 잘못되었습니다.");
   }
 }

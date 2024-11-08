@@ -67,7 +67,7 @@ class LostItemQueryServiceTests {
     ThrowingCallable expectThrow = () -> service.find(query);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("분실물을 조회할 수 있는 범위를 벗어났습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("조회할 수 있는 범위를 벗어났습니다.");
   }
 
   @DisplayName("확인한 적 없고 종료된 분실물이라면, 상세조회할 수 없다.")
@@ -85,7 +85,7 @@ class LostItemQueryServiceTests {
     ThrowingCallable expectThrow = () -> service.find(query);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("종료된 분실물입니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("이미 종료된 분실물입니다.");
   }
 
   @DisplayName("분실물 알림을 확인한 적 있다면, 상세조회할 수 있다.")

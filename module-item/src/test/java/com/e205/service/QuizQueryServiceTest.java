@@ -55,7 +55,7 @@ class QuizQueryServiceTest {
     ThrowingCallable expectThrow = () -> service.findQuiz(query);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("습득물이 존재하지 않습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("습득물이 존재하지 않습니다.");
   }
 
   @DisplayName("퀴즈를 풀었으면, 퀴즈를 조회할 수 없다.")
@@ -75,7 +75,7 @@ class QuizQueryServiceTest {
     ThrowingCallable expectThrow = () -> service.findQuiz(query);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("이미 퀴즈를 풀었습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("이미 퀴즈를 풀었습니다.");
   }
 
   @DisplayName("퀴즈가 존재하지 않으면, 퀴즈를 조회할 수 없다.")
@@ -90,7 +90,7 @@ class QuizQueryServiceTest {
     ThrowingCallable expectThrow = () -> service.findQuiz(query);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("퀴즈가 존재하지 않습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("퀴즈가 존재하지 않습니다.");
   }
 
   @DisplayName("습득물을 등록한 사람은 퀴즈를 조회할 수 없다.")
@@ -108,6 +108,6 @@ class QuizQueryServiceTest {
     ThrowingCallable expectThrow = () -> service.findQuiz(query);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("습득물을 등록한 사람은 퀴즈를 풀 수 없습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("퀴즈를 생성한 사람은 퀴즈를 풀 수 없습니다.");
   }
 }

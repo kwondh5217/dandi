@@ -2,6 +2,7 @@ package com.e205.service;
 
 import com.e205.entity.FoundItem;
 import com.e205.entity.QuizSolver;
+import com.e205.exception.ItemError;
 import com.e205.payload.FoundItemPayload;
 import com.e205.payload.ItemImagePayload;
 import com.e205.query.FoundItemListQuery;
@@ -28,12 +29,12 @@ public class DefaultFoundItemQueryService implements FoundItemQueryService {
     QuizSolver solver = getQuizSolver(query);
 
     if (!solver.isSolved()) {
-      throw new RuntimeException("습득물을 조회할 권한이 없습니다.");
+      ItemError.FOUND_NOT_AUTH.throwGlobalException();
     }
 
     FoundItem foundItem = solver.getQuiz().getFoundItem();
     if (foundItem.isEnded()) {
-      throw new RuntimeException("이미 종료된 습득물입니다.");
+      ItemError.FOUND_ALREADY_ENDED.throwGlobalException();
     }
 
     return foundItem.toPayload();
@@ -43,18 +44,17 @@ public class DefaultFoundItemQueryService implements FoundItemQueryService {
   public ItemImagePayload findFoundItemImage(Integer foundId) {
     return imageRepository.findByFoundItemId(foundId)
         .map(foundImage -> new ItemImagePayload(foundImage.getName()))
-        .orElseThrow(() -> new RuntimeException("분실물의 이미지가 존재하지 않습니다."));
+        .orElseThrow(ItemError.FOUND_IMAGE_NOT_FOUND::getGlobalException);
   }
 
   @Override
   public List<FoundItemPayload> find(FoundItemListQuery query) {
     return foundItemQueryRepository.findAllByMemberId(query.memberId()).stream()
-        .map(FoundItem::toPayload)
-        .toList();
+        .map(FoundItem::toPayload).toList();
   }
 
   private QuizSolver getQuizSolver(FoundItemQuery query) {
-    return quizSolverRepository.findByMemberIdAndFoundId(
-        query.memberId(), query.foundId()).orElseThrow(() -> new RuntimeException("퀴즈를 풀지 않았습니다."));
+    return quizSolverRepository.findByMemberIdAndFoundId(query.memberId(), query.foundId())
+        .orElseThrow(ItemError.FOUND_QUIZ_NOT_SOLVED::getGlobalException);
   }
 }

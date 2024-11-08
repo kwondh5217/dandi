@@ -52,7 +52,7 @@ class FoundItemQueryServiceTest {
     ThrowingCallable expectThrow = () -> service.find(query);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("퀴즈를 풀지 않았습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("퀴즈를 풀지 않았습니다.");
   }
 
   @DisplayName("퀴즈를 틀렸으면 습득물을 조회할 수 없다.")
@@ -69,7 +69,7 @@ class FoundItemQueryServiceTest {
     ThrowingCallable expectThrow = () -> service.find(query);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("습득물을 조회할 권한이 없습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("습득물을 조회할 권한이 없습니다.");
   }
 
   @DisplayName("퀴즈를 푼 사람은 습득물을 조회할 수 있다.")

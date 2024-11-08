@@ -7,6 +7,7 @@ import com.e205.entity.FoundItem;
 import com.e205.entity.Quiz;
 import com.e205.entity.QuizImage;
 import com.e205.entity.QuizSolver;
+import com.e205.exception.ItemError;
 import com.e205.repository.FoundItemQueryRepository;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.QuizCommandRepository;
@@ -55,7 +56,7 @@ public class DefaultQuizCommandService implements QuizCommandService {
   public void submit(QuizSubmitCommand command) {
     quizSolverRepository.findByMemberIdAndQuizId(command.memberId(), command.quizId())
         .ifPresent(solver -> {
-          throw new RuntimeException("이미 퀴즈를 풀었습니다.");
+          ItemError.FOUND_QUIZ_ALREADY_SOLVED.throwGlobalException();
         });
 
     Quiz quiz = getQuiz(command.quizId());
@@ -69,12 +70,12 @@ public class DefaultQuizCommandService implements QuizCommandService {
 
   private Quiz getQuiz(Integer quizId) {
     return quizQueryRepository.findById(quizId)
-        .orElseThrow(() -> new IllegalArgumentException("퀴즈가 존재하지 않습니다."));
+        .orElseThrow(ItemError.FOUND_QUIZ_NOT_FOUND::getGlobalException);
   }
 
   private FoundImage getFoundImage(UUID imageId) {
     return imageRepository.findFoundImageById(imageId)
-        .orElseThrow(() -> new RuntimeException("이미지가 존재하지 않습니다."));
+        .orElseThrow(ItemError.FOUND_IMAGE_NOT_FOUND::getGlobalException);
   }
 
   private Quiz makeQuiz(FoundItem foundItem, FoundImage answer) {
@@ -86,14 +87,14 @@ public class DefaultQuizCommandService implements QuizCommandService {
 
   private FoundItem getFoundItem(Integer foundItemId, Integer memberId) {
     FoundItem foundItem = foundItemQueryRepository.findById(foundItemId)
-        .orElseThrow(() -> new RuntimeException("습득물이 존재하지 않습니다."));
+        .orElseThrow(ItemError.FOUND_NOT_EXIST::getGlobalException);
 
     if (!foundItem.getMemberId().equals(memberId)) {
-      throw new RuntimeException("퀴즈를 생성할 권한이 없습니다.");
+      ItemError.FOUND_QUIZ_NOT_AUTH.throwGlobalException();
     }
 
     if (foundItem.isEnded()) {
-      throw new RuntimeException("이미 종료된 습득물입니다.");
+      ItemError.FOUND_ALREADY_ENDED.throwGlobalException();
     }
 
     return foundItem;
@@ -104,7 +105,7 @@ public class DefaultQuizCommandService implements QuizCommandService {
         QUIZ_CANDIDATE_COUNT);
 
     if (candidates.size() < QUIZ_CANDIDATE_COUNT) {
-      throw new RuntimeException("습득물의 이미지가 부족해서 퀴즈를 낼 수 없습니다.");
+      ItemError.FOUND_QUIZ_IMAGE_INSUFFICIENT.throwGlobalException();
     }
 
     return candidates.stream().filter(candidate -> !candidate.getId().equals(answerId)).toList();

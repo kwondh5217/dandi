@@ -64,7 +64,7 @@ public class QuizSubmitCommandTest {
     ThrowingCallable expectThrow = () -> service.submit(command);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("이미 퀴즈를 풀었습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("이미 퀴즈를 풀었습니다.");
   }
 
   @DisplayName("퀴즈가 존재하지 않으면 퀴즈를 풀 수 없다.")
@@ -79,7 +79,7 @@ public class QuizSubmitCommandTest {
     ThrowingCallable expectThrow = () -> service.submit(command);
 
     // then
-    assertThatThrownBy(expectThrow).hasMessage("퀴즈가 존재하지 않습니다.");
+    assertThatThrownBy(expectThrow).cause().hasMessage("퀴즈가 존재하지 않습니다.");
   }
 
   @DisplayName("퀴즈의 정답이 틀렸으면, solver에 틀렸다고 저장한다.")
