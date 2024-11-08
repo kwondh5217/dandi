@@ -91,6 +91,8 @@ class RouteControllerTest {
     Snapshot snapshot = new Snapshot(1, List.of(item1, item2, item3, item4));
     SnapshotUpdateRequest request = new SnapshotUpdateRequest(snapshot);
 
+    given(authHelper.getMemberId()).willReturn(MOCK_MEMBER_ID);
+
     // when
     mockMvc.perform(patch("/routes/{routeId}/snapshot", routeId)
             .contentType(MediaType.APPLICATION_JSON)
@@ -98,7 +100,7 @@ class RouteControllerTest {
         .andExpect(status().isOk());
 
     // then
-    verify(routeService).updateSnapshot(routeId, request);
+    verify(routeService).updateSnapshot(MOCK_MEMBER_ID, routeId, request);
   }
 
   @Test
@@ -106,10 +108,13 @@ class RouteControllerTest {
   void 이동_종료_요청_성공_테스트() throws Exception {
     // given
     Integer routeId = 1;
+
     RouteEndRequest request = new RouteEndRequest(List.of(
         new Point(37.7749, -122.4194),
         new Point(37.7750, -122.4195)
     ));
+
+    given(authHelper.getMemberId()).willReturn(MOCK_MEMBER_ID);
 
     // when
     mockMvc.perform(patch("/routes/{routeId}", routeId)
@@ -118,7 +123,7 @@ class RouteControllerTest {
         .andExpect(status().isOk());
 
     // then
-    verify(routeService).endRoute(routeId, request);
+    verify(routeService).endRoute(MOCK_MEMBER_ID, routeId, request);
   }
 
   @Test
@@ -169,7 +174,8 @@ class RouteControllerTest {
     Integer routeId = 1;
     SnapshotDetailResponse response = SnapshotDetailResponse.builder().build();
 
-    given(routeService.readSnapshot(routeId)).willReturn(response);
+    given(routeService.readSnapshot(MOCK_MEMBER_ID, routeId)).willReturn(response);
+    given(authHelper.getMemberId()).willReturn(MOCK_MEMBER_ID);
 
     // when
     mockMvc.perform(get("/routes/{routeId}/snapshot", routeId)
@@ -177,6 +183,6 @@ class RouteControllerTest {
         .andExpect(status().isOk());
 
     // then
-    verify(routeService).readSnapshot(routeId);
+    verify(routeService).readSnapshot(MOCK_MEMBER_ID, routeId);
   }
 }

@@ -33,13 +33,13 @@ public class RouteService {
     commandService.createRoute(comm);
   }
 
-  public void updateSnapshot(Integer routeId, SnapshotUpdateRequest request) {
-    SnapshotUpdateCommand comm = new SnapshotUpdateCommand(routeId, request.snapshot());
+  public void updateSnapshot(Integer memberId, Integer routeId, SnapshotUpdateRequest request) {
+    SnapshotUpdateCommand comm = new SnapshotUpdateCommand(memberId, routeId, request.snapshot());
     commandService.updateSnapshot(comm);
   }
 
-  public void endRoute(Integer routeId, RouteEndRequest request) {
-    RouteEndCommand comm = RouteEndRequest.toCommand(routeId, request);
+  public void endRoute(Integer memberId, Integer routeId, RouteEndRequest request) {
+    RouteEndCommand comm = RouteEndRequest.toCommand(memberId, routeId, request);
     commandService.endRoute(comm);
   }
 
@@ -55,8 +55,8 @@ public class RouteService {
     return RouteDetailResponse.fromPayload(routePayload);
   }
 
-  public SnapshotDetailResponse readSnapshot(Integer routeId) {
-    SnapshotReadQuery query = new SnapshotReadQuery(routeId);
+  public SnapshotDetailResponse readSnapshot(Integer memberId, Integer routeId) {
+    SnapshotReadQuery query = new SnapshotReadQuery(memberId, routeId);
     SnapshotPayload routePayload = queryService.readSnapshot(query);
     return SnapshotDetailResponse.fromPayload(routePayload);
   }

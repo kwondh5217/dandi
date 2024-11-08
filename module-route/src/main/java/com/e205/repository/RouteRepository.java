@@ -13,6 +13,15 @@ import org.springframework.data.repository.query.Param;
 
 public interface RouteRepository extends JpaRepository<Route, Integer> {
 
+  @Query("SELECT r "
+      + "FROM Route r "
+      + "WHERE r.id = :routeId "
+      + "AND r.memberId = :memberId")
+  Optional<Route> findByIdAndMemberId(
+      @Param("routeId") Integer routeId,
+      @Param("memberId") Integer memberId
+  );
+
   Optional<Route> findFirstByMemberIdOrderByIdDesc(Integer memberId);
 
   Optional<Route> findFirstByMemberIdAndIdIsLessThanOrderByIdDesc(
@@ -36,7 +45,6 @@ public interface RouteRepository extends JpaRepository<Route, Integer> {
       @Param("date") LocalDate date
   );
 
-
   @Query("SELECT r " +
       "FROM Route r " +
       "WHERE r.memberId = (SELECT memberId FROM Route WHERE id = :startRouteId) " +
@@ -45,7 +53,6 @@ public interface RouteRepository extends JpaRepository<Route, Integer> {
       @Param("startRouteId") Integer startRouteId,
       @Param("endRouteId") Integer endRouteId
   );
-
 
   @Query("SELECT r.memberId "
       + "FROM Route r "

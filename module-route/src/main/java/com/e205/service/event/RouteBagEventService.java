@@ -38,7 +38,10 @@ public class RouteBagEventService {
     routeRepository.findFirstByMemberIdAndEndedAtIsNull(memberId).ifPresent(route -> {
       Snapshot baseSnapshot = snapshotHelper.loadBaseSnapshot(memberId, bagId);
 
-      SnapshotUpdateCommand command = new SnapshotUpdateCommand(route.getId(), baseSnapshot);
+      SnapshotUpdateCommand command = new SnapshotUpdateCommand(
+          memberId, route.getId(), baseSnapshot
+      );
+
       routeCommandService.updateSnapshot(command);
 
       eventPublisher.publicEvent(new RouteSavedEvent(memberId, Snapshot.toJson(baseSnapshot)));
@@ -56,7 +59,10 @@ public class RouteBagEventService {
       SnapshotItem snapshotItem = setSnapshotItem(item);
       Snapshot updatedSnapshot = currentSnapshot.addItem(snapshotItem);
 
-      SnapshotUpdateCommand comm = new SnapshotUpdateCommand(route.getId(), updatedSnapshot);
+      SnapshotUpdateCommand comm = new SnapshotUpdateCommand(
+          memberId, route.getId(), updatedSnapshot
+      );
+
       routeCommandService.updateSnapshot(comm);
 
       eventPublisher.publicEvent(new RouteSavedEvent(memberId, Snapshot.toJson(updatedSnapshot)));
@@ -74,7 +80,10 @@ public class RouteBagEventService {
       SnapshotItem snapshotItem = setSnapshotItem(item);
       Snapshot updatedSnapshot = currentSnapshot.removeItem(snapshotItem);
 
-      SnapshotUpdateCommand comm = new SnapshotUpdateCommand(route.getId(), updatedSnapshot);
+      SnapshotUpdateCommand comm = new SnapshotUpdateCommand(
+          memberId, route.getId(), updatedSnapshot
+      );
+
       routeCommandService.updateSnapshot(comm);
     });
   }
@@ -92,7 +101,10 @@ public class RouteBagEventService {
           .removeItem(setSnapshotItem(previousItem))
           .addItem(setSnapshotItem(updatedItem));
 
-      SnapshotUpdateCommand comm = new SnapshotUpdateCommand(route.getId(), updatedSnapshot);
+      SnapshotUpdateCommand comm = new SnapshotUpdateCommand(
+          memberId, route.getId(), updatedSnapshot
+      );
+
       routeCommandService.updateSnapshot(comm);
 
       eventPublisher.publicEvent(new RouteSavedEvent(memberId, Snapshot.toJson(updatedSnapshot)));

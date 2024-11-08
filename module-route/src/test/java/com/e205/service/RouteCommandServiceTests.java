@@ -6,6 +6,7 @@ import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -18,11 +19,9 @@ import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
 import com.e205.event.RouteSavedEvent;
 import com.e205.events.EventPublisher;
-import com.e205.exception.RouteError;
-import com.e205.exception.RouteException;
+import com.e205.exception.GlobalException;
 import com.e205.repository.RouteRepository;
 import com.e205.service.reader.SnapshotHelper;
-import com.e205.service.validator.RouteValidator;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.LineString;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -53,8 +53,6 @@ public class RouteCommandServiceTests {
   private RouteRepository routeRepository;
   @Mock
   private BagQueryService bagQueryService;
-  @Mock
-  private RouteValidator validator;
   @Mock
   private EventPublisher eventPublisher;
   @Mock
@@ -101,14 +99,16 @@ public class RouteCommandServiceTests {
   @DisplayName("존재하지 않는 이동 실패 테스트")
   void 존재하지_않는_이동_실패_테스트() {
     // given
-    SnapshotUpdateCommand command = new SnapshotUpdateCommand(INVALID_ROUTE_ID, snapshot);
-    given(routeRepository.findById(any(Integer.class))).willReturn(Optional.empty());
+    SnapshotUpdateCommand command = new SnapshotUpdateCommand(
+        MEMBER_ID, INVALID_ROUTE_ID, snapshot
+    );
+    given(routeRepository.findByIdAndMemberId(any(), any())).willReturn(Optional.empty());
 
     // when
     ThrowingCallable expectThrow = () -> commandService.updateSnapshot(command);
 
     // then
-    assertThatThrownBy(expectThrow).isInstanceOf(RouteException.class);
+    assertThatThrownBy(expectThrow).isInstanceOf(GlobalException.class);
     verify(routeRepository, never()).save(any(Route.class));
   }
 
@@ -116,16 +116,18 @@ public class RouteCommandServiceTests {
   @DisplayName("이미 종료 된 이동 실패 테스트")
   void 이미_종료_된_이동_실패_테스트() {
     // given
+    LineString lineString = mock(LineString.class);
     Route route = new Route();
-    RouteEndCommand command = new RouteEndCommand(VALID_ROUTE_ID, null);
-    given(routeRepository.findById(VALID_ROUTE_ID)).willReturn(Optional.of(route));
-    doThrow(new RouteException(RouteError.ENDED_ROUTE)).when(validator).validateEndedRoute(route);
+    route.endRoute(lineString);
+    RouteEndCommand command = new RouteEndCommand(MEMBER_ID, VALID_ROUTE_ID, null);
+    given(routeRepository.findByIdAndMemberId(VALID_ROUTE_ID, MEMBER_ID))
+        .willReturn(Optional.of(route));
 
     // when
     ThrowingCallable expectThrow = () -> commandService.endRoute(command);
 
     // then
-    assertThatThrownBy(expectThrow).isInstanceOf(RouteException.class);
+    assertThatThrownBy(expectThrow).isInstanceOf(GlobalException.class);
     verify(routeRepository, never()).save(any(Route.class));
   }
 }

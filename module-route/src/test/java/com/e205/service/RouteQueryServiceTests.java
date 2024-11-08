@@ -81,7 +81,8 @@ class RouteQueryServiceTests {
     // given
     Integer routeId = route.getId();
     given(routeReadQuery.routeId()).willReturn(routeId);
-    given(routeRepository.findById(routeId)).willReturn(Optional.of(route));
+    given(routeRepository.findByIdAndMemberId(routeId, route.getMemberId()))
+        .willReturn(Optional.of(route));
     given(routeRepository.findFirstByMemberIdAndIdGreaterThanOrderByIdAsc(
         route.getMemberId(), routeId)
     ).willReturn(Optional.empty());
@@ -98,8 +99,9 @@ class RouteQueryServiceTests {
   void 이동_상세_조회_시_끝나지_않은_이동의_경우_endSnapshot은_null_테스트() {
     // given
     Integer routeId = route.getId();
+    Integer memberId = route.getMemberId();
     given(routeReadQuery.routeId()).willReturn(routeId);
-    given(routeRepository.findById(routeId)).willReturn(Optional.of(route));
+    given(routeRepository.findByIdAndMemberId(routeId, memberId)).willReturn(Optional.of(route));
     given(route.getEndedAt()).willReturn(null); // 이동이 끝나지 않았음을 설정
 
     // when
@@ -114,13 +116,13 @@ class RouteQueryServiceTests {
   void 이동_상세_조회_시_반경_벗어나면_endSnapshot_null_테스트() {
     // given
     Integer routeId = route.getId();
+    Integer memberId = route.getMemberId();
     given(routeReadQuery.routeId()).willReturn(routeId);
-    given(routeRepository.findById(routeId)).willReturn(Optional.of(route));
-    given(route.getMemberId()).willReturn(MEMBER_ID_1);
+    given(routeRepository.findByIdAndMemberId(routeId, memberId)).willReturn(Optional.of(route));
     given(routeRepository.findFirstByMemberIdAndIdGreaterThanOrderByIdAsc(MEMBER_ID_1, routeId))
         .willReturn(Optional.of(nextRoute));
-    given(geometryUtils.isWithinDistance(route.getTrack(), nextRoute.getTrack(), 1000)).willReturn(
-        false);
+    given(geometryUtils.isWithinDistance(route.getTrack(), nextRoute.getTrack(), 1000))
+        .willReturn(false);
 
     // when
     RoutePayload payload = routeQueryService.readRoute(routeReadQuery);
@@ -128,7 +130,6 @@ class RouteQueryServiceTests {
     // then
     assertThat(payload.nextRouteId()).isNull();
   }
-
 
   @Test
   @DisplayName("일일 이동 조회 시 해당 날짜에 기록된 이동이 없는 경우 null 반환")
@@ -144,7 +145,9 @@ class RouteQueryServiceTests {
     RoutesPayload result = routeQueryService.readDailyRoute(dailyRouteQuery);
 
     // then
-    assertThat(result).isNull();
+    assertThat(result).isInstanceOf(RoutesPayload.class);
+    assertThat(result.nextRouteId()).isNull();
+    assertThat(result.routeParts()).isEmpty();
   }
 
   @Test
@@ -202,7 +205,7 @@ class RouteQueryServiceTests {
   void 스냅샷_조회_성공_테스트() {
     // given
     Integer routeId = 1;
-    SnapshotReadQuery query = new SnapshotReadQuery(routeId);
+    SnapshotReadQuery query = new SnapshotReadQuery(MEMBER_ID_1, routeId);
     String snapshotJson = """
         {
             "bagId": 1,
@@ -217,7 +220,7 @@ class RouteQueryServiceTests {
 
     Snapshot expectedSnapshot = Snapshot.fromJson(snapshotJson);
 
-    given(routeRepository.findById(routeId)).willReturn(Optional.of(route));
+    given(routeRepository.findByIdAndMemberId(routeId, MEMBER_ID_1)).willReturn(Optional.of(route));
     given(route.getSnapshot()).willReturn(snapshotJson);
     given(route.getSkip()).willReturn('N');
 

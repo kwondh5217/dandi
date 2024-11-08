@@ -3,8 +3,7 @@ package com.e205.service;
 import com.e205.domain.Route;
 import com.e205.dto.RoutePart;
 import com.e205.dto.Snapshot;
-import com.e205.exception.RouteError;
-import com.e205.exception.RouteException;
+import com.e205.exception.GlobalException;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
@@ -40,7 +39,7 @@ public class DirectRouteQueryService implements RouteQueryService {
 
   @Override
   public SnapshotPayload readSnapshot(SnapshotReadQuery query) {
-    Route route = getRoute(query.routeId());
+    Route route = getRoute(query.routeId(), query.memberId());
 
     Snapshot snapshot = Snapshot.fromJson(route.getSnapshot());
     char skip = route.getSkip();
@@ -55,7 +54,7 @@ public class DirectRouteQueryService implements RouteQueryService {
   public RoutePayload readRoute(RouteReadQuery query) {
     Integer routeId = query.routeId();
     Integer memberId = query.memberId();
-    Route currentRoute = getRoute(routeId);
+    Route currentRoute = getRoute(routeId, memberId);
 
     Integer previousId = getPreviousRoute(memberId, routeId)
         .map(Route::getId)
@@ -78,7 +77,7 @@ public class DirectRouteQueryService implements RouteQueryService {
     List<RoutePart> routeParts = routes.stream().map(Route::toPart).toList();
 
     if (routes.isEmpty()) {
-      return null;
+      return new RoutesPayload(List.of(), null);
     }
 
     Route lastRoute = routes.get(routes.size() - 1);
@@ -110,9 +109,9 @@ public class DirectRouteQueryService implements RouteQueryService {
     return new ArrayList<>(routeRepository.findUsersWithinPolygon(polygon, timestamp));
   }
 
-  private Route getRoute(Integer routeId) {
-    return routeRepository.findById(routeId)
-        .orElseThrow(() -> new RouteException(RouteError.NOT_FOUND_ROUTE));
+  private Route getRoute(Integer routeId, Integer memberId) {
+    return routeRepository.findByIdAndMemberId(routeId, memberId)
+        .orElseThrow(() -> new GlobalException("E201"));
   }
 
   private Optional<Route> getPreviousRoute(Integer memberId, Integer routeId) {

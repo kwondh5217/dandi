@@ -42,13 +42,15 @@ public class RouteController {
       @PathVariable Integer routeId,
       @RequestBody SnapshotUpdateRequest request
   ) {
-    routeService.updateSnapshot(routeId, request);
+    Integer memberId = authHelper.getMemberId();
+    routeService.updateSnapshot(memberId, routeId, request);
   }
 
   @PatchMapping("/{routeId}")
   @ResponseStatus(HttpStatus.OK)
   public void endRoute(@PathVariable Integer routeId, @RequestBody RouteEndRequest request) {
-    routeService.endRoute(routeId, request);
+    Integer memberId = authHelper.getMemberId();
+    routeService.endRoute(memberId, routeId, request);
   }
 
   @GetMapping
@@ -69,7 +71,8 @@ public class RouteController {
 
   @GetMapping("/{routeId}/snapshot")
   public ResponseEntity<SnapshotDetailResponse> readRouteSnapshot(@PathVariable Integer routeId) {
-    SnapshotDetailResponse response = routeService.readSnapshot(routeId);
+    Integer memberId = authHelper.getMemberId();
+    SnapshotDetailResponse response = routeService.readSnapshot(memberId, routeId);
     return ResponseEntity.ok(response);
   }
 }

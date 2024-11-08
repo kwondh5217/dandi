@@ -1,6 +1,5 @@
 package com.e205.service.reader;
 
-import com.e205.command.RouteCreateCommand;
 import com.e205.command.bag.payload.BagItemPayload;
 import com.e205.command.bag.query.ReadAllBagItemsQuery;
 import com.e205.command.bag.query.ReadAllItemInfoQuery;

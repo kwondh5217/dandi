@@ -9,11 +9,8 @@ import com.e205.dto.Snapshot;
 import com.e205.event.RouteSavedEvent;
 import com.e205.events.EventPublisher;
 import com.e205.exception.GlobalException;
-import com.e205.exception.RouteError;
-import com.e205.exception.RouteException;
 import com.e205.repository.RouteRepository;
 import com.e205.service.reader.SnapshotHelper;
-import com.e205.service.validator.RouteValidator;
 import com.e205.util.GeometryUtils;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +24,6 @@ public class DirectRouteCommandService implements RouteCommandService {
 
   private final EventPublisher eventPublisher;
   private final RouteRepository routeRepository;
-  private final RouteValidator routeValidator;
   private final SnapshotHelper snapshotHelper;
 
   @Override
@@ -59,22 +55,23 @@ public class DirectRouteCommandService implements RouteCommandService {
 
   @Override
   public void updateSnapshot(SnapshotUpdateCommand command) {
-    Route route = getRoute(command.routeId());
-    routeValidator.validateEndedRoute(route);
+    Route route = getRoute(command.routeId(), command.memberId());
     route.updateSnapshot(Snapshot.toJson(command.snapshot()));
     routeRepository.save(route);
   }
 
   @Override
   public void endRoute(RouteEndCommand command) {
-    Route route = getRoute(command.routeId());
-    routeValidator.validateEndedRoute(route);
+    Route route = getRoute(command.routeId(), command.memberId());
+    if (route.getEndedAt() != null) {
+      throw new GlobalException("E202");
+    }
     route.endRoute(GeometryUtils.getLineString(command.points()));
     routeRepository.save(route);
   }
 
-  private Route getRoute(Integer routeId) {
-    return routeRepository.findById(routeId)
-        .orElseThrow(() -> new GlobalException("E104"));
+  private Route getRoute(Integer routeId, Integer memberId) {
+    return routeRepository.findByIdAndMemberId(routeId, memberId)
+        .orElseThrow(() -> new GlobalException("E201"));
   }
 }

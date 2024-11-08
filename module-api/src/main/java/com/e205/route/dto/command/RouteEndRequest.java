@@ -9,10 +9,11 @@ public record RouteEndRequest(
     List<Point> track
 ) {
 
-  public static RouteEndCommand toCommand(Integer routeId, RouteEndRequest request) {
+  public static RouteEndCommand toCommand(Integer memberId, Integer routeId, RouteEndRequest req) {
     return RouteEndCommand.builder()
+        .memberId(memberId)
         .routeId(routeId)
-        .points(request.track().stream()
+        .points(req.track().stream()
             .map(point -> TrackPoint.builder()
                 .lat(point.lat())
                 .lon(point.lon())

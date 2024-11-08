@@ -86,7 +86,7 @@ public class RouteCommandServiceIntgTests {
   @Test
   @DisplayName("이동 생성 시 이전 가방과 현재 가방이 같은 경우 이전 스냅샷 제공 테스트")
   void 이동_생성시_이전_가방과_현재_가방이_같은_경우_이전_스냅샷_제공_테스트() {
-    Snapshot initSnapshot = initializeSnapshot(requestBagId1.bagId(), currentBagItems);
+    initializeSnapshot(requestBagId1.bagId(), currentBagItems);
     Route previousRoute = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).get();
 
     mockBagQueryService(
@@ -163,11 +163,13 @@ public class RouteCommandServiceIntgTests {
   @Test
   @DisplayName("스냅샷 수정 테스트")
   void 스냅샷_수정_테스트() {
-    Snapshot initSnapshot = initializeSnapshot(requestBagId1.bagId(), basedBagItems);
+    initializeSnapshot(requestBagId1.bagId(), currentBagItems);
     Snapshot currentSnapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
     Route route = routeRepository.findFirstByMemberIdOrderByIdDesc(MEMBER_ID_1).orElseThrow();
 
-    SnapshotUpdateCommand command = new SnapshotUpdateCommand(route.getId(), currentSnapshot);
+    SnapshotUpdateCommand command = new SnapshotUpdateCommand(
+        MEMBER_ID_1, route.getId(), currentSnapshot
+    );
 
     routeCommandService.updateSnapshot(command);
     Route updatedRoute = routeRepository.findById(route.getId()).orElseThrow();
@@ -184,7 +186,7 @@ public class RouteCommandServiceIntgTests {
         TrackPoint.builder().lat(37.7749).lon(-122.4194).build(),
         TrackPoint.builder().lat(34.0522).lon(-118.2437).build()
     );
-    RouteEndCommand command = new RouteEndCommand(route.getId(), trackPoints);
+    RouteEndCommand command = new RouteEndCommand(MEMBER_ID_1, route.getId(), trackPoints);
 
     routeCommandService.endRoute(command);
     Route endedRoute = routeRepository.findById(route.getId()).orElseThrow();

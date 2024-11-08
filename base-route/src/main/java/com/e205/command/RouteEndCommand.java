@@ -6,6 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record RouteEndCommand(
+    Integer memberId,
     Integer routeId,
     List<TrackPoint> points
 ) {

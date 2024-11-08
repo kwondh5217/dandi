@@ -1,5 +1,6 @@
 package com.e205.dto;
 
+import com.e205.exception.GlobalException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -31,8 +32,7 @@ public record Snapshot(
       }
       return mapper.readValue(json, Snapshot.class);
     } catch (JsonProcessingException e) {
-      // TODO <이현수> : 예외 구체화
-      throw new RuntimeException("스냅샷 변환 중 예외 발생", e);
+      throw new GlobalException("E203");
     }
   }
 
@@ -40,8 +40,7 @@ public record Snapshot(
     try {
       return mapper.writeValueAsString(snapshot);
     } catch (JsonProcessingException e) {
-      // TODO <이현수> : 예외 구체화
-      throw new RuntimeException("스냅샷 변환 중 예외 발생", e);
+      throw new GlobalException("E203");
     }
   }
 }
