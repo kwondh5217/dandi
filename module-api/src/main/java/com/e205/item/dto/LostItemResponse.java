@@ -7,6 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record LostItemResponse(
+    Integer id,
     String situationDescription,
     String itemDescription,
     List<String> images,
@@ -15,6 +16,7 @@ public record LostItemResponse(
 
   public static LostItemResponse from(LostItemPayload payload, List<String> images) {
     return LostItemResponse.builder()
+        .id(payload.id())
         .situationDescription(payload.situationDescription())
         .itemDescription(payload.itemDescription())
         .images(images)
