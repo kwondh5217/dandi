@@ -32,6 +32,7 @@ public class SecurityConfig {
   private static final String[] AUTH_WHITELIST = {
       "/auth/**",
       "/h2-console/**",
+      "/manager/**",
       "/error/**"
   };
 
