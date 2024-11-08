@@ -2,12 +2,12 @@ package com.e205.auth.jwt.handler;
 
 import com.e205.auth.jwt.JwtProvider;
 import com.e205.auth.jwt.repository.JwtRepository;
+import com.e205.exception.GlobalException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,7 +58,7 @@ public class JwtRequestProcessHandler {
 
   private String extractRefreshToken(String headerValue) {
     if (headerValue == null || !headerValue.startsWith(TOKEN_TYPE)) {
-      throw new RuntimeException("재발급 토큰이 존재하지 않습니다.");
+      throw new GlobalException("E004");
     }
 
     return headerValue.substring(7);
@@ -66,17 +66,17 @@ public class JwtRequestProcessHandler {
 
   private void validateRefreshToken(String refreshToken) {
     if (!jwtProvider.verifyToken(refreshToken)) {
-      throw new RuntimeException("유효하지 않은 재발급 토큰입니다.");
+      throw new GlobalException("E005");
     }
 
     if (jwtProvider.isExpired(refreshToken)) {
-      throw new RuntimeException("만료된 재발급 토큰입니다.");
+      throw new GlobalException("E006");
     }
   }
 
   private void validateRefreshTokenInRedis(Integer memberId) {
     if (!jwtRepository.existByMemberId(memberId)) {
-      throw new RuntimeException("사용할 수 없는 재발급 토큰입니다.");
+      throw new RuntimeException("E007");
     }
   }
 }
