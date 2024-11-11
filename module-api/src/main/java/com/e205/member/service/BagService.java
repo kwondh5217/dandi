@@ -11,6 +11,7 @@ import com.e205.command.bag.command.BagOrderCommand;
 import com.e205.command.bag.command.BagOrderUpdateCommand;
 import com.e205.command.bag.command.CopyBagCommand;
 import com.e205.command.bag.command.CreateBagCommand;
+import com.e205.command.bag.command.RemoveItemsInBagCommand;
 import com.e205.command.bag.command.SelectBagCommand;
 import com.e205.command.bag.payload.BagItemPayload;
 import com.e205.command.bag.payload.BagPayload;
@@ -146,5 +147,10 @@ public class BagService {
   public void addItemsToBag(AddItemsToBagRequest request) {
     AddItemsToBagCommand command = request.toCommand();
     bagCommandService.addItemToBag(command);
+  }
+
+  public void removeItemsInBag(Integer bagId, List<Integer> itemIds, Integer memberId) {
+    RemoveItemsInBagCommand command = new RemoveItemsInBagCommand(bagId, itemIds, memberId);
+    bagCommandService.removeItemsInBag(command);
   }
 }

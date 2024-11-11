@@ -42,9 +42,10 @@ public class MemberTempService {
         .memberId(savedMember.getId())
         .enabled('Y')
         .bagOrder((byte) 1)
-        .name(nickname + "Bag")
+        .name("현재 가방")
         .build();
     bagRepository.save(tempBag);
+    savedMember.updateBagId(tempBag.getId());
     return savedMember;
   }
 }

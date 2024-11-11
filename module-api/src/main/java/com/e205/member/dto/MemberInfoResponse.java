@@ -9,6 +9,7 @@ public record MemberInfoResponse(
     Integer id,
     String nickname,
     EmailStatus emailStatus,
+    String email,
     Integer bagId
 ) {
   public static MemberInfoResponse from(MemberPayload payload) {
@@ -16,6 +17,7 @@ public record MemberInfoResponse(
         .id(payload.id())
         .nickname(payload.nickname())
         .emailStatus(payload.status())
+        .email(payload.email())
         .bagId(payload.bagId())
         .build();
   }

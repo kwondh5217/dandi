@@ -134,7 +134,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
         .memberId(member.getId())
         .enabled('Y')
         .bagOrder((byte) 1)
-        .name("기본가방")
+        .name("현재 가방")
         .build();
     bagRepository.save(bag);
     member.updateBagId(bag.getId());

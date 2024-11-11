@@ -6,6 +6,7 @@ import com.e205.command.bag.command.BagItemDeleteCommand;
 import com.e205.command.bag.command.BagItemOrderUpdateCommand;
 import com.e205.command.bag.command.BagNameUpdateCommand;
 import com.e205.command.bag.command.BagOrderUpdateCommand;
+import com.e205.command.bag.command.RemoveItemsInBagCommand;
 import com.e205.command.bag.payload.BagPayload;
 import com.e205.command.bag.command.CopyBagCommand;
 import com.e205.command.bag.command.CreateBagCommand;
@@ -30,4 +31,6 @@ public interface BagCommandService {
   void deleteBagItem(BagItemDeleteCommand command);
 
   void addItemToBag(AddItemsToBagCommand command);
+
+  void removeItemsInBag(RemoveItemsInBagCommand command);
 }

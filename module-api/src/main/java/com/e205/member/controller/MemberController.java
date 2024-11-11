@@ -7,6 +7,7 @@ import com.e205.member.dto.ChangePasswordRequest;
 import com.e205.item.dto.LostItemListResponse;
 import com.e205.item.service.LostItemService;
 import com.e205.member.dto.FcmCodeUpdateRequest;
+import com.e205.member.dto.MemberInfoResponse;
 import com.e205.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,12 @@ public class MemberController {
   private final AuthHelper authHelper;
   private final LostItemService lostItemService;
   private final FoundItemService foundItemService;
+
+  @GetMapping
+  public ResponseEntity<MemberInfoResponse> getMemberInfo() {
+    MemberInfoResponse memberInfo = memberService.getMemberInfo();
+    return ResponseEntity.ok(memberInfo);
+  }
 
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/fcm")

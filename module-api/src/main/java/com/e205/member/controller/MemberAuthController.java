@@ -36,12 +36,6 @@ public class MemberAuthController {
     memberService.registerMember(request);
   }
 
-  @GetMapping
-  public ResponseEntity<MemberInfoResponse> getMemberInfo() {
-    MemberInfoResponse memberInfo = memberService.getMemberInfo();
-    return ResponseEntity.ok(memberInfo);
-  }
-
   @ResponseStatus(HttpStatus.OK)
   @PostMapping("/email")
   public void requestAuthEmail(@RequestBody AuthEmailLinkRequest request) {

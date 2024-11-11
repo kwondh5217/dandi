@@ -105,4 +105,11 @@ public class BagController {
       @RequestBody List<ChangeBagItemOrderRequest> request) {
     bagService.changeOrderItemInBag(bagId, request, authHelper.getMemberId());
   }
+
+  @ResponseStatus(HttpStatus.OK)
+  @DeleteMapping("/{bagId}/items")
+  public void removeItemsInBag(@PathVariable Integer bagId,
+      @RequestBody List<Integer> itemIds) {
+    bagService.removeItemsInBag(bagId, itemIds, authHelper.getMemberId());
+  }
 }

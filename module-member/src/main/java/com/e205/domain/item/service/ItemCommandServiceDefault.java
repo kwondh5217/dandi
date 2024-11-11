@@ -9,8 +9,10 @@ import com.e205.command.item.command.UpdateItemCommand;
 import com.e205.command.item.command.UpdateItemOrderCommand;
 import com.e205.command.item.payload.ItemPayload;
 import com.e205.command.item.service.ItemCommandService;
+import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
+import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.events.EventPublisher;
@@ -32,30 +34,37 @@ public class ItemCommandServiceDefault implements ItemCommandService {
   private final ItemRepository itemRepository;
   private final BagItemRepository bagItemRepository;
   private final EventPublisher eventPublisher;
+  private final BagRepository bagRepository;
 
   @Override
   public void save(CreateItemCommand createItemCommand) {
     Integer memberId = createItemCommand.memberId();
     Integer bagId = createItemCommand.bagId();
 
-    boolean isDuplicateName = itemRepository.existsByNameAndMemberId(createItemCommand.name(), memberId);
+    Bag bag = bagRepository.findById(bagId)
+        .orElseThrow(() -> new RuntimeException("가방이 존재하지 않습니다."));
+    if (!bag.getMemberId().equals(memberId)) {
+      throw new RuntimeException("해당 가방은 사용자의 소유가 아닙니다.");
+    }
+
+    boolean isDuplicateName = itemRepository.existsByNameAndMemberId(createItemCommand.name(),
+        memberId);
     if (isDuplicateName) {
-      throw new RuntimeException();
+      throw new RuntimeException("이미 존재하는 아이템 이름입니다.");
     }
 
     List<Item> userItems = itemRepository.findAllByMemberId(memberId);
     if (userItems.size() >= MAX_ITEM_COUNT) {
-      throw new RuntimeException();
+      throw new RuntimeException("아이템 개수 제한을 초과했습니다.");
     }
 
     List<BagItem> bagItems = bagItemRepository.findAllByBagId(bagId);
     if (bagItems.size() >= MAX_BAG_ITEM_COUNT) {
-      throw new RuntimeException();
+      throw new RuntimeException("가방 아이템 개수 제한을 초과했습니다.");
     }
 
-    // 새로운 아이템 순서 설정
-    byte maxItemOrder = (byte) (userItems.stream()
-        .mapToInt(Item::getItemOrder)
+    byte maxItemOrder = (byte) (bagItems.stream()
+        .mapToInt(BagItem::getItemOrder)
         .max()
         .orElse(0) + 1);
 
@@ -66,7 +75,6 @@ public class ItemCommandServiceDefault implements ItemCommandService {
         .memberId(memberId)
         .itemOrder(maxItemOrder)
         .build();
-
     itemRepository.save(item);
 
     BagItem bagItem = BagItem.builder()
@@ -86,7 +94,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
 
     ItemPayload previousItemPayload = item.toPayload();
 
-    if(item.getMemberId() != updateCommand.memberId()) {
+    if (item.getMemberId() != updateCommand.memberId()) {
       throw new RuntimeException();
     }
 

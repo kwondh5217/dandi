@@ -8,6 +8,7 @@ import com.e205.command.bag.command.BagNameUpdateCommand;
 import com.e205.command.bag.command.BagOrderUpdateCommand;
 import com.e205.command.bag.command.CopyBagCommand;
 import com.e205.command.bag.command.CreateBagCommand;
+import com.e205.command.bag.command.RemoveItemsInBagCommand;
 import com.e205.command.bag.command.SelectBagCommand;
 import com.e205.command.bag.event.BagChangedEvent;
 import com.e205.command.bag.payload.BagPayload;
@@ -260,5 +261,22 @@ public class BagCommandServiceDefault implements BagCommandService {
     }
     bagItemRepository.saveAll(newBagItems);
     eventPublisher.publicEvent(new BagChangedEvent(memberId, bagId));
+  }
+
+  @Override
+  public void removeItemsInBag(RemoveItemsInBagCommand command) {
+    Bag bag = bagRepository.findById(command.bagId())
+        .orElseThrow(() -> new RuntimeException("해당 가방이 존재하지 않습니다."));
+    if (!Objects.equals(bag.getMemberId(), command.memberId())) {
+      throw new RuntimeException("해당 가방은 사용자의 소유가 아닙니다.");
+    }
+
+    List<BagItem> existingItems = bagItemRepository.findAllByBagId(command.bagId());
+
+    List<BagItem> itemsToDelete = existingItems.stream()
+        .filter(item -> command.itemIds().contains(item.getItemId()))
+        .toList();
+
+    bagItemRepository.deleteAll(itemsToDelete);
   }
 }
