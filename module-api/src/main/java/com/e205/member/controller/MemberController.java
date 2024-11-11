@@ -3,6 +3,7 @@ package com.e205.member.controller;
 import com.e205.auth.helper.AuthHelper;
 import com.e205.item.dto.FoundItemListResponse;
 import com.e205.item.service.FoundItemService;
+import com.e205.member.dto.ChangeNicknameRequest;
 import com.e205.member.dto.ChangePasswordRequest;
 import com.e205.item.dto.LostItemListResponse;
 import com.e205.item.service.LostItemService;
@@ -48,6 +49,12 @@ public class MemberController {
   public void updatePassword(@RequestBody ChangePasswordRequest request) {
     memberService.changePassword(authHelper.getMemberId(), request.newPassword(),
         request.pastPassword());
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @PutMapping("/nickname")
+  public void updateNickname(@RequestBody ChangeNicknameRequest request) {
+    memberService.changeNickname(authHelper.getMemberId(), request.nickname());
   }
 
   @ResponseStatus(HttpStatus.OK)

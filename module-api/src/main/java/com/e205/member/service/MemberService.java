@@ -3,6 +3,7 @@ package com.e205.member.service;
 import com.e205.auth.helper.AuthHelper;
 import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.bag.query.FindMemberQuery;
+import com.e205.command.member.command.ChangeNicknameCommand;
 import com.e205.command.member.command.ChangePasswordCommand;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
 import com.e205.command.member.command.CheckVerificationNumberCommand;
@@ -103,5 +104,10 @@ public class MemberService {
   public void deleteMember(Integer memberId) {
     DeleteMemberCommand command = new DeleteMemberCommand(memberId);
     memberCommandService.deleteMember(command);
+  }
+
+  public void changeNickname(Integer memberId, String newNickname) {
+    ChangeNicknameCommand command = new ChangeNicknameCommand(memberId, newNickname);
+    memberCommandService.changeNickname(command);
   }
 }

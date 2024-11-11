@@ -81,6 +81,10 @@ public class Member implements LoggableEntity {
     this.memberStatus = memberStatus;
   }
 
+  public void updateNickname(String nickname) {
+    this.nickname = nickname;
+  }
+
   public MemberPayload toPayload() {
     return new MemberPayload(id, bagId, nickname, email, status, memberStatus);
   }

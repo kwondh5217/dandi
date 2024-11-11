@@ -1,5 +1,6 @@
 package com.e205.domain.member.service;
 
+import com.e205.command.member.command.ChangeNicknameCommand;
 import com.e205.command.member.command.ChangePasswordCommand;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
 import com.e205.command.member.command.CompleteSignUpCommand;
@@ -177,5 +178,13 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     member.updateFcmCode(null);
     member.updatePassword(null);
     member.updateMemberStatus(MemberStatus.DISABLED);
+  }
+
+  @Override
+  public void changeNickname(ChangeNicknameCommand command) {
+    Member member = memberRepository.findById(command.memberId())
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
+
+    member.updateNickname(command.nickname());
   }
 }

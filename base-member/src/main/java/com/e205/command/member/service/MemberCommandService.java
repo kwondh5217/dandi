@@ -1,5 +1,6 @@
 package com.e205.command.member.service;
 
+import com.e205.command.member.command.ChangeNicknameCommand;
 import com.e205.command.member.command.ChangePasswordCommand;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
 import com.e205.command.member.command.CompleteSignUpCommand;
@@ -29,4 +30,6 @@ public interface MemberCommandService {
   void changePassword(ChangePasswordCommand command);
 
   void deleteMember(DeleteMemberCommand command);
+
+  void changeNickname(ChangeNicknameCommand command);
 }
