@@ -6,11 +6,13 @@ import com.e205.item.dto.CommentCreateRequest;
 import com.e205.item.dto.CommentListResponse;
 import com.e205.item.dto.CommentQueryRequest;
 import com.e205.item.dto.FoundItemCreateRequest;
+import com.e205.item.dto.FoundItemListResponse;
 import com.e205.item.dto.FoundItemResponse;
 import com.e205.item.service.FoundItemService;
 import com.e205.payload.CommentPayload;
 import com.e205.service.CommentService;
 import java.util.List;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +42,13 @@ public class FoundItemController {
       @RequestBody FoundItemCreateRequest request
   ) {
     foundItemService.save(memberId, request);
+  }
+
+  @GetMapping
+  public ResponseEntity<FoundItemListResponse> getReadable(
+      @AuthenticationPrincipal(expression = "id") Integer memberId
+  ) {
+    return ResponseEntity.ok(foundItemService.findReadable(memberId));
   }
 
   @GetMapping("/{foundId}")

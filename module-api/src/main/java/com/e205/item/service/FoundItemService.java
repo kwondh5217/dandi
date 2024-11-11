@@ -54,6 +54,12 @@ public class FoundItemService {
     foundItemCommandService.delete(command);
   }
 
+  @Transactional
+  public FoundItemListResponse findReadable(int memberId) {
+    return FoundItemListResponse.from(foundItemQueryService.findReadable(memberId).stream()
+        .map(this::makeResponse).toList());
+  }
+
   private FoundItemResponse makeResponse(FoundItemPayload payload) {
     if (payload.type() != FoundItemType.OTHER) {
       return FoundItemResponse.from(payload, null);

@@ -13,4 +13,6 @@ public interface FoundItemQueryService {
   List<FoundItemPayload> find(FoundItemListQuery query);
 
   ItemImagePayload findFoundItemImage(Integer foundId);
+
+  List<FoundItemPayload> findReadable(int memberId);
 }

@@ -48,6 +48,13 @@ public class DefaultFoundItemQueryService implements FoundItemQueryService {
   }
 
   @Override
+  public List<FoundItemPayload> findReadable(int memberId) {
+    return foundItemQueryRepository.findReadable(memberId).stream()
+        .map(FoundItem::toPayload)
+        .toList();
+  }
+
+  @Override
   public List<FoundItemPayload> find(FoundItemListQuery query) {
     return foundItemQueryRepository.findAllByMemberId(query.memberId()).stream()
         .map(FoundItem::toPayload).toList();

@@ -1,4 +1,5 @@
 <configuration>
+  <property name="hostname" value="${HOSTNAME}" />
   <!-- Console Appender (개발 중 콘솔 출력용, 색상 추가) -->
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
@@ -6,16 +7,16 @@
     </encoder>
   </appender>
 
-  <!-- File Appender (파일에 로그 저장, 색상 없이 깔끔한 텍스트) -->
-  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-    <file>./logs/app.log</file> <!-- 로그 파일 경로 -->
-    <append>true</append>
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/app-%d{yyyy-MM-dd}-${hostname}.log</fileNamePattern>
+    </rollingPolicy>
+
     <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
 
-  <!-- Root Logger 설정 (모든 로그를 Console과 File로 출력) -->
   <root level="info">
     <appender-ref ref="CONSOLE" />
     <appender-ref ref="FILE" />
