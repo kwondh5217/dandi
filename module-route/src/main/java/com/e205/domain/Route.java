@@ -8,6 +8,7 @@ import com.e205.log.LoggableEntity;
 import com.e205.payload.RoutePayload;
 import com.e205.util.GeometryUtils;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +32,7 @@ import org.locationtech.jts.geom.LineString;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIgnoreProperties({"envelope"})
 @Entity
 public class Route implements LoggableEntity {
 
