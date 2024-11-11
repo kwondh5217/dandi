@@ -16,8 +16,8 @@ pipeline {
                                  file(credentialsId: 'redisson', variable: 'REDISSON')]) {
                     sh '''
                         mkdir -p module-api/src/main/resources/firebase
-                        rm module-api/src/main/resources/firebase/dandi-4158a-firebase-adminsdk-h61xd-7ec9de5fad.json
-                        cp $FIREBASE_SECRET module-api/src/main/resources/firebase/dandi-4158a-firebase-adminsdk-h61xd-7ec9de5fad.json
+                        rm module-api/src/main/resources/firebase/dandi-8be67-firebase-adminsdk-m922n-ff8ee2fea7.json
+                        cp $FIREBASE_SECRET module-api/src/main/resources/firebase/dandi-8be67-firebase-adminsdk-m922n-ff8ee2fea7.json
                         rm module-api/src/main/resources/application-secret.yml
                         cp $APPLICATION_SECRET module-api/src/main/resources/application-secret.yml
                         rm module-api/src/main/resources/application-prod.yml
