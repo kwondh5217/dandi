@@ -4,6 +4,7 @@ import com.e205.events.Event;
 import com.e205.exception.GlobalException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.lang.Assert;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -45,8 +46,9 @@ public class EventConverter {
     try {
       Method getEventId = event.getClass().getDeclaredMethod("getEventId");
       String eventId = (String) getEventId.invoke(event);
-      Method setStatus = event.getClass().getDeclaredMethod("setStatus");
-      setStatus.invoke(event);
+      Field declaredField = event.getClass().getDeclaredField("status");
+      declaredField.setAccessible(true);
+      declaredField.set(event, status);
       String payload = this.objectMapper.writeValueAsString(event);
 
       return new OutboxEvent(eventId, status, payload, LocalDateTime.now(),
