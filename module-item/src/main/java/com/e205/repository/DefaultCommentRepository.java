@@ -4,14 +4,13 @@ import static com.e205.entity.QFoundComment.foundComment;
 import static com.e205.entity.QLostComment.lostComment;
 
 import com.e205.CommentType;
-import com.e205.entity.Comment;
 import com.e205.entity.FoundComment;
 import com.e205.entity.LostComment;
-import com.e205.entity.QComment;
 import com.e205.entity.QFoundComment;
 import com.e205.entity.QLostComment;
 import com.e205.query.CommentQuery;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -71,24 +70,16 @@ public class DefaultCommentRepository implements CommentRepository {
       }
     }
 
-    if (condition.cursor() != null) {
-      Comment cursorComment = queryFactory
-          .selectFrom(foundComment)
-          .where(foundComment.id.eq(condition.cursor()))
-          .fetchOne();
-
-      if (cursorComment != null) {
-        builder.and(foundComment.createdAt.lt(cursorComment.getCreatedAt()));
-      }
-    }
-
-    QFoundComment parent = new QFoundComment("parent");
     return queryFactory
         .selectFrom(foundComment)
-        .leftJoin(foundComment.parent, parent).fetchJoin()
         .where(builder)
-        .orderBy(foundComment.createdAt.desc())
-        .limit(condition.limit())
+        .orderBy(new CaseBuilder()
+                .when(foundComment.parent.id.isNull()).then(foundComment.id)
+                .otherwise(foundComment.parent.id).asc(),
+            new CaseBuilder()
+                .when(foundComment.parent.id.isNull()).then(1)
+                .otherwise(2).asc(),
+            foundComment.createdAt.asc())
         .fetch();
   }
 
@@ -106,24 +97,16 @@ public class DefaultCommentRepository implements CommentRepository {
       }
     }
 
-    if (condition.cursor() != null) {
-      Comment cursorComment = queryFactory
-          .selectFrom(lostComment)
-          .where(lostComment.id.eq(condition.cursor()))
-          .fetchOne();
-
-      if (cursorComment != null) {
-        builder.and(lostComment.createdAt.lt(cursorComment.getCreatedAt()));
-      }
-    }
-
-    QLostComment parent = new QLostComment("parent");
     return queryFactory
         .selectFrom(lostComment)
-        .leftJoin(lostComment.parent, parent).fetchJoin()
         .where(builder)
-        .orderBy(lostComment.createdAt.desc())
-        .limit(condition.limit())
+        .orderBy(new CaseBuilder()
+                .when(lostComment.parent.id.isNull()).then(lostComment.id)
+                .otherwise(lostComment.parent.id).asc(),
+            new CaseBuilder()
+                .when(lostComment.parent.id.isNull()).then(1)
+                .otherwise(2).asc(),
+            lostComment.createdAt.asc())
         .fetch();
   }
 
@@ -140,9 +123,6 @@ public class DefaultCommentRepository implements CommentRepository {
         if (query.commentId() != null) {
           builder.and(lostComment.id.eq(query.commentId()));
         }
-        if (query.parentId() != null) {
-          builder.and(lostComment.parent.id.eq(query.parentId()));
-        }
       }
       case FOUND -> {
         if (query.writerId() != null) {
@@ -154,11 +134,9 @@ public class DefaultCommentRepository implements CommentRepository {
         if (query.commentId() != null) {
           builder.and(foundComment.id.eq(query.commentId()));
         }
-        if (query.parentId() != null) {
-          builder.and(foundComment.parent.id.eq(query.parentId()));
-        }
       }
     }
     return builder;
   }
 }
+
