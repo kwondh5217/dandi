@@ -44,7 +44,7 @@ public class RouteBagEventService {
 
       routeCommandService.updateSnapshot(command);
 
-      eventPublisher.publicEvent(new RouteSavedEvent(memberId, Snapshot.toJson(baseSnapshot)));
+      eventPublisher.publishAtLeastOnce(new RouteSavedEvent(memberId, Snapshot.toJson(baseSnapshot)));
     });
   }
 
@@ -65,7 +65,7 @@ public class RouteBagEventService {
 
       routeCommandService.updateSnapshot(comm);
 
-      eventPublisher.publicEvent(new RouteSavedEvent(memberId, Snapshot.toJson(updatedSnapshot)));
+      eventPublisher.publishAtLeastOnce(new RouteSavedEvent(memberId, Snapshot.toJson(updatedSnapshot)));
     });
   }
 
@@ -107,7 +107,7 @@ public class RouteBagEventService {
 
       routeCommandService.updateSnapshot(comm);
 
-      eventPublisher.publicEvent(new RouteSavedEvent(memberId, Snapshot.toJson(updatedSnapshot)));
+      eventPublisher.publishAtLeastOnce(new RouteSavedEvent(memberId, Snapshot.toJson(updatedSnapshot)));
     });
   }
 

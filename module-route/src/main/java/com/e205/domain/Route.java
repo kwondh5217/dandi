@@ -8,7 +8,7 @@ import com.e205.log.LoggableEntity;
 import com.e205.payload.RoutePayload;
 import com.e205.util.GeometryUtils;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,7 +32,6 @@ import org.locationtech.jts.geom.LineString;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@JsonIgnoreProperties({"envelope"})
 @Entity
 public class Route implements LoggableEntity {
 
@@ -40,6 +39,7 @@ public class Route implements LoggableEntity {
   @Id
   private Integer id;
   private Integer memberId;
+  @JsonIgnore
   private LineString track;
   @Column(length = 1)
   private char skip;
@@ -105,7 +105,8 @@ public class Route implements LoggableEntity {
         .build();
   }
 
-  public static String determineSnapshot(RouteCreateCommand request, Snapshot ss, Snapshot currentSs
+  public static String determineSnapshot(RouteCreateCommand request, Snapshot ss,
+      Snapshot currentSs
   ) {
     if (Objects.equals(request.bagId(), currentSs.bagId())) {
       return Snapshot.toJson(currentSs);
