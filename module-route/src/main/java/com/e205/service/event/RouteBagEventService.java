@@ -14,6 +14,7 @@ import com.e205.repository.RouteRepository;
 import com.e205.service.RouteCommandService;
 import com.e205.service.reader.SnapshotHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Service
 public class RouteBagEventService {
 
-  private final EventPublisher eventPublisher;
+  private final ApplicationEventPublisher eventPublisher;
   private final RouteCommandService routeCommandService;
   private final RouteRepository routeRepository;
   private final SnapshotHelper snapshotHelper;
@@ -44,7 +45,7 @@ public class RouteBagEventService {
 
       routeCommandService.updateSnapshot(command);
 
-      eventPublisher.publishAtLeastOnce(new RouteSavedEvent(memberId, Snapshot.toJson(baseSnapshot)));
+      eventPublisher.publishEvent(new RouteSavedEvent(memberId, Snapshot.toJson(baseSnapshot)));
     });
   }
 
@@ -65,7 +66,7 @@ public class RouteBagEventService {
 
       routeCommandService.updateSnapshot(comm);
 
-      eventPublisher.publishAtLeastOnce(new RouteSavedEvent(memberId, Snapshot.toJson(updatedSnapshot)));
+      eventPublisher.publishEvent(new RouteSavedEvent(memberId, Snapshot.toJson(updatedSnapshot)));
     });
   }
 
@@ -107,7 +108,7 @@ public class RouteBagEventService {
 
       routeCommandService.updateSnapshot(comm);
 
-      eventPublisher.publishAtLeastOnce(new RouteSavedEvent(memberId, Snapshot.toJson(updatedSnapshot)));
+      eventPublisher.publishEvent(new RouteSavedEvent(memberId, Snapshot.toJson(updatedSnapshot)));
     });
   }
 

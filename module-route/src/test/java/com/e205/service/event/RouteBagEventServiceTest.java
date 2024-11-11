@@ -30,12 +30,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class RouteBagEventServiceTest {
 
   @Mock
-  private EventPublisher eventPublisher;
+  private ApplicationEventPublisher eventPublisher;
 
   @Mock
   private RouteCommandService routeCommandService;
@@ -78,7 +79,7 @@ class RouteBagEventServiceTest {
     assertThat(commandCaptor.getValue().routeId()).isEqualTo(mockRoute.getId());
 
     // 이벤트 발행 검증
-    verify(eventPublisher, times(1)).publishAtLeastOnce(any(RouteSavedEvent.class));
+    verify(eventPublisher, times(1)).publishEvent(any(RouteSavedEvent.class));
   }
 
   @Test
@@ -108,7 +109,7 @@ class RouteBagEventServiceTest {
     assertThat(captor.getValue().snapshot()).isEqualTo(updatedSnapshot);
 
     // 이벤트 발행 검증
-    verify(eventPublisher, times(1)).publishAtLeastOnce(any(RouteSavedEvent.class));
+    verify(eventPublisher, times(1)).publishEvent(any(RouteSavedEvent.class));
   }
 
   @Test
@@ -166,7 +167,7 @@ class RouteBagEventServiceTest {
     verify(routeCommandService, times(1)).updateSnapshot(captor.capture());
 
     // 이벤트 발행 검증
-    verify(eventPublisher, times(1)).publishAtLeastOnce(any(RouteSavedEvent.class));
+    verify(eventPublisher, times(1)).publishEvent(any(RouteSavedEvent.class));
 
     // 아이템 변경(삭제, 추가) 후 Snapshot이 올바르게 업데이트되었는지 확인
     assertThat(captor.getValue().snapshot()).isEqualTo(updatedSnapshot);
