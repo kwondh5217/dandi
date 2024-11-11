@@ -15,6 +15,7 @@ import com.e205.exception.ExceptionLoader;
 import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemResponse;
 import com.e205.item.service.LostItemService;
+import com.e205.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.UUID;
@@ -43,6 +44,9 @@ public class LostItemControllerTest {
 
   @MockBean
   private LostItemService lostItemService;
+
+  @MockBean
+  private CommentService commentService;
 
   @Autowired
   private ObjectMapper objectMapper;

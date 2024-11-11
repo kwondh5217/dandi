@@ -2,6 +2,7 @@ package com.e205.item.dto;
 
 import com.e205.FoundItemType;
 import com.e205.payload.FoundItemPayload;
+import java.time.LocalDateTime;
 import lombok.Builder;
 
 @Builder
@@ -12,6 +13,7 @@ public record FoundItemResponse(
     String description,
     String savePoint,
     FoundItemType type,
+    LocalDateTime foundAt,
     String image
 ) {
 
@@ -22,6 +24,7 @@ public record FoundItemResponse(
         .foundLocation(new Point(payload.lat(), payload.lon()))
         .description(payload.description())
         .savePoint(payload.savePlace())
+        .foundAt(payload.foundAt())
         .type(payload.type())
         .image(image)
         .build();

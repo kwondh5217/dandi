@@ -36,4 +36,10 @@ public class GlobalExceptionHandler {
   public ResponseEntity<String> handleJsonProcessingException(JsonProcessingException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
   }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponse> responseUnhandledExceptions(Exception ex) {
+    ErrorDetails e999 = new ErrorDetails("E999", ex.getMessage(), 500);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.from(e999));
+  }
 }

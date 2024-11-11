@@ -1,17 +1,25 @@
 package com.e205.item.controller;
 
+import com.e205.CommentType;
+import com.e205.item.dto.CommentCreateRequest;
+import com.e205.item.dto.CommentListResponse;
+import com.e205.item.dto.CommentQueryRequest;
 import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemResponse;
 import com.e205.item.service.LostItemService;
+import com.e205.payload.CommentPayload;
+import com.e205.query.CommentListQuery;
+import com.e205.service.CommentService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -23,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LostItemController {
 
   private final LostItemService lostItemService;
+  private final CommentService commentService;
 
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping
@@ -46,5 +55,26 @@ public class LostItemController {
       @PathVariable int lostId) {
     LostItemResponse response = lostItemService.getLostItem(memberId, lostId);
     return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
+  @ResponseStatus(HttpStatus.CREATED)
+  @PostMapping("/{lostId}/comments")
+  public void createLostItemComment(
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
+      @RequestBody CommentCreateRequest request,
+      @PathVariable int lostId
+  ) {
+    commentService.createComment(request.toCommand(memberId, lostId, CommentType.LOST));
+  }
+
+  @GetMapping("/{lostId}/comments")
+  public ResponseEntity<CommentListResponse> findComments(
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
+      @ModelAttribute CommentQueryRequest request,
+      @PathVariable int lostId
+  ) {
+    CommentListQuery query = request.toQuery(CommentType.LOST, lostId);
+    List<CommentPayload> comments = commentService.findComments(query);
+    return ResponseEntity.ok(new CommentListResponse(comments));
   }
 }

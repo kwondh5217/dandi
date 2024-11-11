@@ -31,9 +31,11 @@ public enum ItemError {
 
 
   // image
-  IMAGE_EXT_NOT_VALID("E501", new IllegalArgumentException("이미지 확장자가 잘못되었습니다.")),
-  IMAGE_TYPE_NOT_VALID("E502", new IllegalArgumentException("이미지 타입이 잘못되었습니다.")),
-  IMAGE_SAVE_FAIL("E503", new IllegalStateException("이미지 저장에 실패했습니다.")),
+  IMAGE_EXT_NOT_VALID("E601", new IllegalArgumentException("이미지 확장자가 잘못되었습니다.")),
+  IMAGE_TYPE_NOT_VALID("E602", new IllegalArgumentException("이미지 타입이 잘못되었습니다.")),
+  IMAGE_SAVE_FAIL("E603", new IllegalStateException("이미지 저장에 실패했습니다.")),
+
+  COMMENT_NOT_EXIST("E701", new IllegalStateException("댓글이 존재하지 않습니다.")),
 
   ;
 
