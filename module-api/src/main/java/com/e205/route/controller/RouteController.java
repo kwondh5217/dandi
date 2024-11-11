@@ -4,6 +4,7 @@ import com.e205.auth.helper.AuthHelper;
 import com.e205.route.dto.command.RouteCreateRequest;
 import com.e205.route.dto.command.RouteEndRequest;
 import com.e205.route.dto.command.SnapshotUpdateRequest;
+import com.e205.route.dto.query.CurrentRouteIdResponse;
 import com.e205.route.dto.query.DailyRouteResponse;
 import com.e205.route.dto.query.RouteDetailResponse;
 import com.e205.route.dto.query.SnapshotDetailResponse;
@@ -73,6 +74,13 @@ public class RouteController {
   public ResponseEntity<SnapshotDetailResponse> readRouteSnapshot(@PathVariable Integer routeId) {
     Integer memberId = authHelper.getMemberId();
     SnapshotDetailResponse response = routeService.readSnapshot(memberId, routeId);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/current")
+  public ResponseEntity<CurrentRouteIdResponse> readCurrentRouteID() {
+    Integer memberId = authHelper.getMemberId();
+    CurrentRouteIdResponse response = routeService.readCurrentRouteId(memberId);
     return ResponseEntity.ok(response);
   }
 }

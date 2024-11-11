@@ -1,6 +1,7 @@
 package com.e205.route.controller;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -11,11 +12,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.e205.auth.helper.AuthHelper;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
+import com.e205.query.CurrentRouteReadQuery;
 import com.e205.route.dto.Point;
 import com.e205.route.dto.RouteSummary;
 import com.e205.route.dto.command.RouteCreateRequest;
 import com.e205.route.dto.command.RouteEndRequest;
 import com.e205.route.dto.command.SnapshotUpdateRequest;
+import com.e205.route.dto.query.CurrentRouteIdResponse;
 import com.e205.route.dto.query.DailyRouteResponse;
 import com.e205.route.dto.query.RouteDetailResponse;
 import com.e205.route.dto.query.SnapshotDetailResponse;
@@ -184,5 +187,23 @@ class RouteControllerTest {
 
     // then
     verify(routeService).readSnapshot(MOCK_MEMBER_ID, routeId);
+  }
+
+  @Test
+  @DisplayName("최근 종료된 이동 ID 조회 테스트")
+  void 최근_종료된_이동_ID_조회_테스트() throws Exception {
+    // given
+    CurrentRouteIdResponse response = mock(CurrentRouteIdResponse.class);
+
+    given(routeService.readCurrentRouteId(MOCK_MEMBER_ID)).willReturn(response);
+    given(authHelper.getMemberId()).willReturn(MOCK_MEMBER_ID);
+
+    // when
+    mockMvc.perform(get("/routes/current")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+    // then
+    verify(routeService).readCurrentRouteId(MOCK_MEMBER_ID);
   }
 }

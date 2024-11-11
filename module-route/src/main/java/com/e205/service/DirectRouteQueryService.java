@@ -4,9 +4,11 @@ import com.e205.domain.Route;
 import com.e205.dto.RoutePart;
 import com.e205.dto.Snapshot;
 import com.e205.exception.GlobalException;
+import com.e205.payload.RouteIdPayload;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
+import com.e205.query.CurrentRouteReadQuery;
 import com.e205.query.DailyRouteReadQuery;
 import com.e205.query.MembersInPointQuery;
 import com.e205.query.MembersInRouteQuery;
@@ -87,6 +89,17 @@ public class DirectRouteQueryService implements RouteQueryService {
         .orElse(null);
 
     return RoutesPayload.builder().routeParts(routeParts).nextRouteId(nextRouteId).build();
+  }
+
+  @Override
+  public RouteIdPayload readCurrentRouteId(CurrentRouteReadQuery query) {
+    Integer memberId = query.memberId();
+    Route route = routeRepository.findFirstByMemberIdOrderByEndedAtDesc(memberId).orElse(null);
+    Integer routeId = null;
+    if (route != null) {
+      routeId = route.getId();
+    }
+    return RouteIdPayload.builder().routeId(routeId).build();
   }
 
   @Override

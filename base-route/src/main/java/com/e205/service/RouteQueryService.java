@@ -1,8 +1,10 @@
 package com.e205.service;
 
+import com.e205.payload.RouteIdPayload;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
+import com.e205.query.CurrentRouteReadQuery;
 import com.e205.query.DailyRouteReadQuery;
 import com.e205.query.MembersInPointQuery;
 import com.e205.query.MembersInRouteQuery;
@@ -35,6 +37,14 @@ public interface RouteQueryService {
    * @return RoutesPayload 이동 목록 및 다음 이동 ID 정보
    */
   RoutesPayload readDailyRoute(DailyRouteReadQuery query);
+
+  /**
+   * 가장 최근에 종료된 이동의 ID를 조회합니다.
+   *
+   * @param query 최근 종료된 이동 ID 조회 요청 쿼리
+   * @return RouteIdPayload 최근의 종료 된 이동 ID 정보
+   */
+  RouteIdPayload readCurrentRouteId(CurrentRouteReadQuery query);
 
   /**
    * 경로 반경 내 사용자들의 ID 목록을 조회합니다.

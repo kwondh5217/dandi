@@ -6,9 +6,11 @@ import static org.mockito.BDDMockito.given;
 
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
+import com.e205.payload.RouteIdPayload;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
+import com.e205.query.CurrentRouteReadQuery;
 import com.e205.query.DailyRouteReadQuery;
 import com.e205.query.RouteReadQuery;
 import com.e205.query.SnapshotReadQuery;
@@ -198,6 +200,24 @@ class RouteQueryServiceTests {
     assertThat(result).isNotNull();
     assertThat(result.routeParts()).hasSize(1);
     assertThat(result.nextRouteId()).isNull();
+  }
+
+  @Test
+  @DisplayName("최근 종료된 이동 조회 시 종료된 이동이 없다면 routeId는 null이 된다.")
+  void 최근_종료된_이동_조회_시_종료된_이동이_없다면_routeId_null_테스트() {
+    // given
+    Integer memberId = MEMBER_ID_1;
+    given(routeRepository.findFirstByMemberIdOrderByEndedAtDesc(memberId))
+        .willReturn(Optional.empty());
+
+    // when
+    RouteIdPayload result = routeQueryService.readCurrentRouteId(
+        new CurrentRouteReadQuery(memberId)
+    );
+
+    // then
+    assertThat(result).isNotNull();
+    assertThat(result.routeId()).isNull();
   }
 
   @Test

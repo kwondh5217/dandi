@@ -3,15 +3,18 @@ package com.e205.route.service;
 import com.e205.command.RouteCreateCommand;
 import com.e205.command.RouteEndCommand;
 import com.e205.command.SnapshotUpdateCommand;
+import com.e205.payload.RouteIdPayload;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
 import com.e205.payload.SnapshotPayload;
+import com.e205.query.CurrentRouteReadQuery;
 import com.e205.query.DailyRouteReadQuery;
 import com.e205.query.RouteReadQuery;
 import com.e205.query.SnapshotReadQuery;
 import com.e205.route.dto.command.RouteCreateRequest;
 import com.e205.route.dto.command.RouteEndRequest;
 import com.e205.route.dto.command.SnapshotUpdateRequest;
+import com.e205.route.dto.query.CurrentRouteIdResponse;
 import com.e205.route.dto.query.DailyRouteResponse;
 import com.e205.route.dto.query.RouteDetailResponse;
 import com.e205.route.dto.query.SnapshotDetailResponse;
@@ -59,5 +62,11 @@ public class RouteService {
     SnapshotReadQuery query = new SnapshotReadQuery(memberId, routeId);
     SnapshotPayload routePayload = queryService.readSnapshot(query);
     return SnapshotDetailResponse.fromPayload(routePayload);
+  }
+
+  public CurrentRouteIdResponse readCurrentRouteId(Integer memberId) {
+    CurrentRouteReadQuery query = new CurrentRouteReadQuery(memberId);
+    RouteIdPayload routeIdPayload = queryService.readCurrentRouteId(query);
+    return new CurrentRouteIdResponse(routeIdPayload.routeId());
   }
 }
