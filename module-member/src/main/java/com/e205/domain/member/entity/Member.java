@@ -13,17 +13,19 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Member extends BaseTime implements LoggableEntity {
+public class Member implements LoggableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,6 +52,10 @@ public class Member extends BaseTime implements LoggableEntity {
   private MemberStatus memberStatus;
 
   private String fcmCode;
+
+  @CreatedDate
+  @Column(updatable = false)
+  private LocalDateTime createdAt;
 
   public void updateStatus(EmailStatus newStatus) {
     this.status = newStatus;

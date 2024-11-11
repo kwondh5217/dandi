@@ -6,6 +6,7 @@ import com.e205.command.bag.query.FindMemberQuery;
 import com.e205.command.member.payload.MemberAuthPayload;
 import com.e205.command.member.query.FindMemberByEmailQuery;
 import com.e205.command.member.service.MemberQueryService;
+import com.e205.domain.exception.MemberError;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
 import java.util.List;
@@ -21,9 +22,8 @@ public class MemberQueryServiceDefault implements MemberQueryService {
 
   @Override
   public MemberPayload findMember(FindMemberQuery findMemberQuery) {
-    // TODO: <홍성우> Exception 상세화
     return memberRepository.findById(findMemberQuery.memberId())
-        .orElseThrow(RuntimeException::new)
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException)
         .toPayload();
   }
 
@@ -31,7 +31,7 @@ public class MemberQueryServiceDefault implements MemberQueryService {
   public MemberAuthPayload findMemberByEmail(
       FindMemberByEmailQuery findMemberByEmailQuery) {
     return memberRepository.findByEmail(findMemberByEmailQuery.email())
-        .orElseThrow(RuntimeException::new)
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException)
         .toAuthPayload();
   }
 
@@ -46,15 +46,14 @@ public class MemberQueryServiceDefault implements MemberQueryService {
   @Override
   public String findMemberFcmById(Integer memberId) {
     Member member = this.memberRepository.findById(memberId)
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
     return member.getFcmCode();
   }
-
 
   @Override
   public String checkPastPassword(Integer memberId) {
     Member member = memberRepository.findById(memberId)
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
     return member.getPassword();
   }
 }

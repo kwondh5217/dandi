@@ -13,6 +13,7 @@ import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
+import com.e205.domain.exception.MemberError;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.events.EventPublisher;
@@ -42,25 +43,25 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     Integer bagId = createItemCommand.bagId();
 
     Bag bag = bagRepository.findById(bagId)
-        .orElseThrow(() -> new RuntimeException("가방이 존재하지 않습니다."));
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
     if (!bag.getMemberId().equals(memberId)) {
-      throw new RuntimeException("해당 가방은 사용자의 소유가 아닙니다.");
+      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
     }
 
     boolean isDuplicateName = itemRepository.existsByNameAndMemberId(createItemCommand.name(),
         memberId);
     if (isDuplicateName) {
-      throw new RuntimeException("이미 존재하는 아이템 이름입니다.");
+      MemberError.ITEM_NAME_ALREADY_EXISTS.throwGlobalException();
     }
 
     List<Item> userItems = itemRepository.findAllByMemberId(memberId);
     if (userItems.size() >= MAX_ITEM_COUNT) {
-      throw new RuntimeException("아이템 개수 제한을 초과했습니다.");
+      MemberError.ITEM_COUNT_EXCEEDED.throwGlobalException();
     }
 
     List<BagItem> bagItems = bagItemRepository.findAllByBagId(bagId);
     if (bagItems.size() >= MAX_BAG_ITEM_COUNT) {
-      throw new RuntimeException("가방 아이템 개수 제한을 초과했습니다.");
+      MemberError.MAX_BAG_ITEM_COUNT_EXCEEDED.throwGlobalException();
     }
 
     byte maxItemOrder = (byte) (bagItems.stream()
@@ -90,19 +91,19 @@ public class ItemCommandServiceDefault implements ItemCommandService {
   @Override
   public void update(UpdateItemCommand updateCommand) {
     Item item = itemRepository.findById(updateCommand.itemId())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.ITEM_NOT_FOUND::getGlobalException);
 
     ItemPayload previousItemPayload = item.toPayload();
 
     if (item.getMemberId() != updateCommand.memberId()) {
-      throw new RuntimeException();
+      MemberError.ITEM_NOT_FOUND.throwGlobalException();
     }
 
     boolean isDuplicateName = itemRepository.existsByNameAndMemberIdAndIdNot(
         updateCommand.name(), item.getMemberId(), item.getId());
 
     if (isDuplicateName) {
-      throw new RuntimeException();
+      MemberError.ITEM_NAME_ALREADY_EXISTS.throwGlobalException();
     }
 
     item.updateName(updateCommand.name());
@@ -134,9 +135,8 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     Integer memberId = deleteItemCommand.memberId();
     Integer itemId = deleteItemCommand.itemId();
 
-    // TODO: <홍성우> Exception 상세화
     Item item = itemRepository.findByIdAndMemberId(itemId, memberId)
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.ITEM_NOT_FOUND::getGlobalException);
 
     List<BagItem> bagItems = bagItemRepository.findAllByItemId(itemId);
     bagItemRepository.deleteAll(bagItems);

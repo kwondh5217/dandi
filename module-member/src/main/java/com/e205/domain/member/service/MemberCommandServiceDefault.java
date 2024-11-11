@@ -15,6 +15,7 @@ import com.e205.command.member.payload.MemberStatus;
 import com.e205.command.member.service.MemberCommandService;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.repository.BagRepository;
+import com.e205.domain.exception.MemberError;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
@@ -38,7 +39,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
   @Override
   public void registerMember(RegisterMemberCommand memberRegistrationCommand) {
     if (memberRepository.existsByEmail(memberRegistrationCommand.email())) {
-      throw new IllegalArgumentException("이미 등록된 이메일입니다.");
+      MemberError.EMAIL_ALREADY_USED.throwGlobalException();
     }
 
     String redisKey = "registration:" + memberRegistrationCommand.email();
@@ -61,20 +62,19 @@ public class MemberCommandServiceDefault implements MemberCommandService {
       VerifyEmailAndRegisterCommand verifyEmailAndRegisterCommand) {
     String redisKey = "verifyEmail:" + verifyEmailAndRegisterCommand.email();
     Map<Object, Object> storedData = redisTemplate.opsForHash().entries(redisKey);
-    // 저장된 데이터가 없는 경우 예외 처리
     if (storedData.isEmpty()) {
-      throw new IllegalArgumentException("유효하지 않은 또는 만료된 토큰입니다.");
+      MemberError.VERIFICATION_TOKEN_INVALID.throwGlobalException();
     }
-    // 저장된 토큰 가져와서 요청 토큰과 비교
+
     String storedToken = (String) storedData.get("token");
     if (!verifyEmailAndRegisterCommand.token().equals(storedToken)) {
-      throw new IllegalArgumentException("토큰이 일치하지 않습니다.");
+      MemberError.VERIFICATION_TOKEN_INVALID.throwGlobalException();
     }
     String registrationKey = "registration:" + verifyEmailAndRegisterCommand.email();
     Map<Object, Object> registrationData = redisTemplate.opsForHash().entries(registrationKey);
 
     if (registrationData.isEmpty()) {
-      throw new IllegalArgumentException("회원가입 정보가 만료되었습니다.");
+      MemberError.VERIFICATION_INFO_EXPIRED.throwGlobalException();
     }
     redisTemplate.opsForHash().put(registrationKey, "authenticated", "true");
   }
@@ -86,16 +86,16 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     String storedVerificationNumber = redisTemplate.opsForValue().get(redisKey);
 
     if (storedVerificationNumber == null) {
-      throw new IllegalArgumentException("인증 번호가 만료되었거나 존재하지 않습니다.");
+      MemberError.VERIFICATION_EXPIRED_OR_NOT_FOUND.throwGlobalException();
     }
 
     if (!storedVerificationNumber.equals(
         changePasswordWithVerificationNumber.verificationNumber())) {
-      throw new IllegalArgumentException("인증 번호가 올바르지 않습니다.");
+      MemberError.VERIFICATION_NUMBER_INVALID.throwGlobalException();
     }
 
     Member member = memberRepository.findByEmail(changePasswordWithVerificationNumber.email())
-        .orElseThrow(() -> new IllegalArgumentException("해당 이메일을 가진 사용자가 존재하지 않습니다."));
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
 
     member.updatePassword(changePasswordWithVerificationNumber.newPassword());
 
@@ -111,12 +111,12 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     String isAuthenticated = (String) redisTemplate.opsForHash()
         .get(registrationKey, "authenticated");
     if (isAuthenticated == null || !isAuthenticated.equals("true")) {
-      throw new IllegalStateException("사용자가 이메일 인증을 완료하지 않았습니다.");
+      MemberError.VERIFICATION_PROCESS_NOT_COMPLETE.throwGlobalException();
     }
 
     Map<Object, Object> registrationData = redisTemplate.opsForHash().entries(registrationKey);
     if (registrationData.isEmpty()) {
-      throw new IllegalArgumentException("회원가입 정보가 만료되었습니다.");
+      MemberError.VERIFICATION_INFO_EXPIRED.throwGlobalException();
     }
 
     String password = (String) registrationData.get("password");
@@ -146,7 +146,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
       MemberVerificationLinkCommand requestEmailVerificationCommand) {
 
     if (Boolean.FALSE.equals(redisTemplate.hasKey("verifyEmail:"))) {
-      throw new RuntimeException("회원가입 요청이 존재하지 않습니다.");
+      MemberError.INVALID_SIGNUP.throwGlobalException();
     }
 
     String token = emailService.createAndStoreToken(
@@ -158,21 +158,21 @@ public class MemberCommandServiceDefault implements MemberCommandService {
   @Override
   public void updateFcmCode(UpdateFcmCodeCommand command) {
     Member member = memberRepository.findById(command.memberId())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
     member.updateFcmCode(command.fcmCode());
   }
 
   @Override
   public void changePassword(ChangePasswordCommand command) {
     Member member = memberRepository.findById(command.memberId())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
     member.updatePassword(command.newPassword());
   }
 
   @Override
   public void deleteMember(DeleteMemberCommand command) {
     Member member = memberRepository.findById(command.memberId())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
     member.updateEmail(null);
     member.updateFcmCode(null);
     member.updatePassword(null);

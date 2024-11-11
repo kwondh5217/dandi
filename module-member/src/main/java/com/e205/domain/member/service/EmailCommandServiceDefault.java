@@ -5,6 +5,7 @@ import com.e205.command.member.command.CreateEmailTokenCommand;
 import com.e205.command.member.command.CreateVerificationNumberCommand;
 import com.e205.command.member.command.SendVerificationEmailCommand;
 import com.e205.command.member.service.EmailCommandService;
+import com.e205.domain.exception.MemberError;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
 import jakarta.mail.internet.InternetAddress;
@@ -78,8 +79,7 @@ public class EmailCommandServiceDefault implements EmailCommandService {
 
       mailSender.send(message);
     } catch (Exception e) {
-      // TODO: <홍성우> Exception 상세화
-      throw new RuntimeException("이메일 전송 실패", e);
+      MemberError.EMAIL_SEND_FAILED.throwGlobalException();
     }
   }
 
@@ -88,7 +88,7 @@ public class EmailCommandServiceDefault implements EmailCommandService {
       CreateVerificationNumberCommand createVerificationNumberCommand) {
     String verificationNumber = generateVerificationNumber();
     memberRepository.findByEmail(createVerificationNumberCommand.email())
-        .orElseThrow(() -> new RuntimeException("해당 이메일을 가진 사용자를 찾을 수 없습니다."));
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
     String redisKey = "verification:" + createVerificationNumberCommand.email();
     redisTemplate.opsForValue().set(redisKey, verificationNumber, VERIFICATION_EXPIRATION);
     sendVerificationNumberEmail(createVerificationNumberCommand.email(), verificationNumber);
@@ -99,13 +99,11 @@ public class EmailCommandServiceDefault implements EmailCommandService {
     String redisKey = "verification:" + checkVerificationNumberCommand.email();
     String storedVerificationNumber = redisTemplate.opsForValue().get(redisKey);
 
-    // TODO: <홍성우> Exception 상세화
     if (storedVerificationNumber == null) {
-      throw new IllegalArgumentException("인증 번호가 만료되었거나 존재하지 않습니다.");
+      MemberError.VERIFICATION_EXPIRED_OR_NOT_FOUND.throwGlobalException();
     }
-
     if (!storedVerificationNumber.equals(checkVerificationNumberCommand.verificationNumber())) {
-      throw new IllegalArgumentException("인증 번호가 올바르지 않습니다.");
+      MemberError.VERIFICATION_NUMBER_INVALID.throwGlobalException();
     }
   }
 
@@ -131,17 +129,15 @@ public class EmailCommandServiceDefault implements EmailCommandService {
 
       mailSender.send(message);
     } catch (Exception e) {
-      // TODO: <홍성우> Exception 상세화
-      throw new RuntimeException("이메일 전송 실패");
+      MemberError.EMAIL_SEND_FAILED.throwGlobalException();
     }
   }
 
   private void validateEmailFormat(String email) {
     String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
     Pattern pattern = Pattern.compile(emailRegex);
-    // TODO: <홍성우> Exception 상세화
     if (!pattern.matcher(email).matches()) {
-      throw new RuntimeException("유효하지 않은 이메일 형식입니다");
+      MemberError.INVALID_EMAIL_FORMAT.throwGlobalException();
     }
   }
 }

@@ -8,17 +8,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 @Builder
 @AllArgsConstructor
 @Getter
 @NoArgsConstructor
 @Entity
-public class Item extends BaseTime implements LoggableEntity {
+public class Item implements LoggableEntity {
 
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Id
@@ -38,6 +40,10 @@ public class Item extends BaseTime implements LoggableEntity {
 
   @Column(nullable = false)
   private byte itemOrder;
+
+  @CreatedDate
+  @Column(updatable = false)
+  private LocalDateTime createdAt;
 
   public void updateEmoticon(String emoticon) {
     this.emoticon = emoticon;

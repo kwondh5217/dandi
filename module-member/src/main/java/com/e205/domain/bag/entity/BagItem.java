@@ -8,14 +8,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 @NoArgsConstructor
 @Getter
 @Entity
-public class BagItem extends BaseTime implements LoggableEntity {
+public class BagItem implements LoggableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +31,10 @@ public class BagItem extends BaseTime implements LoggableEntity {
 
   @Column(name = "item_order", nullable = false)
   private Byte itemOrder;
+
+  @CreatedDate
+  @Column(updatable = false)
+  private LocalDateTime createdAt;
 
   public void updateOrder(Byte order) {
     this.itemOrder = order;

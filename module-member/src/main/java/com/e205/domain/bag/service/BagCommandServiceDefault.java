@@ -18,6 +18,7 @@ import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
+import com.e205.domain.exception.MemberError;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.events.EventPublisher;
@@ -49,13 +50,11 @@ public class BagCommandServiceDefault implements BagCommandService {
 
     List<Bag> userBags = bagRepository.findAllByMemberId(memberId);
     if (userBags.size() >= MAX_BAG_COUNT) {
-      // TODO: <홍성우> Exception 상세화
-      throw new RuntimeException();
+      MemberError.MAX_BAG_COUNT_EXCEEDED.throwGlobalException();
     }
 
     if (bagRepository.existsByMemberIdAndName(memberId, createBagCommand.name())) {
-      // TODO: <홍성우> Exception 상세화
-      throw new RuntimeException();
+      MemberError.BAG_NAME_ALREADY_EXISTS.throwGlobalException();
     }
 
     byte maxOrder = (byte) (userBags.stream()
@@ -90,15 +89,13 @@ public class BagCommandServiceDefault implements BagCommandService {
 
   @Override
   public void updateBagName(BagNameUpdateCommand bagNameUpdateCommand) {
-    // TODO: <홍성우> Exception 상세화
     Bag bag = bagRepository.findByIdAndMemberId(
             bagNameUpdateCommand.bagId(),
             bagNameUpdateCommand.memberId())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     if (bagRepository.existsByMemberIdAndName(bag.getMemberId(), bagNameUpdateCommand.name())) {
-      // TODO: <홍성우> Exception 상세화
-      throw new RuntimeException();
+      MemberError.BAG_NAME_ALREADY_EXISTS.throwGlobalException();
     }
     bag.updateName(bagNameUpdateCommand.name());
   }
@@ -106,12 +103,11 @@ public class BagCommandServiceDefault implements BagCommandService {
   @Override
   public void selectBag(SelectBagCommand selectBagCommand) {
     Integer memberId = selectBagCommand.memberId();
-    // TODO: <홍성우> Exception 상세화
     Bag originalBag = bagRepository.findById(selectBagCommand.myBagId())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     Bag targetBag = bagRepository.findById(selectBagCommand.targetBagId())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     bagItemRepository.deleteAllByBagId(originalBag.getId());
 
@@ -128,30 +124,14 @@ public class BagCommandServiceDefault implements BagCommandService {
     eventPublisher.publicEvent(new BagChangedEvent(memberId, targetBagId));
   }
 
-  private void convertAndPublishBagChangedEvent(List<BagItem> bagItems) {
-    List<Integer> itemIds = bagItems.stream()
-        .map(BagItem::getItemId)
-        .toList();
-
-    Map<Integer, Item> itemsById = itemRepository.findAllById(itemIds).stream()
-        .collect(Collectors.toMap(Item::getId, Function.identity()));
-
-    List<ItemPayload> itemPayloads = bagItems.stream()
-        .map(bagItem -> Optional.ofNullable(itemsById.get(bagItem.getItemId()))
-            .map(Item::toPayload)
-            .orElseThrow(RuntimeException::new)
-        )
-        .toList();
-  }
-
   @Override
   public void updateBagItemOrder(BagItemOrderUpdateCommand bagItemOrderUpdateCommand) {
 
     Bag bag = bagRepository.findById(bagItemOrderUpdateCommand.bagId())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     if (!Objects.equals(bag.getMemberId(), bagItemOrderUpdateCommand.memberId())) {
-      throw new RuntimeException();
+      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
     }
 
     List<BagItem> bagItems = bagItemRepository.findAllByBagId(bagItemOrderUpdateCommand.bagId());
@@ -170,11 +150,11 @@ public class BagCommandServiceDefault implements BagCommandService {
   @Override
   public BagPayload copyBag(CopyBagCommand copyBagCommand) {
     Bag copyBag = bagRepository.findById(copyBagCommand.bagsId())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     Integer memberId = copyBagCommand.memberId();
     if (bagRepository.findAllByMemberId(memberId).size() >= MAX_BAG_COUNT) {
-      throw new RuntimeException();
+      MemberError.MAX_BAG_COUNT_EXCEEDED.throwGlobalException();
     }
 
     Bag newBag = Bag.builder()
@@ -200,14 +180,14 @@ public class BagCommandServiceDefault implements BagCommandService {
   @Override
   public void delete(BagDeleteCommand command) {
     if (Objects.equals(command.memberBagId(), command.bagId())) {
-      throw new IllegalArgumentException("기본 가방은 삭제할 수 없습니다.");
+      MemberError.CANNOT_DELETE_DEFAULT_BAG.throwGlobalException();
     }
 
     Bag targetBag = bagRepository.findById(command.bagId())
-        .orElseThrow(() -> new IllegalArgumentException("삭제할 가방을 찾을 수 없습니다."));
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     if (!Objects.equals(targetBag.getMemberId(), command.memberId())) {
-      throw new IllegalArgumentException("삭제하려는 가방의 소유자가 아닙니다.");
+      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
     }
 
     bagItemRepository.deleteAllByBagId(targetBag.getId());
@@ -218,10 +198,10 @@ public class BagCommandServiceDefault implements BagCommandService {
   public void deleteBagItem(BagItemDeleteCommand command) {
 
     Bag bag = bagRepository.findById(command.bagId())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     if (!Objects.equals(bag.getMemberId(), command.memberId())) {
-      throw new RuntimeException();
+      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
     }
 
     bagItemRepository.deleteByBagIdAndItemId(command.bagId(), command.bagItemId());
@@ -234,15 +214,16 @@ public class BagCommandServiceDefault implements BagCommandService {
     List<Integer> itemIds = command.itemIds();
 
     Bag bag = bagRepository.findById(bagId)
-        .orElseThrow(() -> new RuntimeException("가방을 찾을 수 없습니다."));
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
     if (!Objects.equals(bag.getMemberId(), memberId)) {
-      throw new RuntimeException("해당 가방의 소유자가 아닙니다.");
+      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
     }
 
     List<BagItem> existingBagItems = bagItemRepository.findAllByBagId(bagId);
     if (existingBagItems.size() + itemIds.size() >= 20) {
-      throw new RuntimeException("가방에 아이템을 더 추가할 수 없습니다. 최대 20개까지 가능합니다.");
+      MemberError.MAX_BAG_ITEM_COUNT_EXCEEDED.throwGlobalException();
     }
+
     // 중복 아이템 제외하기
     List<Integer> newItemIds = itemIds.stream()
         .filter(itemId -> existingBagItems.stream()
@@ -266,9 +247,9 @@ public class BagCommandServiceDefault implements BagCommandService {
   @Override
   public void removeItemsInBag(RemoveItemsInBagCommand command) {
     Bag bag = bagRepository.findById(command.bagId())
-        .orElseThrow(() -> new RuntimeException("해당 가방이 존재하지 않습니다."));
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
     if (!Objects.equals(bag.getMemberId(), command.memberId())) {
-      throw new RuntimeException("해당 가방은 사용자의 소유가 아닙니다.");
+      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
     }
 
     List<BagItem> existingItems = bagItemRepository.findAllByBagId(command.bagId());

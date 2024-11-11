@@ -11,6 +11,7 @@ import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
+import com.e205.domain.exception.MemberError;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import java.util.List;
@@ -37,7 +38,7 @@ public class BagQueryServiceDefault implements BagQueryService {
   public List<BagItemPayload> readAllBagItemsByBagId(ReadAllBagItemsQuery readAllBagItemsQuery) {
     if (!bagRepository.existsByIdAndMemberId(readAllBagItemsQuery.bagId(),
         readAllBagItemsQuery.memberId())) {
-      throw new IllegalArgumentException("해당 가방은 이 회원의 소유가 아닙니다.");
+      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
     }
 
     return bagItemRepository.findAllByBagId(readAllBagItemsQuery.bagId()).stream()
