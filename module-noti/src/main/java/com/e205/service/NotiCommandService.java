@@ -1,11 +1,17 @@
 package com.e205.service;
 
+import com.e205.CommentSaveCommand;
 import com.e205.CreateNotificationCommand;
 import com.e205.DeleteNotificationsCommand;
 import com.e205.ItemCommandService;
 import com.e205.NotifiedMembersCommand;
+import com.e205.NotifyOutboxEvent;
 import com.e205.command.ConfirmItemCommand;
+import com.e205.command.member.service.MemberQueryService;
+import com.e205.entity.CommentNotification;
 import com.e205.entity.Notification;
+import com.e205.events.EventPublisher;
+import com.e205.repository.CommentNotificationRepository;
 import com.e205.repository.FoundItemNotificationRepository;
 import com.e205.repository.LostItemNotificationRepository;
 import com.e205.repository.NotificationRepository;
@@ -24,6 +30,9 @@ public class NotiCommandService {
   private final ItemCommandService itemCommandService;
   private final LostItemNotificationRepository lostItemNotificationRepository;
   private final FoundItemNotificationRepository foundItemNotificationRepository;
+  private final CommentNotificationRepository commentNotificationRepository;
+  private final EventPublisher eventPublisher;
+  private final MemberQueryService memberQueryService;
 
   public void createNotification(CreateNotificationCommand command) {
     Notification notification = NotificationFactory.createNotification(
@@ -47,6 +56,21 @@ public class NotiCommandService {
   public void confirmItemNotification(ConfirmItemCommand command) {
     findNotificationByTypeAndId(command.type(), command.itemId())
         .forEach(Notification::confirmRead);
+  }
+
+  public void createCommentNotification(CommentSaveCommand command) {
+    command.senders().forEach(i -> {
+      Notification notification = NotificationFactory.createNotification(command.type(),
+          command.commentId());
+      notification.setMemberId(i);
+      notification.setTitle(command.type());
+      this.commentNotificationRepository.save((CommentNotification) notification);
+      String fcm = this.memberQueryService.findMemberFcmById(i);
+      this.eventPublisher.publishAtLeastOnce(
+          new NotifyOutboxEvent(fcm, command.type(), notification.getBody()));
+    });
+
+
   }
 
   private List<Notification> findNotificationByTypeAndId(String type, Integer itemId) {

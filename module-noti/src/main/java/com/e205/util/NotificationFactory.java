@@ -14,6 +14,9 @@ import com.e205.entity.RouteNotification;
 public class NotificationFactory {
 
   public static Notification createNotification(String type, Integer resourceId) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{\"resourceId\":\"").append(resourceId.toString()).append("\",")
+        .append("\"eventType\":\"").append(type).append("\"}");
     Notification notification;
 
     switch (type) {
@@ -25,7 +28,7 @@ public class NotificationFactory {
         notification = new FoundItemNotification();
         ((FoundItemNotification) notification).setFoundItemId(resourceId);
       }
-      case "comment" -> {
+      case "foundComment", "lostComment" -> {
         notification = new CommentNotification();
         ((CommentNotification) notification).setCommentId(resourceId);
       }
@@ -35,7 +38,7 @@ public class NotificationFactory {
       }
       default -> throw new IllegalArgumentException("Unknown notification type: " + type);
     }
-
+    notification.setBody(sb.toString());
     return notification;
   }
 
@@ -48,6 +51,7 @@ public class NotificationFactory {
           .confirmation(commentNotification.isConfirmed())
           .title(commentNotification.getTitle())
           .commentId(commentNotification.getCommentId())
+          .body(commentNotification.getBody())
           .build();
     } else if (notification instanceof LostItemNotification lostItemNotification) {
       return LostItemNotificationResponse.builder()
@@ -57,6 +61,7 @@ public class NotificationFactory {
           .confirmation(lostItemNotification.isConfirmed())
           .title(lostItemNotification.getTitle())
           .lostItemId(lostItemNotification.getLostItemId())
+          .body(lostItemNotification.getBody())
           .build();
     } else if (notification instanceof FoundItemNotification foundItemNotification) {
       return FoundItemNotificationResponse.builder()
@@ -66,6 +71,7 @@ public class NotificationFactory {
           .confirmation(foundItemNotification.isConfirmed())
           .title(foundItemNotification.getTitle())
           .foundItemId(foundItemNotification.getFoundItemId())
+          .body(foundItemNotification.getBody())
           .build();
     } else if (notification instanceof RouteNotification routeNotification) {
       return RouteNotificationResponse.builder()
@@ -75,6 +81,7 @@ public class NotificationFactory {
           .confirmation(routeNotification.isConfirmed())
           .title(routeNotification.getTitle())
           .routeId(routeNotification.getRouteId())
+          .body(routeNotification.getBody())
           .build();
     } else {
       throw new IllegalArgumentException("Unknown notification type: " + notification.getClass());

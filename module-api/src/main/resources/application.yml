@@ -23,7 +23,7 @@ app:
     computeTime: 20
 firebase:
   file:
-    name: firebase/dandi-4158a-firebase-adminsdk-h61xd-7ec9de5fad.json
+    name: firebase/dandi-8be67-firebase-adminsdk-m922n-ff8ee2fea7.json
 
 noti:
   until:

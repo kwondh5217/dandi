@@ -17,8 +17,8 @@ public class NotifierImpl implements Notifier {
         .setToken(deviceToken)
         .setNotification(
             Notification.builder()
-                .setTitle("title")
-                .setBody("body")
+                .setTitle(title)
+                .setBody(body)
                 .build())
         .build();
 

@@ -12,8 +12,8 @@ public final class FoundItemNotificationResponse extends NotificationResponse {
   @Builder
   public FoundItemNotificationResponse(Integer id, Integer memberId,
       LocalDateTime createdAt,
-      boolean confirmation, String title, Integer foundItemId) {
-    super(id, memberId, createdAt, confirmation, title);
+      boolean confirmation, String title, Integer foundItemId, String body) {
+    super(id, memberId, createdAt, confirmation, title, body);
     this.foundItemId = foundItemId;
   }
 }

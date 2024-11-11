@@ -40,14 +40,18 @@ public class NotificationProcessor {
   public List<NotifiedMembersCommand> processNotifications(Integer resourceId,
       String situationDescription, String eventType, List<MemberWithFcm> membersWithFcm) {
     List<NotifiedMembersCommand> notifiedMembers = new ArrayList<>();
+    StringBuilder sb = new StringBuilder();
+    sb.append("{\"resourceId\":\"").append(resourceId.toString()).append("\",")
+        .append("\"eventType\":\"").append(eventType).append("\"}");
 
     membersWithFcm.forEach(member -> {
       CreateNotificationCommand notification = createNotificationCommand(
-          resourceId, situationDescription, eventType, member);
+          resourceId, situationDescription, eventType, member, sb.toString());
       this.notiCommandService.createNotification(notification);
 
       this.eventPublisher.publishAtLeastOnce(
-          new NotifyOutboxEvent(member.fcmToken(), eventType, notification.getTitle()));
+          new NotifyOutboxEvent(member.fcmToken(), notification.getTitle(),
+              sb.toString()));
 
       notifiedMembers.add(new NotifiedMembersCommand(
           member.memberId(), resourceId, LocalDateTime.now(), eventType));
@@ -59,7 +63,7 @@ public class NotificationProcessor {
 
   private CreateNotificationCommand createNotificationCommand(Integer resourceId,
       String situationDescription,
-      String type, MemberWithFcm member) {
+      String type, MemberWithFcm member, String body) {
     String title = extractTitle(situationDescription);
     return CreateNotificationCommand.builder()
         .memberId(member.memberId())
@@ -67,6 +71,7 @@ public class NotificationProcessor {
         .title(title)
         .createdAt(LocalDateTime.now())
         .type(type)
+        .body(body)
         .build();
   }
 

@@ -13,15 +13,17 @@ public sealed class NotificationResponse permits FoundItemNotificationResponse,
   private LocalDateTime createdAt;
   private boolean confirmation;
   private String title;
+  private String body;
 
 
   public NotificationResponse(Integer id, Integer memberId, LocalDateTime createdAt,
-      boolean confirmation, String title) {
+      boolean confirmation, String title, String body) {
     this.id = id;
     this.memberId = memberId;
     this.createdAt = createdAt;
     this.confirmation = confirmation;
     this.title = title;
+    this.body = body;
   }
 
   public static NotificationResponse fromEntity(Notification notification) {
@@ -30,7 +32,8 @@ public sealed class NotificationResponse permits FoundItemNotificationResponse,
         notification.getMemberId(),
         notification.getCreatedAt(),
         notification.isConfirmed(),
-        notification.getTitle()
+        notification.getTitle(),
+        notification.getBody()
     );
   }
 }

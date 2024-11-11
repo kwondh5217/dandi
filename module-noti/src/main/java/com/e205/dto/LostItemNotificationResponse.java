@@ -12,8 +12,8 @@ public final class LostItemNotificationResponse extends NotificationResponse {
   @Builder
   public LostItemNotificationResponse(Integer id, Integer memberId,
       LocalDateTime createdAt,
-      boolean confirmation, String title, Integer lostItemId) {
-    super(id, memberId, createdAt, confirmation, title);
+      boolean confirmation, String title, Integer lostItemId, String body) {
+    super(id, memberId, createdAt, confirmation, title, body);
     this.lostItemId = lostItemId;
   }
 }

@@ -43,6 +43,7 @@ public class Notification implements LoggableEntity {
   private boolean confirmed = false;
   @Column(length = 30)
   private String title;
+  private String body;
 
   public void confirmRead() {
     this.confirmed = true;

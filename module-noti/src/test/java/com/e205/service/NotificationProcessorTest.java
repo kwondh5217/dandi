@@ -15,7 +15,6 @@ import com.e205.events.EventPublisher;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 class NotificationProcessorTest {
 
@@ -26,7 +25,6 @@ class NotificationProcessorTest {
 
   @BeforeEach
   void setUp() {
-    TransactionSynchronizationManager.initSynchronization();
     this.notiCommandService = mock(NotiCommandService.class);
     this.notifier = mock(Notifier.class);
     this.eventPublisher = mock(EventPublisher.class);
