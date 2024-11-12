@@ -1,7 +1,6 @@
 package com.e205.domain.bag.entity;
 
 import com.e205.command.bag.payload.BagItemPayload;
-import com.e205.common.audit.BaseTime;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,10 +40,11 @@ public class BagItem implements LoggableEntity {
   }
 
   @Builder
-  public BagItem(Integer bagId, Integer itemId, Byte itemOrder) {
+  public BagItem(Integer bagId, Integer itemId, Byte itemOrder, LocalDateTime createdAt) {
     this.bagId = bagId;
     this.itemId = itemId;
     this.itemOrder = itemOrder;
+    this.createdAt = createdAt;
   }
 
   public BagItemPayload toPayload() {

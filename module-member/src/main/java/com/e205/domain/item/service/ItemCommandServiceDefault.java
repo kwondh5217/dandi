@@ -18,6 +18,7 @@ import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -77,6 +78,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
         .colorKey(createItemCommand.colorKey())
         .memberId(memberId)
         .itemOrder(maxItemOrder)
+        .createdAt(LocalDateTime.now())
         .build();
     itemRepository.save(item);
 
@@ -84,6 +86,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
         .bagId(bagId)
         .itemId(item.getId())
         .itemOrder(maxItemOrder)
+        .createdAt(LocalDateTime.now())
         .build();
     bagItemRepository.save(bagItem);
 

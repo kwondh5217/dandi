@@ -21,6 +21,7 @@ import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -128,6 +129,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
         .nickname(nickname)
         .status(EmailStatus.VERIFIED)
         .memberStatus(MemberStatus.ACTIVE)
+        .createdAt(LocalDateTime.now())
         .build();
 
     Member member = memberRepository.save(newMember);
@@ -136,6 +138,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
         .enabled('Y')
         .bagOrder((byte) 1)
         .name("현재 가방")
+        .createdAt(LocalDateTime.now())
         .build();
     bagRepository.save(bag);
     member.updateBagId(bag.getId());

@@ -21,6 +21,7 @@ import com.e205.domain.exception.MemberError;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,7 @@ public class BagCommandServiceDefault implements BagCommandService {
         .name(createBagCommand.name())
         .enabled('Y')
         .bagOrder(maxOrder)
+        .createdAt(LocalDateTime.now())
         .build();
 
     bagRepository.save(bag);
@@ -113,6 +115,7 @@ public class BagCommandServiceDefault implements BagCommandService {
         .map(bagItem -> BagItem.builder()
             .bagId(originalBag.getId())
             .itemId(bagItem.getItemId())
+            .createdAt(LocalDateTime.now())
             .itemOrder(bagItem.getItemOrder())
             .build())
         .toList();
@@ -159,6 +162,7 @@ public class BagCommandServiceDefault implements BagCommandService {
         .name(copyBagCommand.newBagName())
         .bagOrder((byte) (bagRepository.findMaxBagOrderByMemberId(memberId) + 1))
         .enabled('Y')
+        .createdAt(LocalDateTime.now())
         .build();
     bagRepository.save(newBag);
 
@@ -167,6 +171,7 @@ public class BagCommandServiceDefault implements BagCommandService {
             .bagId(newBag.getId())
             .itemId(bagItem.getItemId())
             .itemOrder(bagItem.getItemOrder())
+            .createdAt(LocalDateTime.now())
             .build())
         .toList();
     bagItemRepository.saveAll(newBagItems);
@@ -234,6 +239,7 @@ public class BagCommandServiceDefault implements BagCommandService {
       newBagItems.add(BagItem.builder()
           .bagId(bagId)
           .itemId(newItemIds.get(i))
+          .createdAt(LocalDateTime.now())
           .itemOrder((byte) (initialOrder + i))
           .build());
     }

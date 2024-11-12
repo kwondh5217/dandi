@@ -5,6 +5,7 @@ import com.e205.command.member.payload.EmailStatus;
 import com.e205.command.member.payload.MemberStatus;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ public class MemberManagerService implements com.e205.command.member.service.Mem
               .email(command.nickname() + "@example.com")
               .status(EmailStatus.VERIFIED)
               .memberStatus(MemberStatus.ACTIVE)
+              .createdAt(LocalDateTime.now())
               .build();
 
           memberRepository.save(member);
