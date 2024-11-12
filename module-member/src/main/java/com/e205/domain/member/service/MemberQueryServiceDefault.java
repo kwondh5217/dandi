@@ -5,6 +5,7 @@ import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.bag.query.FindMemberQuery;
 import com.e205.command.member.payload.MemberAuthPayload;
 import com.e205.command.member.query.FindMemberByEmailQuery;
+import com.e205.command.member.query.FindMembersByIdQuery;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.domain.exception.MemberError;
 import com.e205.domain.member.entity.Member;
@@ -55,5 +56,15 @@ public class MemberQueryServiceDefault implements MemberQueryService {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
     return member.getPassword();
+  }
+
+  @Override
+  public List<MemberPayload> findMembers(FindMembersByIdQuery findMembersByIdQuery) {
+    List<Integer> memberIds = findMembersByIdQuery.memberId();
+
+    return memberRepository.findAllById(memberIds)
+        .stream()
+        .map(Member::toPayload)
+        .toList();
   }
 }
