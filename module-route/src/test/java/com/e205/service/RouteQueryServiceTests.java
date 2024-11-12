@@ -2,10 +2,15 @@ package com.e205.service;
 
 import static com.e205.env.TestConstant.MEMBER_ID_1;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
+import com.e205.exception.GlobalException;
 import com.e205.payload.RouteIdPayload;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
@@ -20,6 +25,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -200,6 +206,24 @@ class RouteQueryServiceTests {
     assertThat(result).isNotNull();
     assertThat(result.routeParts()).hasSize(1);
     assertThat(result.nextRouteId()).isNull();
+  }
+
+  @Test
+  @DisplayName("일일 이동 조회 시 현재 날짜 이후 요청인 경우 예외를 발생시킨다.")
+  void 일일_이동_조회_시_현재_날짜_이후_요청인_경우_예외를_발생시킨다() {
+    // given
+    LocalDate date = LocalDate.now().plusDays(1);
+    given(dailyRouteQuery.memberId()).willReturn(MEMBER_ID_1);
+    given(dailyRouteQuery.date()).willReturn(date);
+    given(routeRepository.findAllByMemberIdAndCreatedAtDate(MEMBER_ID_1, date))
+        .willReturn(List.of(route));
+
+    // when
+    ThrowingCallable expectThrow = () -> routeQueryService.readDailyRoute(dailyRouteQuery);
+
+    // then
+    assertThatThrownBy(expectThrow).isInstanceOf(GlobalException.class);
+    verify(routeRepository, never()).findAllByMemberIdAndCreatedAtDate(any(), any());
   }
 
   @Test

@@ -16,6 +16,7 @@ import com.e205.query.RouteReadQuery;
 import com.e205.query.SnapshotReadQuery;
 import com.e205.repository.RouteRepository;
 import com.e205.util.GeometryUtils;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,9 @@ public class DirectRouteQueryService implements RouteQueryService {
 
   @Override
   public RoutesPayload readDailyRoute(DailyRouteReadQuery query) {
+    if (query.date().isAfter(LocalDate.now())) {
+      throw new GlobalException("E205");
+    }
     Integer memberId = query.memberId();
     List<Route> routes = routeRepository.findAllByMemberIdAndCreatedAtDate(memberId, query.date());
     List<RoutePart> routeParts = routes.stream().map(Route::toPart).toList();
