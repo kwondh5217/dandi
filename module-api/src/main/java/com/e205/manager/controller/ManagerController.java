@@ -21,7 +21,7 @@ public class ManagerController {
   @PostMapping("/login/{nickname}")
   @ResponseStatus(HttpStatus.CREATED)
   public String login(@PathVariable String nickname) {
-    return managerService.createManagerAccount(nickname);
+    return "Bearer " + managerService.createManagerAccount(nickname);
   }
 
   @PostMapping("/route")

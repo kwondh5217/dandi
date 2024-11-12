@@ -3,6 +3,7 @@ package com.e205.exception;
 import com.e205.exception.dto.ErrorDetails;
 import com.e205.exception.dto.ErrorResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<String> handleIllegalArgumentException(
       IllegalArgumentException ex) {
     logRequestInfo(ex);
-
+    log.info(Arrays.toString(ex.getStackTrace()));
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
   }
 
@@ -60,12 +61,14 @@ public class GlobalExceptionHandler {
   private void logRequestInfo(Exception ex) {
     Map<String, String> mdcValues = MDC.getCopyOfContextMap();
 
-    String mdcInfo = mdcValues.entrySet()
-        .stream()
-        .map(entry -> entry.getKey() + "=" + entry.getValue())
-        .collect(Collectors.joining(", "));
+    if(!mdcValues.isEmpty()) {
+      String mdcInfo = mdcValues.entrySet()
+          .stream()
+          .map(entry -> entry.getKey() + "=" + entry.getValue())
+          .collect(Collectors.joining(", "));
 
-    log.info("Exception handled: currentThread={}, {}, exceptionMessage={}",
-        Thread.currentThread().getName(), mdcInfo, ex.getMessage());
+      log.info("Exception handled: currentThread={}, {}, exceptionMessage={}, stackTrace={}",
+          Thread.currentThread().getName(), mdcInfo, ex.getMessage(), ex.getStackTrace());
+    }
   }
 }
