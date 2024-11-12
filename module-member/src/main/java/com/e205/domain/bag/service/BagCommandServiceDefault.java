@@ -32,6 +32,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @RequiredArgsConstructor
 @Transactional
@@ -87,6 +89,7 @@ public class BagCommandServiceDefault implements BagCommandService {
     });
   }
 
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Override
   public void updateBagName(BagNameUpdateCommand bagNameUpdateCommand) {
     Bag bag = bagRepository.findByIdAndMemberId(
@@ -121,7 +124,7 @@ public class BagCommandServiceDefault implements BagCommandService {
         .toList();
 
     bagItemRepository.saveAll(newBagItems);
-    eventPublisher.publicEvent(new BagChangedEvent(memberId, targetBagId));
+    eventPublisher.publishAtLeastOnce(new BagChangedEvent(memberId, targetBagId));
   }
 
   @Override
@@ -207,6 +210,7 @@ public class BagCommandServiceDefault implements BagCommandService {
     bagItemRepository.deleteByBagIdAndItemId(command.bagId(), command.bagItemId());
   }
 
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Override
   public void addItemToBag(AddItemsToBagCommand command) {
     Integer bagId = command.bagId();
@@ -241,7 +245,7 @@ public class BagCommandServiceDefault implements BagCommandService {
           .build());
     }
     bagItemRepository.saveAll(newBagItems);
-    eventPublisher.publicEvent(new BagChangedEvent(memberId, bagId));
+    eventPublisher.publishAtLeastOnce(new BagChangedEvent(memberId, bagId));
   }
 
   @Override

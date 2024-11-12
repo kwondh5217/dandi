@@ -24,6 +24,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @RequiredArgsConstructor
 @Transactional
@@ -37,6 +39,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
   private final EventPublisher eventPublisher;
   private final BagRepository bagRepository;
 
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Override
   public void save(CreateItemCommand createItemCommand) {
     Integer memberId = createItemCommand.memberId();
@@ -85,9 +88,10 @@ public class ItemCommandServiceDefault implements ItemCommandService {
         .build();
     bagItemRepository.save(bagItem);
 
-    eventPublisher.publicEvent(new BagItemAddEvent(item.toPayload()));
+    eventPublisher.publishAtLeastOnce(new BagItemAddEvent(item.toPayload()));
   }
 
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Override
   public void update(UpdateItemCommand updateCommand) {
     Item item = itemRepository.findById(updateCommand.itemId())
@@ -110,7 +114,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     item.updateEmoticon(updateCommand.emoticon());
     item.updateColorKey(updateCommand.colorKey());
 
-    eventPublisher.publicEvent(new BagItemChangedEvent(previousItemPayload, item.toPayload()));
+    eventPublisher.publishAtLeastOnce(new BagItemChangedEvent(previousItemPayload, item.toPayload()));
   }
 
   @Override
@@ -130,6 +134,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     });
   }
 
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Override
   public void delete(DeleteItemCommand deleteItemCommand) {
     Integer memberId = deleteItemCommand.memberId();
@@ -142,6 +147,6 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     bagItemRepository.deleteAll(bagItems);
 
     itemRepository.delete(item);
-    eventPublisher.publicEvent(new BagItemDeleteEvent(item.toPayload()));
+    eventPublisher.publishAtLeastOnce(new BagItemDeleteEvent(item.toPayload()));
   }
 }

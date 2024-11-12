@@ -59,7 +59,7 @@ public class MemberController {
 
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping
-  public void deleteMember(@RequestBody ChangePasswordRequest request) {
+  public void deleteMember() {
     memberService.deleteMember(authHelper.getMemberId());
   }
 
