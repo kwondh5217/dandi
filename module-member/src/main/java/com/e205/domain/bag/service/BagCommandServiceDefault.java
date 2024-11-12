@@ -13,13 +13,11 @@ import com.e205.command.bag.command.SelectBagCommand;
 import com.e205.command.bag.event.BagChangedEvent;
 import com.e205.command.bag.payload.BagPayload;
 import com.e205.command.bag.service.BagCommandService;
-import com.e205.command.item.payload.ItemPayload;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.exception.MemberError;
-import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
@@ -27,13 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @RequiredArgsConstructor
 @Transactional
@@ -89,7 +84,6 @@ public class BagCommandServiceDefault implements BagCommandService {
     });
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Override
   public void updateBagName(BagNameUpdateCommand bagNameUpdateCommand) {
     Bag bag = bagRepository.findByIdAndMemberId(
@@ -210,7 +204,6 @@ public class BagCommandServiceDefault implements BagCommandService {
     bagItemRepository.deleteByBagIdAndItemId(command.bagId(), command.bagItemId());
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Override
   public void addItemToBag(AddItemsToBagCommand command) {
     Integer bagId = command.bagId();

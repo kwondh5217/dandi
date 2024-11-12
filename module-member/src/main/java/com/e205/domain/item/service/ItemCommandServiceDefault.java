@@ -39,7 +39,6 @@ public class ItemCommandServiceDefault implements ItemCommandService {
   private final EventPublisher eventPublisher;
   private final BagRepository bagRepository;
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Override
   public void save(CreateItemCommand createItemCommand) {
     Integer memberId = createItemCommand.memberId();
@@ -91,7 +90,6 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     eventPublisher.publishAtLeastOnce(new BagItemAddEvent(item.toPayload()));
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Override
   public void update(UpdateItemCommand updateCommand) {
     Item item = itemRepository.findById(updateCommand.itemId())
@@ -134,7 +132,6 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     });
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Override
   public void delete(DeleteItemCommand deleteItemCommand) {
     Integer memberId = deleteItemCommand.memberId();
