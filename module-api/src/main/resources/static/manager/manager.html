@@ -142,7 +142,7 @@
     })
     .then(response => response.text())
     .then(data => {
-      token = data;
+      token = data.substring(7);
       saveRoute(points);
     })
     .catch(error => {
