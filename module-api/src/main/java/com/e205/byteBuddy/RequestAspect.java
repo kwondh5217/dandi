@@ -1,9 +1,12 @@
 package com.e205.byteBuddy;
 
+import jakarta.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.Map;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -12,10 +15,6 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import jakarta.servlet.http.HttpServletRequest;
-import java.security.Principal;
-import java.util.UUID;
 
 @Slf4j
 @Component
@@ -28,12 +27,19 @@ public class RequestAspect {
       "@annotation(org.springframework.web.bind.annotation.PutMapping) || " +
       "@annotation(org.springframework.web.bind.annotation.DeleteMapping) || " +
       "@annotation(org.springframework.web.bind.annotation.PatchMapping)")
-  public void allRequestMappings() {}
+  public void allRequestMappings() {
+  }
+
+  @Pointcut("execution(* com.e205..*.*(..))")
+  public void allComE205Exceptions() {
+  }
 
   @Before("allRequestMappings()")
   public void beforeControllerMethod() {
     ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     if (attributes != null) {
+      MDC.clear();
+
       HttpServletRequest request = attributes.getRequest();
       Principal userPrincipal = request.getUserPrincipal();
 
@@ -46,14 +52,16 @@ public class RequestAspect {
     }
   }
 
-  @After("allRequestMappings()")
-  public void afterControllerMethod() {
-    MDC.clear();
-  }
+  @AfterThrowing(pointcut = "allComE205Exceptions()", throwing = "ex")
+  public void logException(Exception ex) throws Exception {
+    StackTraceElement stackTraceElement = ex.getStackTrace()[0];
+    String className = stackTraceElement.getClassName();
+    int lineNumber = stackTraceElement.getLineNumber();
 
-  @After("@annotation(org.springframework.web.bind.annotation.ExceptionHandler)")
-  public void exceptionHandlerMethod() {
-    MDC.clear();
+    MDC.put("exceptionClassName", className);
+    MDC.put("exceptionLineNumber", String.valueOf(lineNumber));
+
+    throw ex;
   }
 
   @Around("@annotation(org.springframework.scheduling.annotation.Async)")

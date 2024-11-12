@@ -7,7 +7,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.e205.auth.jwt.JwtProvider;
 import com.e205.auth.jwt.handler.JwtAuthenticationEntryPoint;
+import com.e205.auth.jwt.repository.JwtRepository;
 import com.e205.config.SecurityConfig;
+import com.e205.exception.ExceptionLoader;
+import com.e205.exception.GlobalExceptionHandler;
 import com.e205.member.service.RecoveryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +23,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @ActiveProfiles("test")
 @Import({SecurityConfig.class, JwtAuthenticationEntryPoint.class,
-    AuthenticationConfiguration.class, JwtProvider.class})
+    AuthenticationConfiguration.class, JwtProvider.class, GlobalExceptionHandler.class,
+    ExceptionLoader.class})
 @WebMvcTest(controllers = {EventRecoveryController.class})
 class EventRecoveryControllerTest {
 
@@ -28,6 +32,8 @@ class EventRecoveryControllerTest {
   private MockMvc mockMvc;
   @MockBean
   private RecoveryService recoveryService;
+  @MockBean
+  private JwtRepository jwtRepository;
 
   @Test
   void recoveryEvent() throws Exception {

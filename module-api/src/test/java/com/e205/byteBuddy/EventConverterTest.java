@@ -1,10 +1,9 @@
 package com.e205.byteBuddy;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.e205.event.TestEvent;
 import com.e205.events.Event;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ class EventConverterTest {
   private ObjectMapper objectMapper;
 
   @Test
-  void convertToEventEvent() throws JsonProcessingException {
+  void convertToEventEvent() {
     EventConverter eventConverter = new EventConverter(this.objectMapper);
     EventConverter.eventClasses.put("testEvent", TestEvent.class);
     TestEvent testEvent = new TestEvent("test", "title", "content");
@@ -29,7 +28,7 @@ class EventConverterTest {
   }
 
   @Test
-  void toOutBoxEvent() throws JsonProcessingException {
+  void toOutBoxEvent() {
     EventConverter eventConverter = new EventConverter(this.objectMapper);
     TestEvent testEvent = new TestEvent("test", "title", "content");
 

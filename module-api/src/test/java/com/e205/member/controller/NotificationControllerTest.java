@@ -14,6 +14,8 @@ import com.e205.entity.FoundItemNotification;
 import com.e205.entity.LostItemNotification;
 import com.e205.entity.Notification;
 import com.e205.entity.RouteNotification;
+import com.e205.exception.ExceptionLoader;
+import com.e205.exception.GlobalExceptionHandler;
 import com.e205.service.NotiCommandService;
 import com.e205.service.NotiQueryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,11 +25,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 
+@Import({GlobalExceptionHandler.class, ExceptionLoader.class})
 @WebMvcTest(controllers = NotificationController.class)
 class NotificationControllerTest {
 

@@ -26,8 +26,7 @@ public class EventConverter {
       Class<?> eventClass = eventClasses.get(outboxEvent.getEventType());
       Assert.state(eventClass != null, "class type must not be null");
 
-      Event event = (Event) this.objectMapper.readValue(outboxEvent.getPayload(),
-          eventClass);
+      Event event = (Event) this.objectMapper.readValue(outboxEvent.getPayload(), eventClass);
 
       Method setEventId = eventClass.getDeclaredMethod("setEventId", String.class);
       setEventId.invoke(event, outboxEvent.getEventId());
@@ -35,9 +34,10 @@ public class EventConverter {
       Method setStatus = eventClass.getDeclaredMethod("setStatus", EventStatus.class);
       setStatus.invoke(event, outboxEvent.getStatus());
 
+      log.info("Successfully converted OutboxEvent to Event: {}", event);
       return event;
     } catch (Exception e) {
-      log.warn("Failed to convert event to OutboxEvent", e);
+      log.warn("Failed to convert OutboxEvent to Event", e);
       throw new GlobalException("E008");
     }
   }
@@ -51,10 +51,11 @@ public class EventConverter {
       declaredField.set(event, status);
       String payload = this.objectMapper.writeValueAsString(event);
 
-      return new OutboxEvent(eventId, status, payload, LocalDateTime.now(),
-          event.getType());
+      OutboxEvent outboxEvent = new OutboxEvent(eventId, status, payload, LocalDateTime.now(), event.getType());
+      log.info("Successfully converted Event to OutboxEvent: {}", outboxEvent);
+      return outboxEvent;
     } catch (Exception e) {
-      log.warn("Failed to convert event to OutboxEvent", e);
+      log.warn("Failed to convert Event to OutboxEvent", e);
       throw new GlobalException("E008");
     }
   }
@@ -68,10 +69,11 @@ public class EventConverter {
       Method getStatus = event.getClass().getDeclaredMethod("getStatus");
       EventStatus status = (EventStatus) getStatus.invoke(event);
 
-      return new OutboxEvent(eventId, status, payload, LocalDateTime.now(),
-          event.getType());
+      OutboxEvent outboxEvent = new OutboxEvent(eventId, status, payload, LocalDateTime.now(), event.getType());
+      log.info("Successfully converted Event to OutboxEvent (status from event): {}", outboxEvent);
+      return outboxEvent;
     } catch (Exception e) {
-      log.warn("Failed to convert event to OutboxEvent", e);
+      log.warn("Failed to convert Event to OutboxEvent", e);
       throw new GlobalException("E008");
     }
   }

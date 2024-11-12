@@ -11,6 +11,4 @@ public class TestEventListener {
   public void handle(TestEvent event) {
     System.out.println("handle : " + event.getType());
   }
-
-
 }
