@@ -2,6 +2,7 @@ package com.e205.manager.service;
 
 import com.e205.auth.jwt.JwtProvider;
 import com.e205.command.RouteDummyCreateCommand;
+import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.member.command.CreateManagerCommand;
 import com.e205.command.member.service.MemberManagerService;
 import com.e205.dto.TrackPoint;
@@ -10,6 +11,7 @@ import com.e205.service.RouteDummyCommandService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -21,8 +23,8 @@ public class ManagerService {
 
   public String createManagerAccount(String nickname) {
     CreateManagerCommand comm = new CreateManagerCommand(nickname);
-    Integer id = managerService.createManager(comm);
-    return jwtProvider.generateAccessToken(id);
+    Integer memberId = managerService.createManager(comm);
+    return jwtProvider.generateAccessToken(memberId);
   }
 
   public void createRouteDummy(RouteDummyCreateRequest request) {

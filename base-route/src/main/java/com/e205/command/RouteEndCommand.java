@@ -8,7 +8,9 @@ import lombok.Builder;
 public record RouteEndCommand(
     Integer memberId,
     Integer routeId,
-    List<TrackPoint> points
+    List<TrackPoint> points,
+    String startAddress,
+    String endAddress
 ) {
 
 }

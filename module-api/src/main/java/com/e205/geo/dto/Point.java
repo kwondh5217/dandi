@@ -1,4 +1,4 @@
-package com.e205.item.dto;
+package com.e205.geo.dto;
 
 public record Point(
     Double lat,

@@ -172,7 +172,7 @@ public class RouteCommandServiceIntgTests {
         TrackPoint.builder().lat(37.7749).lon(-122.4194).build(),
         TrackPoint.builder().lat(34.0522).lon(-118.2437).build()
     );
-    RouteEndCommand command = new RouteEndCommand(MEMBER_ID_1, route.getId(), trackPoints);
+    RouteEndCommand command = new RouteEndCommand(MEMBER_ID_1, route.getId(), trackPoints, "", "");
 
     routeCommandService.endRoute(command);
     Route endedRoute = routeRepository.findById(route.getId()).orElseThrow();

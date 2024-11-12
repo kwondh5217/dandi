@@ -2,8 +2,8 @@ package com.e205.route.dto.query;
 
 import com.e205.dto.Snapshot;
 import com.e205.dto.TrackPoint;
+import com.e205.geo.dto.Point;
 import com.e205.payload.RoutePayload;
-import com.e205.route.dto.Point;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +13,8 @@ import lombok.Builder;
 public record RouteDetailResponse(
     Integer id,
     Integer memberId,
+    String startAddress,
+    String endAddress,
     List<Point> track,
     char skip,
     Snapshot startSnapshot,
@@ -27,6 +29,8 @@ public record RouteDetailResponse(
     return RouteDetailResponse.builder()
         .id(payload.id())
         .memberId(payload.memberId())
+        .startAddress(payload.startAddress())
+        .endAddress(payload.endAddress())
         .track(toPoints(payload.track()))
         .skip(payload.skip())
         .startSnapshot(payload.startSnapshot())

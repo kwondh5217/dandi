@@ -3,6 +3,8 @@ package com.e205.route.service;
 import com.e205.command.RouteCreateCommand;
 import com.e205.command.RouteEndCommand;
 import com.e205.command.SnapshotUpdateCommand;
+import com.e205.geo.dto.Point;
+import com.e205.geo.service.VwolrdGeoClient;
 import com.e205.payload.RouteIdPayload;
 import com.e205.payload.RoutePayload;
 import com.e205.payload.RoutesPayload;
@@ -21,6 +23,7 @@ import com.e205.route.dto.query.SnapshotDetailResponse;
 import com.e205.service.RouteCommandService;
 import com.e205.service.RouteQueryService;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +33,7 @@ public class RouteService {
 
   private final RouteCommandService commandService;
   private final RouteQueryService queryService;
+  private final VwolrdGeoClient vwolrdGeoClient;
 
   public void createRoute(RouteCreateRequest request, Integer memberId) {
     RouteCreateCommand comm = new RouteCreateCommand(request.bagId(), memberId);
@@ -42,7 +46,11 @@ public class RouteService {
   }
 
   public void endRoute(Integer memberId, Integer routeId, RouteEndRequest request) {
-    RouteEndCommand comm = RouteEndRequest.toCommand(memberId, routeId, request);
+    List<Point> track = request.track();
+    String start = vwolrdGeoClient.findFullAddress(track.get(0));
+    String end = vwolrdGeoClient.findFullAddress(track.get(track.size() - 1));
+
+    RouteEndCommand comm = RouteEndRequest.toCommand(memberId, routeId, request, start, end);
     commandService.endRoute(comm);
   }
 

@@ -14,6 +14,7 @@ import com.e205.service.reader.SnapshotHelper;
 import com.e205.util.GeometryUtils;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +40,7 @@ public class DirectRouteCommandService implements RouteCommandService {
     Route savedRoute = routeRepository.save(Route.toEntity(memberId, determinedSnapshot));
 
     String payload = RouteEventPayload.toJson(getPayload(savedRoute, determinedSnapshot));
-    eventPublisher.publicEvent(new RouteSavedEvent(memberId, payload));
+    eventPublisher.publishAtLeastOnce(new RouteSavedEvent(memberId, payload));
   }
 
   private RouteEventPayload getPayload(Route savedRoute, String determinedSnapshot) {
@@ -63,7 +64,11 @@ public class DirectRouteCommandService implements RouteCommandService {
     if (route.getEndedAt() != null) {
       throw new GlobalException("E202");
     }
-    route.endRoute(GeometryUtils.getLineString(command.points()));
+    route.endRoute(
+        GeometryUtils.getLineString(command.points()),
+        command.startAddress(),
+        command.endAddress()
+    );
     routeRepository.save(route);
   }
 

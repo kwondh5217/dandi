@@ -39,6 +39,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -90,14 +91,14 @@ public class RouteCommandServiceTests {
     // then
     verify(routeRepository).save(any(Route.class));
     ArgumentCaptor<RouteSavedEvent> eventCaptor = ArgumentCaptor.forClass(RouteSavedEvent.class);
-    verify(eventPublisher).publicEvent(eventCaptor.capture());
+    verify(eventPublisher).publishAtLeastOnce(eventCaptor.capture());
     RouteSavedEvent publishedEvent = eventCaptor.getValue();
     assertThat(MEMBER_ID).isEqualTo(publishedEvent.memberId());
     assertThat(publishedEvent.payload()).isNotNull();
   }
 
   private @NotNull Route getRoute() {
-    return new Route(VALID_ROUTE_ID, MEMBER_ID, null, 'Y', Snapshot.toJson(snapshot),
+    return new Route(VALID_ROUTE_ID, MEMBER_ID, null, 'Y', Snapshot.toJson(snapshot), "", "",
         LocalDateTime.now(), LocalDateTime.now());
   }
 
@@ -124,8 +125,8 @@ public class RouteCommandServiceTests {
     // given
     LineString lineString = mock(LineString.class);
     Route route = new Route();
-    route.endRoute(lineString);
-    RouteEndCommand command = new RouteEndCommand(MEMBER_ID, VALID_ROUTE_ID, null);
+    route.endRoute(lineString, "", "");
+    RouteEndCommand command = new RouteEndCommand(MEMBER_ID, VALID_ROUTE_ID, null, "", "");
     given(routeRepository.findByIdAndMemberId(VALID_ROUTE_ID, MEMBER_ID))
         .willReturn(Optional.of(route));
 

@@ -1,6 +1,7 @@
 package com.e205.item.dto;
 
 import com.e205.FoundItemType;
+import com.e205.geo.dto.Point;
 import com.e205.payload.FoundItemPayload;
 import java.time.LocalDateTime;
 import lombok.Builder;

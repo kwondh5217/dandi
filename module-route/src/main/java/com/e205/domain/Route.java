@@ -1,6 +1,5 @@
 package com.e205.domain;
 
-import com.e205.command.RouteCreateCommand;
 import com.e205.dto.RoutePart;
 import com.e205.dto.Snapshot;
 import com.e205.dto.TrackPoint;
@@ -19,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,6 +43,10 @@ public class Route implements LoggableEntity {
   private char skip;
   @Column(length = 2000)
   private String snapshot;
+  @Column(length = 100)
+  private String startAddress;
+  @Column(length = 100)
+  private String endAddress;
   private LocalDateTime createdAt;
   private LocalDateTime endedAt;
 
@@ -52,8 +54,10 @@ public class Route implements LoggableEntity {
     this.track = track;
   }
 
-  public void endRoute(LineString track) {
+  public void endRoute(LineString track, String startAddress, String endAddress) {
     this.track = track;
+    this.startAddress = startAddress;
+    this.endAddress = endAddress;
     this.endedAt = LocalDateTime.now();
   }
 
@@ -77,6 +81,8 @@ public class Route implements LoggableEntity {
     return RoutePayload.builder()
         .id(route.id)
         .memberId(route.memberId)
+        .startAddress(route.startAddress)
+        .endAddress(route.endAddress)
         .track(toTrackPoints(route.track))
         .skip(route.skip)
         .startSnapshot(Snapshot.fromJson(route.snapshot))
@@ -91,28 +97,20 @@ public class Route implements LoggableEntity {
   public static RoutePart toPart(Route route) {
     List<TrackPoint> trackPoints = new ArrayList<>();
 
-    if (route.getTrack() != null) {
-      trackPoints = Arrays.stream(route.getTrack().getCoordinates())
+    if (route.track != null) {
+      trackPoints = Arrays.stream(route.track.getCoordinates())
           .map(coord -> new TrackPoint(coord.getY(), coord.getX()))
           .collect(Collectors.toList());
     }
 
     return RoutePart.builder()
-        .id(route.getId())
+        .id(route.id)
+        .startAddress(route.startAddress)
+        .endAddress(route.endAddress)
         .track(trackPoints)
-        .createdAt(route.getCreatedAt())
-        .endedAt(route.getEndedAt())
+        .createdAt(route.createdAt)
+        .endedAt(route.endedAt)
         .build();
-  }
-
-  public static String determineSnapshot(RouteCreateCommand request, Snapshot ss,
-      Snapshot currentSs
-  ) {
-    if (Objects.equals(request.bagId(), currentSs.bagId())) {
-      return Snapshot.toJson(currentSs);
-    } else {
-      return Snapshot.toJson(ss);
-    }
   }
 
   public static List<TrackPoint> toTrackPoints(LineString lineString) {

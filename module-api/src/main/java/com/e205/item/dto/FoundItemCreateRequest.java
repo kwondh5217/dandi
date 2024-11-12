@@ -2,9 +2,9 @@ package com.e205.item.dto;
 
 import com.e205.FoundItemType;
 import com.e205.command.FoundItemSaveCommand;
+import com.e205.geo.dto.Point;
 import java.time.LocalDateTime;
 import lombok.Builder;
-import org.springframework.core.io.Resource;
 
 @Builder
 public record FoundItemCreateRequest(

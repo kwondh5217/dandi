@@ -137,7 +137,7 @@
     const nickname = nicknameInput.value.trim() || "manager";
 
     // 로그인 요청
-    fetch(`${baseUrl}/../login?nickname=${nickname}`, {
+    fetch(`${baseUrl}/../login/${nickname}`, {
       method: "POST"
     })
     .then(response => response.text())

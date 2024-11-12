@@ -10,6 +10,8 @@ import lombok.Builder;
 public record RoutePayload(
     Integer id,
     Integer memberId,
+    String startAddress,
+    String endAddress,
     List<TrackPoint> track,
     char skip,
     Snapshot startSnapshot,

@@ -1,10 +1,10 @@
 package com.e205.item.service;
 
 import com.e205.FoundItemType;
-import com.e205.domain.member.entity.Member;
+import com.e205.auth.jwt.JwtProvider;
 import com.e205.entity.FoundImage;
 import com.e205.entity.FoundItem;
-import com.e205.member.service.MemberTempService;
+import com.e205.manager.service.ManagerService;
 import com.e205.repository.FileRepository;
 import com.e205.repository.FoundItemCommandRepository;
 import com.e205.repository.ItemImageRepository;
@@ -17,7 +17,6 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -33,12 +32,13 @@ public class QuizDummyImageGenerator {
   @Value("${spring.jpa.hibernate.ddl-auto}")
   private String ddlAuto;
 
-  private final MemberTempService memberTempService;
+  private final ManagerService managerService;
   private final FoundItemCommandRepository foundItemCommandRepository;
   private final ItemImageRepository itemImageRepository;
   private final ResourceLoader resourceLoader;
   private final FileRepository fileRepository;
   private final PlatformTransactionManager ptm;
+  private final JwtProvider jwtProvider;
 
   @PostConstruct
   public void generateDummyImage() throws IOException {
@@ -47,11 +47,11 @@ public class QuizDummyImageGenerator {
     }
 
     TransactionStatus transaction = ptm.getTransaction(new DefaultTransactionDefinition());
-
-    Member dummyMember = memberTempService.generateTempMember("DummyUser");
+    String token = managerService.createManagerAccount("DummyUser");
+    Integer memberId = jwtProvider.getMemberId(token);
 
     FoundItem foundItem = foundItemCommandRepository.save(
-        new FoundItem(dummyMember.getId(), 1D, 1D, "더미입니다.", "더미입니다.", FoundItemType.OTHER,
+        new FoundItem(memberId, 1D, 1D, "더미입니다.", "더미입니다.", FoundItemType.OTHER,
             LocalDateTime.now()));
 
     foundItemCommandRepository.save(foundItem);

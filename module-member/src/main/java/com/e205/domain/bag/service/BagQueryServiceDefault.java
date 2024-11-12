@@ -16,8 +16,10 @@ import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BagQueryServiceDefault implements BagQueryService {
@@ -36,6 +38,8 @@ public class BagQueryServiceDefault implements BagQueryService {
 
   @Override
   public List<BagItemPayload> readAllBagItemsByBagId(ReadAllBagItemsQuery readAllBagItemsQuery) {
+    log.info("bagId : {}", readAllBagItemsQuery.memberId());
+    log.info("bagId : {}", readAllBagItemsQuery.bagId());
     if (!bagRepository.existsByIdAndMemberId(readAllBagItemsQuery.bagId(),
         readAllBagItemsQuery.memberId())) {
       MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
