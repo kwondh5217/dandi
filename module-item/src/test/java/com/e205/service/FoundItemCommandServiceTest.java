@@ -15,7 +15,7 @@ import com.e205.command.QuizMakeCommand;
 import com.e205.entity.FoundImage;
 import com.e205.entity.FoundItem;
 import com.e205.event.FoundItemSaveEvent;
-import com.e205.message.ItemEventPublisher;
+import com.e205.events.EventPublisher;
 import com.e205.repository.FoundItemCommandRepository;
 import com.e205.repository.ItemImageRepository;
 import java.time.LocalDateTime;
@@ -32,14 +32,14 @@ class FoundItemCommandServiceTest {
   FoundItemCommandRepository repository;
   ItemImageRepository imageRepository;
   QuizCommandService quizService;
-  ItemEventPublisher eventPublisher;
+  EventPublisher eventPublisher;
 
   @BeforeEach
   void setUp() {
     repository = mock(FoundItemCommandRepository.class);
     imageRepository = mock(ItemImageRepository.class);
     quizService = mock(QuizCommandService.class);
-    eventPublisher = mock(ItemEventPublisher.class);
+    eventPublisher = mock(EventPublisher.class);
 
     given(repository.save(any())).willAnswer(answer -> answer.getArgument(0));
     given(imageRepository.save((any(FoundImage.class)))).willAnswer(
@@ -64,7 +64,7 @@ class FoundItemCommandServiceTest {
 
     // then
     assertThatThrownBy(expectThrow).cause().hasMessage("카드나 신분증 사진이 포함되어 있습니다.");
-    verify(eventPublisher, never()).publish(any(FoundItemSaveEvent.class));
+    verify(eventPublisher, never()).publishAtLeastOnce(any(FoundItemSaveEvent.class));
   }
 
   @DisplayName("습득물을 저장할 때, 이미지를 함께 저장한다.")
@@ -80,7 +80,7 @@ class FoundItemCommandServiceTest {
 
     // then
     verify(repository).save(any(FoundItem.class));
-    verify(eventPublisher, times(1)).publish(any(FoundItemSaveEvent.class));
+    verify(eventPublisher, times(1)).publishAtLeastOnce(any(FoundItemSaveEvent.class));
   }
 
   @DisplayName("습득물 저장에 실패하면, 이벤트를 발행하지 않는다.")
@@ -95,7 +95,7 @@ class FoundItemCommandServiceTest {
 
     // then
     assertThatThrownBy(expectThrow).isInstanceOf(RuntimeException.class);
-    verify(eventPublisher, never()).publish(any(FoundItemSaveEvent.class));
+    verify(eventPublisher, never()).publishAtLeastOnce(any(FoundItemSaveEvent.class));
   }
 
   @DisplayName("타입이 카드나 신분증이 아니면, 이미지는 필수다.")
@@ -113,7 +113,7 @@ class FoundItemCommandServiceTest {
 
     // then
     assertThatThrownBy(expectThrow).cause().hasMessage("이미지는 필수입니다.");
-    verify(eventPublisher, never()).publish(any(FoundItemSaveEvent.class));
+    verify(eventPublisher, never()).publishAtLeastOnce(any(FoundItemSaveEvent.class));
   }
 
   @DisplayName("습득물을 저장할 때, 습득 시간은 미래일 수 없다.")
@@ -131,7 +131,7 @@ class FoundItemCommandServiceTest {
 
     // then
     assertThatThrownBy(expectThrow).cause().hasMessage("습득 날짜가 미래입니다.");
-    verify(eventPublisher, never()).publish(any(FoundItemSaveEvent.class));
+    verify(eventPublisher, never()).publishAtLeastOnce(any(FoundItemSaveEvent.class));
   }
 
   @DisplayName("습득물 저장 시 퀴즈를 생성한다.")
@@ -147,7 +147,7 @@ class FoundItemCommandServiceTest {
 
     // then
     verify(quizService).make(any(QuizMakeCommand.class));
-    verify(eventPublisher, times(1)).publish(any(FoundItemSaveEvent.class));
+    verify(eventPublisher, times(1)).publishAtLeastOnce(any(FoundItemSaveEvent.class));
   }
 
   @DisplayName("퀴즈 생성을 실패하면 저장했던 이미지를 삭제한다.")
@@ -163,7 +163,7 @@ class FoundItemCommandServiceTest {
 
     // then
     assertThatThrownBy(expectThrow).isInstanceOf(RuntimeException.class);
-    verify(eventPublisher, never()).publish(any(FoundItemSaveEvent.class));
+    verify(eventPublisher, never()).publishAtLeastOnce(any(FoundItemSaveEvent.class));
   }
 
   private FoundItemSaveCommand generateCommand(String image, FoundItemType type,

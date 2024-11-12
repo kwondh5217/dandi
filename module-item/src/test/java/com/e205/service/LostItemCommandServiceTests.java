@@ -14,7 +14,7 @@ import com.e205.command.LostItemSaveCommand;
 import com.e205.entity.LostImage;
 import com.e205.entity.LostItem;
 import com.e205.event.LostItemSaveEvent;
-import com.e205.message.ItemEventPublisher;
+import com.e205.events.EventPublisher;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
 import com.e205.repository.LostItemRepository;
@@ -33,14 +33,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class LostItemCommandServiceTests {
 
   LostItemCommandService service;
-  ItemEventPublisher eventPublisher;
+  EventPublisher eventPublisher;
   LostItemRepository repository;
   ItemImageRepository itemImageRepository;
   LostItemAuthRepository lostItemAuthRepository;
 
   @BeforeEach
   void setUp() {
-    eventPublisher = mock(ItemEventPublisher.class);
+    eventPublisher = mock(EventPublisher.class);
     repository = mock(LostItemRepository.class);
     itemImageRepository = mock(ItemImageRepository.class);
     lostItemAuthRepository = mock(LostItemAuthRepository.class);
@@ -117,7 +117,7 @@ class LostItemCommandServiceTests {
     service.save(command);
 
     // then
-    verify(eventPublisher).publish(any(LostItemSaveEvent.class));
+    verify(eventPublisher).publishAtLeastOnce(any(LostItemSaveEvent.class));
   }
 
   @DisplayName("분실물 등록에 실패하면 이벤트가 발행되지 않는다.")
@@ -132,7 +132,7 @@ class LostItemCommandServiceTests {
 
     // then
     assertThatThrownBy(expectThrow);
-    verify(eventPublisher, times(0)).publish(any(LostItemSaveEvent.class));
+    verify(eventPublisher, times(0)).publishAtLeastOnce(any(LostItemSaveEvent.class));
   }
 
   @DisplayName("이미지가 없어도 분실물 등록에 성공한다.")

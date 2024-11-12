@@ -12,13 +12,11 @@ import static org.mockito.Mockito.verify;
 import com.e205.entity.LostItem;
 import com.e205.entity.LostItemAuth;
 import com.e205.event.LostItemReadEvent;
-import com.e205.message.ItemEventPublisher;
+import com.e205.events.EventPublisher;
 import com.e205.query.LostItemQuery;
-import com.e205.query.MembersInRouteQuery;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
 import com.e205.repository.LostItemRepository;
-import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +38,7 @@ class LostItemQueryServiceTests {
   @Mock
   RouteQueryService routeQueryService;
   @Mock
-  ItemEventPublisher eventPublisher;
+  EventPublisher eventPublisher;
   @Mock
   ItemImageRepository imageRepository;
   @Mock
@@ -136,7 +134,7 @@ class LostItemQueryServiceTests {
     service.find(query);
 
     // then
-    verify(eventPublisher, times(1)).publish(any(LostItemReadEvent.class));
+    verify(eventPublisher, times(1)).publishAtLeastOnce(any(LostItemReadEvent.class));
   }
 
   @DisplayName("이미 읽은 분실물 상세를 조회하면, 이벤트가 발행되지 않는다.")
@@ -152,7 +150,7 @@ class LostItemQueryServiceTests {
     service.find(query);
 
     // then
-    verify(eventPublisher, never()).publish(any(LostItemReadEvent.class));
+    verify(eventPublisher, never()).publishAtLeastOnce(any(LostItemReadEvent.class));
   }
 
 //  private void setValidPosition(int expectMemberId) {

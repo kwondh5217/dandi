@@ -3,8 +3,8 @@ package com.e205.service;
 import com.e205.entity.LostItem;
 import com.e205.entity.LostItemAuth;
 import com.e205.event.LostItemReadEvent;
+import com.e205.events.EventPublisher;
 import com.e205.exception.ItemError;
-import com.e205.message.ItemEventPublisher;
 import com.e205.payload.ItemImagePayload;
 import com.e205.payload.LostItemPayload;
 import com.e205.query.LostItemListQuery;
@@ -27,7 +27,7 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
   private final LostItemAuthRepository lostItemAuthRepository;
   private final RouteQueryService routeQueryService;
   private final ItemImageRepository itemImageRepository;
-  private final ItemEventPublisher itemEventPublisher;
+  private final EventPublisher itemEventPublisher;
   private final LostItemRepository lostItemRepository;
 
   @Override
@@ -51,7 +51,7 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
 
     if (!lostItemAuth.isRead()) {
       lostItemAuth.read();
-      itemEventPublisher.publish(new LostItemReadEvent(lostItem.getId(), LocalDateTime.now()));
+      itemEventPublisher.publishAtLeastOnce(new LostItemReadEvent(lostItem.getId(), LocalDateTime.now()));
     }
     return lostItem.toPayload();
   }

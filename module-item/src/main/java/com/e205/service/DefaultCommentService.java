@@ -1,6 +1,8 @@
 package com.e205.service;
 
+import com.e205.CommentSaveCommand;
 import com.e205.CommentType;
+import com.e205.NotiCommandService;
 import com.e205.command.CommentCreateCommand;
 import com.e205.entity.FoundComment;
 import com.e205.entity.FoundItem;
@@ -15,7 +17,9 @@ import com.e205.repository.CommentRepository;
 import com.e205.repository.FoundItemQueryRepository;
 import com.e205.repository.LostItemRepository;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,7 @@ public class DefaultCommentService implements CommentService {
   private final CommentRepository repository;
   private final FoundItemQueryRepository foundItemQueryRepository;
   private final LostItemRepository lostItemRepository;
+  private final NotiCommandService notiCommandService;
 
   @Transactional
   @Override
@@ -41,10 +46,10 @@ public class DefaultCommentService implements CommentService {
   @Override
   public List<CommentPayload> findComments(CommentListQuery query) {
     return switch (query.type()) {
-      case LOST -> repository.findLostComments(CommentQueryCondition.from(query))
-          .stream().map(LostComment::toPayload).toList();
-      case FOUND -> repository.findFoundComments(CommentQueryCondition.from(query))
-          .stream().map(FoundComment::toPayload).toList();
+      case LOST -> repository.findLostComments(CommentQueryCondition.from(query)).stream()
+          .map(LostComment::toPayload).toList();
+      case FOUND -> repository.findFoundComments(CommentQueryCondition.from(query)).stream()
+          .map(FoundComment::toPayload).toList();
     };
   }
 
@@ -56,15 +61,18 @@ public class DefaultCommentService implements CommentService {
           .orElseThrow(ItemError.COMMENT_NOT_EXIST::getGlobalException);
     }
 
-    LostComment comment = LostComment.builder()
-        .writerId(command.writerId())
-        .content(command.content())
-        .parent(parent)
-        .lostItem(getLostItem(command.itemId()))
-        .createdAt(LocalDateTime.now())
-        .build();
+    LostComment comment = LostComment.builder().writerId(command.writerId())
+        .content(command.content()).parent(parent).lostItem(getLostItem(command.itemId()))
+        .createdAt(LocalDateTime.now()).build();
 
     repository.save(comment);
+
+    Set<Integer> senders = new HashSet<>();
+    if (comment.getParent() != null) {
+      senders.add(comment.getParent().getWriterId());
+    }
+    senders.add(comment.getLostItem().getMemberId());
+    sendNoti(comment.getId(), comment.getWriterId(), senders, "lostComment");
   }
 
   private void createFoundComment(CommentCreateCommand command) {
@@ -75,15 +83,23 @@ public class DefaultCommentService implements CommentService {
           .orElseThrow(ItemError.COMMENT_NOT_EXIST::getGlobalException);
     }
 
-    FoundComment comment = FoundComment.builder()
-        .writerId(command.writerId())
-        .content(command.content())
-        .parent(parent)
-        .foundItem(getFoundItem(command.itemId()))
-        .createdAt(LocalDateTime.now())
-        .build();
+    FoundComment comment = FoundComment.builder().writerId(command.writerId())
+        .content(command.content()).parent(parent).foundItem(getFoundItem(command.itemId()))
+        .createdAt(LocalDateTime.now()).build();
 
     repository.save(comment);
+
+    Set<Integer> senders = new HashSet<>();
+    if (comment.getParent() != null) {
+      senders.add(comment.getParent().getWriterId());
+    }
+    senders.add(comment.getFoundItem().getMemberId());
+    sendNoti(comment.getId(), comment.getWriterId(), senders, "foundComment");
+  }
+
+  private void sendNoti(int commentId, int writerId, Set<Integer> senders, String notiType) {
+    CommentSaveCommand notiCommand = new CommentSaveCommand(commentId, writerId, senders, notiType);
+    notiCommandService.createCommentNotification(notiCommand);
   }
 
   private FoundItem getFoundItem(int foundItemId) {

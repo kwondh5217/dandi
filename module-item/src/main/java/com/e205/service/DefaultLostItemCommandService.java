@@ -7,8 +7,8 @@ import com.e205.entity.LostImage;
 import com.e205.entity.LostItem;
 import com.e205.entity.LostItemAuth;
 import com.e205.event.LostItemSaveEvent;
+import com.e205.events.EventPublisher;
 import com.e205.exception.ItemError;
-import com.e205.message.ItemEventPublisher;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
 import com.e205.repository.LostItemRepository;
@@ -29,7 +29,7 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
   private static final int LOST_ITEM_COOL_TIME = 24;
 
   private final LostItemRepository lostItemRepository;
-  private final ItemEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
   private final ItemImageRepository itemImageRepository;
   private final LostItemAuthRepository lostItemAuthRepository;
 
@@ -46,7 +46,7 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
 
     grant(new LostItemGrantCommand(lostItem.getMemberId(), lostItem.getId()));
 
-    eventPublisher.publish(new LostItemSaveEvent(lostItem.toPayload(), LocalDateTime.now()));
+    eventPublisher.publishAtLeastOnce(new LostItemSaveEvent(lostItem.toPayload(), LocalDateTime.now()));
   }
 
   @Override

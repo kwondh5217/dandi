@@ -9,10 +9,12 @@ import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue(value = "found_item")
+@Getter
 @Entity
 public class FoundComment extends Comment {
 

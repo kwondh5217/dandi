@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import com.e205.CommentType;
+import com.e205.NotiCommandService;
 import com.e205.command.CommentCreateCommand;
 import com.e205.query.CommentQuery;
 import com.e205.repository.CommentRepository;
@@ -22,6 +23,7 @@ class CommentServiceTest {
   CommentRepository commentRepository;
   FoundItemQueryRepository foundItemRepository;
   LostItemRepository lostItemRepository;
+  NotiCommandService notiCommandService;
 
   static final int writerId = 1;
   static final int itemId = 2;
@@ -32,8 +34,9 @@ class CommentServiceTest {
     commentRepository = mock(CommentRepository.class);
     foundItemRepository = mock(FoundItemQueryRepository.class);
     lostItemRepository = mock(LostItemRepository.class);
+    notiCommandService = mock(NotiCommandService.class);
     commentService = new DefaultCommentService(commentRepository, foundItemRepository,
-        lostItemRepository);
+        lostItemRepository, notiCommandService);
   }
 
   @DisplayName("댓글을 생성할 때 분실물이 존재하지 않으면 예외가 발생한다.")

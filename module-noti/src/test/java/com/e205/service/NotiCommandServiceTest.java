@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import com.e205.CommentSaveCommand;
 import com.e205.DeleteNotificationsCommand;
 import com.e205.ItemCommandService;
-import com.e205.command.ConfirmItemCommand;
+import com.e205.ConfirmItemCommand;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.entity.LostItemNotification;
 import com.e205.events.EventPublisher;

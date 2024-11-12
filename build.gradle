@@ -62,7 +62,8 @@ subprojects {
                 mainClass = 'com.e205.Application'
                 appRoot = '/app'
                 jvmFlags = ['-Duser.timezone=Asia/Seoul',
-                            '-Dspring.profiles.active=prod']
+                            '-Dspring.profiles.active=prod',
+                            '-javaagent:/app/event-agent-0.0.1-SNAPSHOT-all.jar']
             }
 
             extraDirectories {

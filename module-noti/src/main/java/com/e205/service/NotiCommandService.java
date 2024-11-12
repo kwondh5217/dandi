@@ -6,7 +6,7 @@ import com.e205.DeleteNotificationsCommand;
 import com.e205.ItemCommandService;
 import com.e205.NotifiedMembersCommand;
 import com.e205.NotifyOutboxEvent;
-import com.e205.command.ConfirmItemCommand;
+import com.e205.ConfirmItemCommand;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.entity.CommentNotification;
 import com.e205.entity.Notification;
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 @Service
-public class NotiCommandService {
+public class NotiCommandService implements com.e205.NotiCommandService {
 
   private final NotificationRepository notificationRepository;
   private final ItemCommandService itemCommandService;

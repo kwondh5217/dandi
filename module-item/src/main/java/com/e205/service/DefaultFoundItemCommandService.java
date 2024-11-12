@@ -6,8 +6,8 @@ import com.e205.command.QuizMakeCommand;
 import com.e205.entity.FoundImage;
 import com.e205.entity.FoundItem;
 import com.e205.event.FoundItemSaveEvent;
+import com.e205.events.EventPublisher;
 import com.e205.exception.ItemError;
-import com.e205.message.ItemEventPublisher;
 import com.e205.repository.FoundItemCommandRepository;
 import com.e205.repository.ItemImageRepository;
 import java.time.LocalDateTime;
@@ -26,7 +26,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
   private final FoundItemCommandRepository foundItemCommandRepository;
   private final ItemImageRepository itemImageRepository;
   private final QuizCommandService quizCommandService;
-  private final ItemEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
 
   @Override
   public void save(FoundItemSaveCommand command) {
@@ -59,7 +59,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
         new QuizMakeCommand(foundItem.getId(), command.memberId(), image.getId()));
 
     FoundItemSaveEvent event = new FoundItemSaveEvent(foundItem.toPayload(), LocalDateTime.now());
-    eventPublisher.publish(event);
+    eventPublisher.publishAtLeastOnce(event);
   }
 
   private void processCard(FoundItemSaveCommand command) {
@@ -69,7 +69,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
     // TODO <fosong98> 카드 퀴즈는 다음에 고민
     FoundItem foundItem = foundItemCommandRepository.save(new FoundItem(command));
     FoundItemSaveEvent event = new FoundItemSaveEvent(foundItem.toPayload(), LocalDateTime.now());
-    eventPublisher.publish(event);
+    eventPublisher.publishAtLeastOnce(event);
   }
 
   private FoundImage saveImage(FoundItem item, UUID imageId) {
