@@ -40,7 +40,7 @@ public class MemberQueryServiceDefault implements MemberQueryService {
   public List<MemberWithFcm> membersWithFcmQuery(List<Integer> members) {
     List<Member> membersByIds = this.memberRepository.findMembersByIds(members);
     return membersByIds.stream()
-        .map(member -> new MemberWithFcm(member.getId(), member.getFcmCode()))
+        .map(member -> new MemberWithFcm(member.getId(), member.getFcmToken()))
         .collect(Collectors.toList());
   }
 
@@ -48,7 +48,7 @@ public class MemberQueryServiceDefault implements MemberQueryService {
   public String findMemberFcmById(Integer memberId) {
     Member member = this.memberRepository.findById(memberId)
         .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
-    return member.getFcmCode();
+    return member.getFcmToken();
   }
 
   @Override

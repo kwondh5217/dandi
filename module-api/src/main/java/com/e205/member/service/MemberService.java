@@ -3,6 +3,7 @@ package com.e205.member.service;
 import com.e205.auth.helper.AuthHelper;
 import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.bag.query.FindMemberQuery;
+import com.e205.command.member.command.ChangeAlarmSettingCommand;
 import com.e205.command.member.command.ChangeNicknameCommand;
 import com.e205.command.member.command.ChangePasswordCommand;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
@@ -14,9 +15,11 @@ import com.e205.command.member.command.RegisterMemberCommand;
 import com.e205.command.member.command.MemberVerificationLinkCommand;
 import com.e205.command.member.command.UpdateFcmCodeCommand;
 import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
+import com.e205.command.member.query.FindMembersByIdQuery;
 import com.e205.command.member.service.EmailCommandService;
 import com.e205.command.member.service.MemberCommandService;
 import com.e205.command.member.service.MemberQueryService;
+import com.e205.member.dto.AlarmSettingsRequest;
 import com.e205.member.dto.AuthEmailLinkRequest;
 import com.e205.member.dto.CheckVerificationNumberRequest;
 import com.e205.member.dto.CompleteSignUpRequest;
@@ -25,6 +28,7 @@ import com.e205.member.dto.MemberInfoResponse;
 import com.e205.member.dto.PasswordNumberEmailRequest;
 import com.e205.member.dto.PasswordResetRequest;
 import com.e205.member.dto.VerifyEmailRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -109,5 +113,10 @@ public class MemberService {
   public void changeNickname(Integer memberId, String newNickname) {
     ChangeNicknameCommand command = new ChangeNicknameCommand(memberId, newNickname);
     memberCommandService.changeNickname(command);
+  }
+
+  public void changeAlarm(AlarmSettingsRequest request, Integer memberId) {
+    ChangeAlarmSettingCommand command = request.toCommand(memberId);
+    memberCommandService.changeAlarmSetting(command);
   }
 }

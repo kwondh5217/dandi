@@ -11,7 +11,11 @@ public record MemberPayload(
     String nickname,
     String email,
     EmailStatus status,
-    MemberStatus memberStatus
+    MemberStatus memberStatus,
+    String fcmCode,
+    boolean foundItemAlarm,
+    boolean lostItemAlarm,
+    boolean commentAlarm
 ) {
 
 }

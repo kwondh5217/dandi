@@ -1,5 +1,6 @@
 package com.e205.domain.member.service;
 
+import com.e205.command.member.command.ChangeAlarmSettingCommand;
 import com.e205.command.member.command.ChangeNicknameCommand;
 import com.e205.command.member.command.ChangePasswordCommand;
 import com.e205.command.member.command.ChangePasswordWithVerifNumber;
@@ -130,6 +131,9 @@ public class MemberCommandServiceDefault implements MemberCommandService {
         .status(EmailStatus.VERIFIED)
         .memberStatus(MemberStatus.ACTIVE)
         .createdAt(LocalDateTime.now())
+        .lostItemAlarm(true)
+        .foundItemAlarm(true)
+        .commentAlarm(true)
         .build();
 
     Member member = memberRepository.save(newMember);
@@ -163,7 +167,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
   public void updateFcmCode(UpdateFcmCodeCommand command) {
     Member member = memberRepository.findById(command.memberId())
         .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
-    member.updateFcmCode(command.fcmCode());
+    member.updateFcmToken(command.fcmCode());
   }
 
   @Override
@@ -178,7 +182,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     Member member = memberRepository.findById(command.memberId())
         .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
     member.updateEmail(null);
-    member.updateFcmCode(null);
+    member.updateFcmToken(null);
     member.updatePassword(null);
     member.updateMemberStatus(MemberStatus.DISABLED);
   }
@@ -189,5 +193,22 @@ public class MemberCommandServiceDefault implements MemberCommandService {
         .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
 
     member.updateNickname(command.nickname());
+  }
+
+  @Override
+  public void changeAlarmSetting(ChangeAlarmSettingCommand command) {
+    Member member = memberRepository.findById(command.memberId())
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
+
+    switch (command.target()) {
+      case ALL -> {
+        member.updateCommentAlarm(command.enabled());
+        member.updateFoundItemAlarm(command.enabled());
+        member.updateLostItemAlarm(command.enabled());
+      }
+      case COMMENT -> member.updateCommentAlarm(command.enabled());
+      case LOST_ITEM -> member.updateLostItemAlarm(command.enabled());
+      case FOUND_ITEM -> member.updateFoundItemAlarm(command.enabled());
+    }
   }
 }

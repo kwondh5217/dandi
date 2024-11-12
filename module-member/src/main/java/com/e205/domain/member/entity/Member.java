@@ -4,7 +4,6 @@ import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.member.payload.EmailStatus;
 import com.e205.command.member.payload.MemberAuthPayload;
 import com.e205.command.member.payload.MemberStatus;
-import com.e205.common.audit.BaseTime;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,11 +50,32 @@ public class Member implements LoggableEntity {
   @Column(nullable = false, length = 10)
   private MemberStatus memberStatus;
 
-  private String fcmCode;
+  private String fcmToken;
 
   @CreatedDate
   @Column(updatable = false)
   private LocalDateTime createdAt;
+
+  @Column(nullable = false)
+  private boolean foundItemAlarm;
+
+  @Column(nullable = false)
+  private boolean lostItemAlarm;
+
+  @Column(nullable = false)
+  private boolean commentAlarm;
+
+  public void updateFoundItemAlarm(boolean foundItemAlarm) {
+    this.foundItemAlarm = foundItemAlarm;
+  }
+
+  public void updateCommentAlarm(boolean commentAlarm) {
+    this.commentAlarm = commentAlarm;
+  }
+
+  public void updateLostItemAlarm(boolean lostItemAlarm) {
+    this.lostItemAlarm = lostItemAlarm;
+  }
 
   public void updateStatus(EmailStatus newStatus) {
     this.status = newStatus;
@@ -73,8 +93,8 @@ public class Member implements LoggableEntity {
     this.password = encryptedPassword;
   }
 
-  public void updateFcmCode(String fcmCode) {
-    this.fcmCode = fcmCode;
+  public void updateFcmToken(String fcmToken) {
+    this.fcmToken = fcmToken;
   }
 
   public void updateMemberStatus(MemberStatus memberStatus) {
@@ -86,7 +106,8 @@ public class Member implements LoggableEntity {
   }
 
   public MemberPayload toPayload() {
-    return new MemberPayload(id, bagId, nickname, email, status, memberStatus);
+    return new MemberPayload(id, bagId, nickname, email, status, memberStatus, fcmToken,
+        foundItemAlarm, lostItemAlarm, commentAlarm);
   }
 
   public MemberAuthPayload toAuthPayload() {

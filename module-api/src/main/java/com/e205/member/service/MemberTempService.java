@@ -34,6 +34,9 @@ public class MemberTempService {
         .email(nickname + "@example.com")
         .status(com.e205.command.member.payload.EmailStatus.VERIFIED)
         .memberStatus(MemberStatus.ACTIVE)
+        .lostItemAlarm(true)
+        .foundItemAlarm(true)
+        .commentAlarm(true)
         .build();
 
     Member savedMember = memberRepository.save(tempMember);

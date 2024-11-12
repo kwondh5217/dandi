@@ -1,8 +1,10 @@
 package com.e205.member.controller;
 
 import com.e205.auth.helper.AuthHelper;
+import com.e205.command.bag.payload.MemberPayload;
 import com.e205.item.dto.FoundItemListResponse;
 import com.e205.item.service.FoundItemService;
+import com.e205.member.dto.AlarmSettingsRequest;
 import com.e205.member.dto.ChangeNicknameRequest;
 import com.e205.member.dto.ChangePasswordRequest;
 import com.e205.item.dto.LostItemListResponse;
@@ -10,6 +12,7 @@ import com.e205.item.service.LostItemService;
 import com.e205.member.dto.FcmCodeUpdateRequest;
 import com.e205.member.dto.MemberInfoResponse;
 import com.e205.member.service.MemberService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -75,5 +79,11 @@ public class MemberController {
       @AuthenticationPrincipal(expression = "id") Integer memberId
   ) {
     return ResponseEntity.ok(foundItemService.getItems(memberId));
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @PutMapping("/alarm-settings")
+  public void changeAlarmSettings(@RequestBody AlarmSettingsRequest request) {
+    memberService.changeAlarm(request, authHelper.getMemberId());
   }
 }
