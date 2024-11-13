@@ -40,7 +40,7 @@ public class NotiCommandService implements com.e205.NotiCommandService {
 
   public void createNotification(CreateNotificationCommand command) {
     Notification notification = NotificationFactory.createNotification(
-        command.getType(), command.getResourceId());
+        command.getNotiType(), command.getResourceId());
     notification.setMemberId(command.getMemberId());
     notification.setTitle(command.getTitle());
     notification.setCreatedAt(command.getCreatedAt());

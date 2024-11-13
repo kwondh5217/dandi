@@ -26,6 +26,10 @@ public class CreateNotificationCommand implements Command {
     this.body = body;
   }
 
+  public String getNotiType() {
+    return this.type;
+  }
+
   @Override
   public String getType() {
     return "createNotification";
