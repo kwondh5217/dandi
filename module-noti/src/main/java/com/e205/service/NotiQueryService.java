@@ -30,6 +30,10 @@ public class NotiQueryService {
         query.lastResourceId(), convertTypesToClass(query.types()), pageable);
   }
 
+  public boolean isOwner(Integer memberId, Integer notificationId) {
+    return this.notificationRepository.existsByIdAndMemberId(memberId, notificationId);
+  }
+
   private List<Class<? extends Notification>> convertTypesToClass(List<String> types) {
     return types.stream()
         .map(this::mapType)

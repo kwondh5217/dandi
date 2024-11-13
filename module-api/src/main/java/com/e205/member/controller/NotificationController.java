@@ -2,6 +2,7 @@ package com.e205.member.controller;
 
 import com.e205.DeleteNotificationsCommand;
 import com.e205.QueryNotificationWithCursor;
+import com.e205.ConfirmItemCommand;
 import com.e205.dto.NotificationResponse;
 import com.e205.entity.Notification;
 import com.e205.service.NotiCommandService;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,10 +50,22 @@ public class NotificationController {
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping
   public void deleteNotifications(
-      @AuthenticationPrincipal Integer memberId,
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @RequestBody List<Integer> notificationIds
   ) {
     this.notiCommandService.deleteNotifications(
         new DeleteNotificationsCommand(memberId, notificationIds));
+  }
+
+  @PutMapping
+  public ResponseEntity<Void> confirmNotifications(
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
+      @RequestBody ConfirmItemCommand confirmItemCommand
+  ) {
+    if (this.notiQueryService.isOwner(memberId, confirmItemCommand.itemId())) {
+      this.notiCommandService.confirmItemNotification(confirmItemCommand);
+      return ResponseEntity.ok().build();
+    }
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
   }
 }

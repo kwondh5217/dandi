@@ -8,20 +8,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.e205.CommentSaveCommand;
+import com.e205.ConfirmItemCommand;
 import com.e205.DeleteNotificationsCommand;
 import com.e205.ItemCommandService;
-import com.e205.ConfirmItemCommand;
 import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.member.payload.EmailStatus;
 import com.e205.command.member.payload.MemberStatus;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.entity.LostItemNotification;
 import com.e205.events.EventPublisher;
-import com.e205.repository.CommentNotificationRepository;
-import com.e205.repository.FoundItemNotificationRepository;
-import com.e205.repository.LostItemNotificationRepository;
 import com.e205.repository.NotificationRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,9 +29,6 @@ class NotiCommandServiceTest {
   private NotificationRepository repository;
   private ItemCommandService itemCommandService;
   private NotiCommandService notiCommandService;
-  private LostItemNotificationRepository lostItemNotificationRepository;
-  private FoundItemNotificationRepository foundItemNotificationRepository;
-  private CommentNotificationRepository commentNotificationRepository;
   private MemberQueryService memberQueryService;
   private EventPublisher eventPublisher;
 
@@ -41,17 +36,11 @@ class NotiCommandServiceTest {
   void setUp() {
     this.repository = mock(NotificationRepository.class);
     this.itemCommandService = mock(ItemCommandService.class);
-    this.lostItemNotificationRepository = mock(LostItemNotificationRepository.class);
-    this.foundItemNotificationRepository = mock(FoundItemNotificationRepository.class);
-    this.commentNotificationRepository = mock(CommentNotificationRepository.class);
     this.memberQueryService = mock(MemberQueryService.class);
     this.eventPublisher = mock(EventPublisher.class);
     this.notiCommandService = new NotiCommandService(
         repository,
         itemCommandService,
-        lostItemNotificationRepository,
-        foundItemNotificationRepository,
-        commentNotificationRepository,
         eventPublisher,
         memberQueryService
     );
@@ -72,12 +61,11 @@ class NotiCommandServiceTest {
   void confirmItemNotification_shouldConfirmReadStatusForLostItemNotifications() {
     var confirmItemCommand = new ConfirmItemCommand(1, "lostItem");
     var lostItemNotification = mock(LostItemNotification.class);
-    given(this.lostItemNotificationRepository.findByLostItemId(any())).willReturn(
-        List.of(lostItemNotification));
+    given(this.repository.findById(any())).willReturn(
+        Optional.of(lostItemNotification));
 
     this.notiCommandService.confirmItemNotification(confirmItemCommand);
 
-    verify(this.lostItemNotificationRepository).findByLostItemId(1);
     verify(lostItemNotification).confirmRead();
   }
 
@@ -97,7 +85,7 @@ class NotiCommandServiceTest {
     this.notiCommandService.createCommentNotification(command);
 
     // then
-    verify(this.commentNotificationRepository, times(senders.size())).save(any());
+    verify(this.repository, times(senders.size())).save(any());
 
     // Only two members have commentAlarm enabled
     verify(this.eventPublisher, times(2)).publishAtLeastOnce(any());
