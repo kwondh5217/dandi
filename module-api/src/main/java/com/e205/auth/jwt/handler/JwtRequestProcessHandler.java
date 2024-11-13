@@ -46,10 +46,12 @@ public class JwtRequestProcessHandler {
   @DeleteMapping("/auth/logout")
   public void logout(HttpServletRequest request) {
     String headerValue = request.getHeader(REFRESH_TOKEN_HEADER_NAME);
-    String refreshToken = extractRefreshToken(headerValue);
-    Integer memberId = jwtProvider.getMemberId(refreshToken);
-    if (jwtRepository.existByMemberId(memberId)) {
-      jwtRepository.deleteRefreshTokenByMemberId(memberId);
+    if(headerValue != null) {
+      String refreshToken = extractRefreshToken(headerValue);
+      Integer memberId = jwtProvider.getMemberId(refreshToken);
+      if (jwtRepository.existByMemberId(memberId)) {
+        jwtRepository.deleteRefreshTokenByMemberId(memberId);
+      }
     }
   }
 
