@@ -21,6 +21,8 @@ public class RouteManagerCommandService implements RouteDummyCommandService {
         .track(GeometryUtils.getLineString(command.track()))
         .skip('N')
         .snapshot(command.snapshot())
+        .startAddress(command.startAddress())
+        .endAddress(command.endAddress())
         .createdAt(LocalDateTime.now().minusMinutes(30))
         .endedAt(LocalDateTime.now())
         .build()

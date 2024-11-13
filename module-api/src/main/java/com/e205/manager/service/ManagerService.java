@@ -2,16 +2,16 @@ package com.e205.manager.service;
 
 import com.e205.auth.jwt.JwtProvider;
 import com.e205.command.RouteDummyCreateCommand;
-import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.member.command.CreateManagerCommand;
 import com.e205.command.member.service.MemberManagerService;
 import com.e205.dto.TrackPoint;
+import com.e205.geo.dto.Point;
+import com.e205.geo.service.VwolrdGeoClient;
 import com.e205.manager.dto.RouteDummyCreateRequest;
 import com.e205.service.RouteDummyCommandService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -19,6 +19,7 @@ public class ManagerService {
 
   private final RouteDummyCommandService commandService;
   private final MemberManagerService managerService;
+  private final VwolrdGeoClient geoClient;
   private final JwtProvider jwtProvider;
 
   public String createManagerAccount(String nickname) {
@@ -30,22 +31,17 @@ public class ManagerService {
   public void createRouteDummy(RouteDummyCreateRequest request) {
     Integer id = jwtProvider.getMemberId(request.token());
     List<TrackPoint> track = request.track();
-    RouteDummyCreateCommand comm = RouteDummyCreateCommand.toCommand(id, track, getSnapshot());
+    String startAddress = generateFullAddress(track.get(0));
+    String endAddress = generateFullAddress(track.get(track.size() - 1));
+    RouteDummyCreateCommand comm = RouteDummyCreateCommand.toCommand(
+        id, track, request.snapshot(), startAddress, endAddress
+    );
     commandService.createRouteDummy(comm);
   }
 
-  private static String getSnapshot() {
-    return
-        """
-            {
-                "bagId": 1,
-                "items": [
-                    {"name": "지갑", "emoticon": "👛", "type": 1, "isChecked": true},
-                    {"name": "반지", "emoticon": "💍", "type": 1, "isChecked": true},
-                    {"name": "파우치", "emoticon": "👜", "type": 1, "isChecked": true},
-                    {"name": "카드", "emoticon": "💳", "type": 1, "isChecked": true}
-                ]
-            }
-            """;
+  private String generateFullAddress(TrackPoint point) {
+    double lat = point.lat();
+    double lon = point.lon();
+    return geoClient.findFullAddress(new Point(lat, lon));
   }
 }

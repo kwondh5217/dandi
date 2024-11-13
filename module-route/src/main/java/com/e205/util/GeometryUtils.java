@@ -37,6 +37,7 @@ public class GeometryUtils {
 
   public boolean isWithinDistance(Geometry point1, Geometry point2, double maxDistanceMeters) {
     double toMeter = maxDistanceMeters / 111000.0;
+    if(point1 == null || point2 == null) return false;
     return DistanceOp.isWithinDistance(point1, point2, toMeter);
   }
 

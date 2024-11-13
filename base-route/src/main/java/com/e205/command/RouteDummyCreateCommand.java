@@ -8,18 +8,24 @@ import lombok.Builder;
 public record RouteDummyCreateCommand(
     Integer memberId,
     List<TrackPoint> track,
-    String snapshot
+    String snapshot,
+    String startAddress,
+    String endAddress
 ) {
 
   public static RouteDummyCreateCommand toCommand(
       Integer memberId,
       List<TrackPoint> track,
-      String snapshot
+      String snapshot,
+      String startAddress,
+      String endAddress
   ) {
     return RouteDummyCreateCommand.builder()
         .memberId(memberId)
         .track(track)
         .snapshot(snapshot)
+        .startAddress(startAddress)
+        .endAddress(endAddress)
         .build();
   }
 }

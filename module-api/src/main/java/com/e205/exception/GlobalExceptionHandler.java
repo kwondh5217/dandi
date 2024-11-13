@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
   private void logRequestInfo(Exception ex) {
     Map<String, String> mdcValues = MDC.getCopyOfContextMap();
 
-    if(!mdcValues.isEmpty()) {
+    if(mdcValues != null && !mdcValues.isEmpty()) {
       String mdcInfo = mdcValues.entrySet()
           .stream()
           .map(entry -> entry.getKey() + "=" + entry.getValue())

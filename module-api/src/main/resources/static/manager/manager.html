@@ -12,16 +12,56 @@
       right: 20px;
       z-index: 1;
       background-color: white;
-      padding: 10px;
-      border-radius: 5px;
-      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+      transition: height 0.3s ease;
     }
 
     #nicknameInput {
-      width: 100px;
+      width: 200px;
       height: 30px;
       font-size: 16px;
-      margin: 5px;
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    #toggleButton {
+      font-size: 14px;
+      padding: 8px 12px;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    #toggleButton:hover {
+      background-color: #0056b3;
+    }
+
+    #snapshotLabel {
+      display: none;
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    #snapshotInput {
+      width: 700px;
+      height: 200px;
+      font-size: 14px;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      display: none;
+      resize: none;
+      transition: max-height 0.3s ease;
     }
 
     #map {
@@ -34,6 +74,18 @@
 <div id="nicknameInputContainer">
   <label for="nicknameInput">이름:</label>
   <input type="text" id="nicknameInput" value="manager" placeholder="사용자 이름 입력">
+  <br>
+  <button id="toggleButton" onclick="toggleSnapshotInput()">Snapshot 입력창 토글</button>
+  <label for="snapshotInput" style="display:none;" id="snapshotLabel">Snapshot:</label>
+  <textarea id="snapshotInput" placeholder="Snapshot JSON 입력">{
+    "bagId": 1,
+    "items": [
+      {"name": "지갑", "emoticon": "👛", "type": 1, "isChecked": true},
+      {"name": "반지", "emoticon": "💍", "type": 1, "isChecked": true},
+      {"name": "파우치", "emoticon": "👜", "type": 1, "isChecked": true},
+      {"name": "카드", "emoticon": "💳", "type": 1, "isChecked": true}
+    ]
+  }</textarea>
 </div>
 
 <div id="map"></div>
@@ -44,19 +96,20 @@
   let drawing = false;
   let points = [];
   let isDKeyPressed = false;
+  let isBKeyPressed = false;
   let isMousePressed = false;
   let baseUrl = window.location.origin + window.location.pathname;
 
   function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
       zoom: 17,
-      center: {lat: 35.092899, lng: 128.853444},
+      center: { lat: 35.092899, lng: 128.853444 },
       disableDefaultUI: false,
       zoomControl: true,
     });
 
     google.maps.event.addListener(map, "mousemove", (event) => {
-      if (drawing && isDKeyPressed && isMousePressed) {
+      if (drawing && (isDKeyPressed || isBKeyPressed) && isMousePressed) {
         drawLine(event);
       }
     });
@@ -65,20 +118,28 @@
       if (event.key === 'd' || event.key === 'D') {
         isDKeyPressed = true;
       }
+      if (event.key === 'b' || event.key === 'B') {
+        isBKeyPressed = true;
+      }
     });
 
     window.addEventListener("keyup", (event) => {
       if (event.key === 'd' || event.key === 'D') {
         isDKeyPressed = false;
         if (drawing) {
-          finishDrawing();
+          finishDrawingSingle();
+        }
+      }
+      if (event.key === 'b' || event.key === 'B') {
+        isBKeyPressed = false;
+        if (drawing) {
+          finishDrawingMultiple();
         }
       }
     });
 
-    // 마우스 클릭 이벤트 등록 (그리기 시작)
     google.maps.event.addListener(map, "mousedown", (event) => {
-      if (isDKeyPressed) {
+      if (isDKeyPressed || isBKeyPressed) {
         isMousePressed = true;
         if (!drawing) {
           startDrawing();
@@ -86,16 +147,18 @@
       }
     });
 
-    // 마우스 버튼을 뗐을 때 이벤트 (그리기 종료)
     google.maps.event.addListener(map, "mouseup", (event) => {
       isMousePressed = false;
       if (drawing) {
-        finishDrawing();
+        if (isDKeyPressed) {
+          finishDrawingSingle();
+        } else if (isBKeyPressed) {
+          finishDrawingMultiple();
+        }
       }
     });
   }
 
-  // 그리기 시작 함수
   function startDrawing() {
     drawing = true;
     points = [];
@@ -111,61 +174,69 @@
       strokeOpacity: 1.0,
       strokeWeight: 5,
     });
-    map.setOptions({draggable: false});
+    map.setOptions({ draggable: false });
     console.log('그리기 시작');
   }
 
-  // 선을 그리는 함수
   function drawLine(event) {
     points.push(event.latLng);
     polyline.setPath(points);
   }
 
-  // 그리기 종료 함수
-  function finishDrawing() {
+  function finishDrawingSingle() {
     drawing = false;
-    map.setOptions({draggable: true});
+    map.setOptions({ draggable: true });
     if (polyline) {
       polyline.setMap(null);
       polyline = null;
     }
-    loginAndSaveRoute();
+    loginAndSaveRoute("manager");
   }
 
-  function loginAndSaveRoute() {
-    const nicknameInput = document.getElementById("nicknameInput");
-    const nickname = nicknameInput.value.trim() || "manager";
+  function finishDrawingMultiple() {
+    drawing = false;
+    map.setOptions({ draggable: true });
+    if (polyline) {
+      polyline.setMap(null);
+      polyline = null;
+    }
+    for (let i = 1; i <= 1000; i++) {
+      loginAndSaveRoute(`manager${i}`);
+    }
+  }
 
-    // 로그인 요청
-    fetch(`${baseUrl}/../login/${nickname}`, {
+  function loginAndSaveRoute(managerName) {
+    fetch(`${baseUrl}/../login/${managerName}`, {
       method: "POST"
     })
     .then(response => response.text())
     .then(data => {
-      token = data.substring(7);
-      saveRoute(points);
+      const token = data.substring(7);
+      saveRoute(points, token);
     })
     .catch(error => {
       console.error("로그인 실패", error);
     });
   }
 
-  function saveRoute(routePoints) {
+  function saveRoute(routePoints, token) {
     const formattedPath = routePoints.map(point => ({
       lat: point.lat(),
       lon: point.lng()
     }));
+
+    const snapshotInput = document.getElementById("snapshotInput").value;
 
     fetch(`${baseUrl}/../route`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({token: token, track: formattedPath}),
+      body: JSON.stringify({ token: token, track: formattedPath, snapshot: snapshotInput }),
     })
     .then(response => {
       if (response.ok) {
-        console.log("이동 생성 성공")
+        console.log("이동 생성 성공");
       }
     })
     .catch(error => {
@@ -173,10 +244,21 @@
     });
   }
 
+  function toggleSnapshotInput() {
+    const snapshotInput = document.getElementById("snapshotInput");
+    const snapshotLabel = document.getElementById("snapshotLabel");
+    if (snapshotInput.style.display === "none") {
+      snapshotInput.style.display = "block";
+      snapshotLabel.style.display = "block";
+    } else {
+      snapshotInput.style.display = "none";
+      snapshotLabel.style.display = "none";
+    }
+  }
+
   window.onload = function () {
     initMap();
   };
 </script>
-
 </body>
 </html>
