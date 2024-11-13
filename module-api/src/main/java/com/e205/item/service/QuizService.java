@@ -32,6 +32,6 @@ public class QuizService {
     QuizSubmitCommand command = new QuizSubmitCommand(memberId, quiz.id(), request.getAnswerId());
     quizCommandService.submit(command);
 
-    return true;
+    return quizQueryService.getQuizResult(memberId, quiz.id());
   }
 }

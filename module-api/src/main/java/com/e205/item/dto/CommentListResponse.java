@@ -4,7 +4,7 @@ import com.e205.payload.CommentPayload;
 import java.util.List;
 
 public record CommentListResponse(
-    List<CommentPayload> payloads
+    List<CommentResponse> payloads
 ) {
 
 }

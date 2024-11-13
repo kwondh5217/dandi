@@ -35,6 +35,7 @@ public class FoundComment extends Comment {
 
   public CommentPayload toPayload() {
     Integer parentId = parent != null ? parent.getId() : null;
-    return new CommentPayload(getId(), getWriterId(), parentId, getContent(), getCreatedAt());
+    return new CommentPayload(getId(), foundItem.getId(), getWriterId(), parentId, getContent(),
+        getCreatedAt());
   }
 }

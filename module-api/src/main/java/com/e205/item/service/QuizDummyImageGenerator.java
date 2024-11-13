@@ -52,7 +52,7 @@ public class QuizDummyImageGenerator {
 
     FoundItem foundItem = foundItemCommandRepository.save(
         new FoundItem(memberId, 1D, 1D, "더미입니다.", "더미입니다.", FoundItemType.OTHER,
-            LocalDateTime.now()));
+            LocalDateTime.now(), "주소 없음"));
 
     foundItemCommandRepository.save(foundItem);
 

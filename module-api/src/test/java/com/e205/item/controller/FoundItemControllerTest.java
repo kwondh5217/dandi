@@ -16,6 +16,7 @@ import com.e205.exception.ExceptionLoader;
 import com.e205.item.dto.FoundItemCreateRequest;
 import com.e205.item.dto.FoundItemResponse;
 import com.e205.geo.dto.Point;
+import com.e205.item.service.CommentApiService;
 import com.e205.item.service.FoundItemService;
 import com.e205.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,6 +50,9 @@ public class FoundItemControllerTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @MockBean
+  private CommentApiService commentApiService;
 
   static final int memberId = 1;
   static final int foundId = 2;
@@ -90,7 +94,7 @@ public class FoundItemControllerTest {
   void getFoundItem() throws Exception {
     // given
     FoundItemResponse response = new FoundItemResponse(foundId, memberId, new Point(39.329034, 128.349023),
-        "프론트 데스크에 맡겨두었어요.", "FOUND", FoundItemType.OTHER, now(), "djfalksfda.png");
+        "프론트 데스크에 맡겨두었어요.", "FOUND", FoundItemType.OTHER, now(), "djfalksfda.png", "주소없음");
 
     given(foundItemService.get(memberId, foundId)).willReturn(response);
 
@@ -135,7 +139,7 @@ public class FoundItemControllerTest {
 
     // then
     action.andExpect(status().isCreated());
-    verify(commentService).createComment(any());
+    verify(commentApiService).createComment(any());
   }
 
   @DisplayName("자식 댓글 등록 테스트")
@@ -151,6 +155,6 @@ public class FoundItemControllerTest {
 
     // then
     action.andExpect(status().isCreated());
-    verify(commentService).createComment(any());
+    verify(commentApiService).createComment(any());
   }
 }

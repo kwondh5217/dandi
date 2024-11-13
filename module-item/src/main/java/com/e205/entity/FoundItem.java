@@ -30,6 +30,7 @@ public class FoundItem implements LoggableEntity {
   private Double lat;
   @Column(precision = 9)
   private Double lon;
+  private String address;
   private String description;
   private String savePlace;
   @Enumerated(value = EnumType.STRING)
@@ -40,7 +41,7 @@ public class FoundItem implements LoggableEntity {
 
   @Builder
   public FoundItem(Integer memberId, Double lat, Double lon, String description, String savePlace,
-      FoundItemType type, LocalDateTime foundAt) {
+      FoundItemType type, LocalDateTime foundAt, String address) {
     this.memberId = memberId;
     this.lat = lat;
     this.lon = lon;
@@ -49,6 +50,7 @@ public class FoundItem implements LoggableEntity {
     this.type = type;
     this.foundAt = foundAt;
     this.createdAt = LocalDateTime.now();
+    this.address = address;
   }
 
   public FoundItem(FoundItemSaveCommand command) {
@@ -60,6 +62,7 @@ public class FoundItem implements LoggableEntity {
     this.type = command.type();
     this.foundAt = command.foundAt();
     this.createdAt = LocalDateTime.now();
+    this.address = command.address();
   }
 
   public FoundItemPayload toPayload() {
@@ -71,6 +74,7 @@ public class FoundItem implements LoggableEntity {
         .description(description)
         .savePlace(savePlace)
         .type(type)
+        .address(address)
         .foundAt(foundAt)
         .build();
   }

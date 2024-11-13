@@ -61,7 +61,7 @@ class QuizMakeCommandServiceTest {
     // given
     registerFoundImages(15);
     FoundItem foundItem = new FoundItem(1, 1d, 1d, "묘사", "저장", FoundItemType.OTHER,
-        LocalDateTime.now());
+        LocalDateTime.now(), "주소없음");
     given(foundItemQueryRepository.findById(1)).willReturn(Optional.of(foundItem));
     given(itemImageRepository.findFoundImageById(any())).willReturn(Optional.of(mock()));
 
@@ -99,7 +99,7 @@ class QuizMakeCommandServiceTest {
     Integer foundItemId = 1;
     Integer memberId = 1;
     FoundItem foundItem = new FoundItem(2, 1d, 1d, "묘사", "저장", FoundItemType.OTHER,
-        LocalDateTime.now());
+        LocalDateTime.now(), "주소없음");
     given(foundItemQueryRepository.findById(foundItemId)).willReturn(Optional.of(foundItem));
     QuizMakeCommand command = new QuizMakeCommand(foundItemId, memberId, mock());
 
@@ -116,7 +116,7 @@ class QuizMakeCommandServiceTest {
     // given
     registerFoundImages(100);
     FoundItem foundItem = new FoundItem(1, 1d, 1d, "묘사", "저장", FoundItemType.OTHER,
-        LocalDateTime.now());
+        LocalDateTime.now(), "주소없음");
     given(foundItemQueryRepository.findById(any())).willReturn(Optional.of(foundItem));
 
     given(itemImageRepository.findFoundImageById(any())).willReturn(Optional.empty());
@@ -140,7 +140,7 @@ class QuizMakeCommandServiceTest {
     int optionCount = 4;
 
     FoundItem foundItem = new FoundItem(1, 1d, 1d, "묘사", "저장", FoundItemType.OTHER,
-        LocalDateTime.now());
+        LocalDateTime.now(), "주소없음");
     given(foundItemQueryRepository.findById(foundItemId)).willReturn(Optional.of(foundItem));
 
     UUID answerImage = UUID.randomUUID();

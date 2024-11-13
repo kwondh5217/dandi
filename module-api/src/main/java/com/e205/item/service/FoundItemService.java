@@ -4,6 +4,8 @@ import com.e205.FoundItemType;
 import com.e205.command.FoundItemDeleteCommand;
 import com.e205.command.FoundItemSaveCommand;
 import com.e205.exception.ItemError;
+import com.e205.geo.dto.Point;
+import com.e205.geo.service.GeoClient;
 import com.e205.item.dto.FoundItemCreateRequest;
 import com.e205.item.dto.FoundItemListResponse;
 import com.e205.item.dto.FoundItemResponse;
@@ -23,10 +25,12 @@ public class FoundItemService {
 
   private final FoundItemCommandService foundItemCommandService;
   private final FoundItemQueryService foundItemQueryService;
+  private final GeoClient geoClient;
 
   @Transactional
   public void save(int memberId, FoundItemCreateRequest request) {
-    FoundItemSaveCommand command = request.toCommand(memberId);
+    String address = geoClient.findFullAddress(request.foundLocation());
+    FoundItemSaveCommand command = request.toCommand(memberId, address);
     foundItemCommandService.save(command);
   }
 

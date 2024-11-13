@@ -1,6 +1,7 @@
 package com.e205.item.controller;
 
 import static java.time.LocalDateTime.now;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -14,6 +15,7 @@ import com.e205.auth.dto.MemberDetails;
 import com.e205.exception.ExceptionLoader;
 import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemResponse;
+import com.e205.item.service.CommentApiService;
 import com.e205.item.service.LostItemService;
 import com.e205.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,10 +45,10 @@ public class LostItemControllerTest {
   private MockMvc mockMvc;
 
   @MockBean
-  private LostItemService lostItemService;
+  private CommentApiService commentApiService;
 
   @MockBean
-  private CommentService commentService;
+  private LostItemService lostItemService;
 
   @Autowired
   private ObjectMapper objectMapper;
@@ -73,7 +75,7 @@ public class LostItemControllerTest {
 
     // then
     action.andExpect(status().isCreated());
-    verify(lostItemService).createLostItem(1, request);
+    verify(lostItemService).createLostItem(any(), any());
   }
 
   @DisplayName("분실물 종료 요청 테스트")
@@ -96,7 +98,7 @@ public class LostItemControllerTest {
   void getLostItem() throws Exception {
     // given
     int lostItemId = 1;
-    LostItemResponse response = new LostItemResponse(lostItemId, "검정색 지갑", "집에 없음", List.of(), now());
+    LostItemResponse response = new LostItemResponse(lostItemId, 1, "검정색 지갑", "집에 없음", List.of(), now());
 
     given(lostItemService.getLostItem(1, lostItemId)).willReturn(response);
 

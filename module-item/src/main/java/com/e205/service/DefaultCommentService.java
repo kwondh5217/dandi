@@ -53,6 +53,16 @@ public class DefaultCommentService implements CommentService {
     };
   }
 
+  @Override
+  public CommentPayload findComment(CommentQuery query) {
+    return switch (query.type()) {
+      case LOST -> repository.findLostComment(query).map(LostComment::toPayload)
+          .orElseThrow(ItemError.COMMENT_NOT_EXIST::getGlobalException);
+      case FOUND -> repository.findFoundComment(query).map(FoundComment::toPayload)
+          .orElseThrow(ItemError.COMMENT_NOT_EXIST::getGlobalException);
+    };
+  }
+
   private void createLostComment(CommentCreateCommand command) {
     LostComment parent = null;
     if (command.parentId() != null) {

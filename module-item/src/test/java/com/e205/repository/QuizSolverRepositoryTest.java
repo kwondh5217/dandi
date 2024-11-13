@@ -39,7 +39,7 @@ class QuizSolverRepositoryTest {
     Integer memberId = 1;
     Integer solverId = 2;
 
-    FoundItem foundItem = new FoundItem(memberId, 1d, 1d, "", "", FoundItemType.OTHER, now());
+    FoundItem foundItem = new FoundItem(memberId, 1d, 1d, "", "", FoundItemType.OTHER, now(), "주소없음");
     foundItemCommandRepository.save(foundItem);
 
     FoundImage image = new FoundImage(UUID.randomUUID(), "png", foundItem);

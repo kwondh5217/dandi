@@ -15,13 +15,14 @@ public record FoundItemCreateRequest(
     String storageDesc,
     String itemDesc
 ) {
-  public FoundItemSaveCommand toCommand(Integer memberId) {
+  public FoundItemSaveCommand toCommand(Integer memberId, String address) {
     return FoundItemSaveCommand.builder()
         .foundAt(foundAt)
         .itemDesc(itemDesc)
         .storageDesc(storageDesc)
         .type(category)
         .location(foundLocation.toGeoPoint())
+        .address(address)
         .memberId(memberId)
         .image(image)
         .build();

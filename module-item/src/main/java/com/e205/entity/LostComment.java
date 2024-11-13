@@ -35,6 +35,6 @@ public class LostComment extends Comment {
 
   public CommentPayload toPayload() {
     Integer parentId = parent != null ? parent.getId() : null;
-    return new CommentPayload(getId(), getWriterId(), parentId, getContent(), getCreatedAt());
+    return new CommentPayload(getId(), lostItem.getId(), getWriterId(), parentId, getContent(), getCreatedAt());
   }
 }

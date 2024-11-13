@@ -14,6 +14,7 @@ public record FoundItemSaveCommand(
     FoundItemType type,
     String storageDesc,
     String itemDesc,
+    String address,
     LocalDateTime foundAt
 ) {
 

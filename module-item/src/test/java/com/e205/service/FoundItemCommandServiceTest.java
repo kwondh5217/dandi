@@ -168,7 +168,7 @@ class FoundItemCommandServiceTest {
 
   private FoundItemSaveCommand generateCommand(String image, FoundItemType type,
       LocalDateTime foundAt) {
-    return new FoundItemSaveCommand(1, image, mock(), type, "저장묘사", "물건묘사", foundAt);
+    return new FoundItemSaveCommand(1, image, mock(), type, "저장묘사", "물건묘사", "주소없음", foundAt);
   }
 
   private String generateImage() {

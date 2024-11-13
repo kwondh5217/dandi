@@ -13,6 +13,7 @@ public record FoundItemPayload(
     String description,
     String savePlace,
     FoundItemType type,
+    String address,
     LocalDateTime foundAt
 ) {
 

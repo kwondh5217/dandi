@@ -8,11 +8,8 @@ import com.e205.item.dto.CommentQueryRequest;
 import com.e205.item.dto.FoundItemCreateRequest;
 import com.e205.item.dto.FoundItemListResponse;
 import com.e205.item.dto.FoundItemResponse;
+import com.e205.item.service.CommentApiService;
 import com.e205.item.service.FoundItemService;
-import com.e205.payload.CommentPayload;
-import com.e205.service.CommentService;
-import java.util.List;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FoundItemController {
 
   private final FoundItemService foundItemService;
-  private final CommentService commentService;
+  private final CommentApiService commentService;
 
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping
@@ -85,7 +82,6 @@ public class FoundItemController {
       @ModelAttribute CommentQueryRequest request,
       @PathVariable Integer foundId
   ) {
-    List<CommentPayload> comments = commentService.findComments(request.toQuery(CommentType.FOUND, foundId));
-    return ResponseEntity.ok(new CommentListResponse(comments));
+    return ResponseEntity.ok(commentService.findComments(request, foundId, CommentType.FOUND));
   }
 }

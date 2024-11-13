@@ -6,4 +6,6 @@ import com.e205.query.QuizQuery;
 public interface QuizQueryService {
 
   QuizPayload findQuiz(QuizQuery query);
+
+  boolean getQuizResult(Integer memberId, Integer quizId);
 }

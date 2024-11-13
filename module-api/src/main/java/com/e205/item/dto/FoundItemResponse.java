@@ -15,6 +15,7 @@ public record FoundItemResponse(
     String savePoint,
     FoundItemType type,
     LocalDateTime foundAt,
+    String address,
     String image
 ) {
 
@@ -27,6 +28,7 @@ public record FoundItemResponse(
         .savePoint(payload.savePlace())
         .foundAt(payload.foundAt())
         .type(payload.type())
+        .address(payload.address())
         .image(image)
         .build();
   }

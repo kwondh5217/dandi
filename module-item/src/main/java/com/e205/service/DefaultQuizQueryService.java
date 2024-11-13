@@ -3,6 +3,7 @@ package com.e205.service;
 import com.e205.entity.FoundItem;
 import com.e205.entity.Quiz;
 import com.e205.entity.QuizImage;
+import com.e205.entity.QuizSolver;
 import com.e205.exception.ItemError;
 import com.e205.payload.QuizImagePayload;
 import com.e205.payload.QuizPayload;
@@ -53,6 +54,13 @@ public class DefaultQuizQueryService implements QuizQueryService {
         .toList();
 
     return new QuizPayload(quiz.getId(), foundItem.getId(), options);
+  }
+
+  @Override
+  public boolean getQuizResult(Integer memberId, Integer quizId) {
+    return quizSolverRepository.findByMemberIdAndQuizId(memberId, quizId)
+        .map(QuizSolver::isSolved)
+        .orElseThrow(ItemError.FOUND_QUIZ_NOT_FOUND::getGlobalException);
   }
 
 }

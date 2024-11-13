@@ -6,6 +6,7 @@ import com.e205.item.dto.CommentListResponse;
 import com.e205.item.dto.CommentQueryRequest;
 import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemResponse;
+import com.e205.item.service.CommentApiService;
 import com.e205.item.service.LostItemService;
 import com.e205.payload.CommentPayload;
 import com.e205.query.CommentListQuery;
@@ -31,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LostItemController {
 
   private final LostItemService lostItemService;
-  private final CommentService commentService;
+  private final CommentApiService commentService;
 
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping
@@ -69,12 +70,9 @@ public class LostItemController {
 
   @GetMapping("/{lostId}/comments")
   public ResponseEntity<CommentListResponse> findComments(
-      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @ModelAttribute CommentQueryRequest request,
       @PathVariable int lostId
   ) {
-    CommentListQuery query = request.toQuery(CommentType.LOST, lostId);
-    List<CommentPayload> comments = commentService.findComments(query);
-    return ResponseEntity.ok(new CommentListResponse(comments));
+    return ResponseEntity.ok(commentService.findComments(request, lostId, CommentType.LOST));
   }
 }

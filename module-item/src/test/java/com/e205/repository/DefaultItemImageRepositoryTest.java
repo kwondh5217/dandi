@@ -56,7 +56,7 @@ class DefaultItemImageRepositoryTest {
   void When_FindFoundItemsByLatestOrderWithLimit20_Then_ReturnSuccess() {
     // given
     FoundItem foundItem = new FoundItem(1, 1D, 1D, "묘사", "저장", FoundItemType.OTHER,
-        now());
+        now(), "주소없음");
     foundItemCommandRepository.save(foundItem);
 
     List<FoundImage> foundImages;
