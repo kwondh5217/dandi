@@ -9,6 +9,6 @@ public record RouteSavedEvent(
 
   @Override
   public String getType() {
-    return "routeSaved";
+    return "route";
   }
 }

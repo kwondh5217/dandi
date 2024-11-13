@@ -11,6 +11,6 @@ public record LostItemSaveEvent(
 
   @Override
   public String getType() {
-    return "lostItemSaveEvent";
+    return "lostItem";
   }
 }
