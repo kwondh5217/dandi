@@ -47,13 +47,10 @@ public class JwtRequestProcessHandler {
   public void logout(HttpServletRequest request) {
     String headerValue = request.getHeader(REFRESH_TOKEN_HEADER_NAME);
     String refreshToken = extractRefreshToken(headerValue);
-
-    validateRefreshToken(refreshToken);
-
     Integer memberId = jwtProvider.getMemberId(refreshToken);
-    validateRefreshTokenInRedis(memberId);
-
-    jwtRepository.deleteRefreshTokenByMemberId(memberId);
+    if (jwtRepository.existByMemberId(memberId)) {
+      jwtRepository.deleteRefreshTokenByMemberId(memberId);
+    }
   }
 
   private String extractRefreshToken(String headerValue) {

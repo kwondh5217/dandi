@@ -190,7 +190,7 @@
       polyline.setMap(null);
       polyline = null;
     }
-    loginAndSaveRoute("manager");
+    loginAndSaveRoute();
   }
 
   function finishDrawingMultiple() {
@@ -205,8 +205,10 @@
     }
   }
 
-  function loginAndSaveRoute(managerName) {
-    fetch(`${baseUrl}/../login/${managerName}`, {
+  function loginAndSaveRoute() {
+    const nicknameInput = document.getElementById("nicknameInput");
+    const nickname = nicknameInput.value.trim() || "manager";
+    fetch(`${baseUrl}/../login/${nickname}`, {
       method: "POST"
     })
     .then(response => response.text())
