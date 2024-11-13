@@ -37,11 +37,11 @@ public class NotiQueryService {
   }
 
   private Class<? extends Notification> mapType(String type) {
-    return switch (type) {
-      case "comment" -> CommentNotification.class;
-      case "lostItem" -> LostItemNotification.class;
-      case "foundItem" -> FoundItemNotification.class;
-      case "route" -> RouteNotification.class;
+    return switch (NotificationType.fromString(type)) {
+      case COMMENT -> CommentNotification.class;
+      case LOST_ITEM -> LostItemNotification.class;
+      case FOUND_ITEM -> FoundItemNotification.class;
+      case ROUTE -> RouteNotification.class;
       default -> throw new IllegalArgumentException("Unknown notification type: " + type);
     };
   }

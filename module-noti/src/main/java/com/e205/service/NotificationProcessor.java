@@ -1,10 +1,11 @@
 package com.e205.service;
 
 import com.e205.CreateNotificationCommand;
-import com.e205.MemberWithFcm;
 import com.e205.NotifiedMembersCommand;
 import com.e205.NotifyOutboxEvent;
+import com.e205.command.bag.payload.MemberPayload;
 import com.e205.events.EventPublisher;
+import com.e205.util.NotificationFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 public class NotificationProcessor {
 
+  public static final String FOUND_ITEM_SAVE_EVENT = "foundItemSaveEvent";
+  public static final String LOST_ITEM_SAVE_EVENT = "lostItemSaveEvent";
   private final NotiCommandService notiCommandService;
   private final Notifier notifier;
   private final EventPublisher eventPublisher;
@@ -38,35 +41,35 @@ public class NotificationProcessor {
   @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 2))
   @Transactional
   public List<NotifiedMembersCommand> processNotifications(Integer resourceId,
-      String situationDescription, String eventType, List<MemberWithFcm> membersWithFcm) {
+      String situationDescription, String eventType, List<MemberPayload> memberPayloads) {
     List<NotifiedMembersCommand> notifiedMembers = new ArrayList<>();
-    StringBuilder sb = new StringBuilder();
-    sb.append("{\"resourceId\":\"").append(resourceId.toString()).append("\",")
-        .append("\"eventType\":\"").append(eventType).append("\"}");
+    String eventBody = NotificationFactory.createNotificationBody(eventType, resourceId);
 
-    membersWithFcm.forEach(member -> {
+    memberPayloads.forEach(member -> {
       CreateNotificationCommand notification = createNotificationCommand(
-          resourceId, situationDescription, eventType, member, sb.toString());
+          resourceId, situationDescription, eventType, member, eventBody);
       this.notiCommandService.createNotification(notification);
 
-      this.eventPublisher.publishAtLeastOnce(
-          new NotifyOutboxEvent(member.fcmToken(), notification.getTitle(),
-              sb.toString()));
+      if (shouldNotify(eventType, member)) {
+        this.eventPublisher.publishAtLeastOnce(new NotifyOutboxEvent(
+            member.fcmCode(), notification.getTitle(), eventBody)
+        );
+      }
 
       notifiedMembers.add(new NotifiedMembersCommand(
-          member.memberId(), resourceId, LocalDateTime.now(), eventType));
+          member.id(), resourceId, LocalDateTime.now(), eventType)
+      );
     });
 
     return notifiedMembers;
   }
 
-
   private CreateNotificationCommand createNotificationCommand(Integer resourceId,
       String situationDescription,
-      String type, MemberWithFcm member, String body) {
+      String type, MemberPayload member, String body) {
     String title = extractTitle(situationDescription);
     return CreateNotificationCommand.builder()
-        .memberId(member.memberId())
+        .memberId(member.id())
         .resourceId(resourceId)
         .title(title)
         .createdAt(LocalDateTime.now())
@@ -79,5 +82,10 @@ public class NotificationProcessor {
     return (situationDescription == null || situationDescription.isEmpty())
         ? "No description"
         : situationDescription.substring(0, Math.min(20, situationDescription.length()));
+  }
+
+  private boolean shouldNotify(String eventType, MemberPayload member) {
+    return (eventType.equals(FOUND_ITEM_SAVE_EVENT) && member.foundItemAlarm()) ||
+        (eventType.equals(LOST_ITEM_SAVE_EVENT) && member.lostItemAlarm());
   }
 }

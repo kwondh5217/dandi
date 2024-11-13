@@ -11,6 +11,9 @@ import com.e205.CommentSaveCommand;
 import com.e205.DeleteNotificationsCommand;
 import com.e205.ItemCommandService;
 import com.e205.ConfirmItemCommand;
+import com.e205.command.bag.payload.MemberPayload;
+import com.e205.command.member.payload.EmailStatus;
+import com.e205.command.member.payload.MemberStatus;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.entity.LostItemNotification;
 import com.e205.events.EventPublisher;
@@ -80,14 +83,41 @@ class NotiCommandServiceTest {
 
   @Test
   void createCommentNotification() {
+    // given
     Set<Integer> senders = Set.of(2, 3, 4);
     var command = new CommentSaveCommand(1, 1, senders, "lostComment");
+    List<MemberPayload> memberPayloads = List.of(
+        createMemberPayload(2, "User1", "user1@example.com", "fcmCode1", true, false, true),
+        createMemberPayload(3, "User2", "user2@example.com", "fcmCode2", false, true, true),
+        createMemberPayload(4, "User3", "user3@example.com", "fcmCode3", true, true, false)
+    );
+    given(this.memberQueryService.findMembers(any())).willReturn(memberPayloads);
 
+    // when
     this.notiCommandService.createCommentNotification(command);
 
+    // then
     verify(this.commentNotificationRepository, times(senders.size())).save(any());
-    verify(this.memberQueryService, times(senders.size())).findMemberFcmById(any());
-    verify(this.eventPublisher, times(senders.size())).publishAtLeastOnce(any());
+
+    // Only two members have commentAlarm enabled
+    verify(this.eventPublisher, times(2)).publishAtLeastOnce(any());
   }
 
+  private MemberPayload createMemberPayload(
+      int id, String nickname, String email, String fcmCode,
+      boolean foundItemAlarm, boolean lostItemAlarm, boolean commentAlarm) {
+
+    return MemberPayload.builder()
+        .id(id)
+        .bagId(id)
+        .nickname(nickname)
+        .email(email)
+        .status(EmailStatus.VERIFIED)
+        .memberStatus(MemberStatus.ACTIVE)
+        .fcmCode(fcmCode)
+        .foundItemAlarm(foundItemAlarm)
+        .lostItemAlarm(lostItemAlarm)
+        .commentAlarm(commentAlarm)
+        .build();
+  }
 }

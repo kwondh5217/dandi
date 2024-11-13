@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -47,5 +48,9 @@ public class Notification implements LoggableEntity {
 
   public void confirmRead() {
     this.confirmed = true;
+  }
+
+  public String getEntityType() {
+    return this.getClass().getDeclaredAnnotation(DiscriminatorValue.class).value();
   }
 }

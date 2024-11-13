@@ -1,7 +1,8 @@
 package com.e205.service;
 
-import com.e205.MemberWithFcm;
 import com.e205.NotifyEvent;
+import com.e205.command.bag.payload.MemberPayload;
+import com.e205.command.member.query.FindMembersByIdQuery;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.event.FoundItemSaveEvent;
 import com.e205.event.LostItemSaveEvent;
@@ -62,13 +63,13 @@ public class EventService {
         event.saved().id(),
         event.saved().description(),
         event.getType(),
-        this.memberQueryService.membersWithFcmQuery(userIdsNearPoint));
+        this.memberQueryService.findMembers(new FindMembersByIdQuery(userIdsNearPoint)));
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleLostItemSaveEvent(LostItemSaveEvent event) {
-    List<MemberWithFcm> membersWithFcm = findMembersForNotification(
+    List<MemberPayload> MemberPayloads = findMembersForNotification(
         event.saved().startRouteId(),
         event.saved().endRouteId(),
         event.saved().createdAt());
@@ -77,13 +78,13 @@ public class EventService {
         event.saved().id(),
         event.saved().situationDescription(),
         event.getType(),
-        membersWithFcm);
+        MemberPayloads);
   }
 
-  private List<MemberWithFcm> findMembersForNotification(Integer startRouteId,
+  private List<MemberPayload> findMembersForNotification(Integer startRouteId,
       Integer endRouteId, LocalDateTime createdAt) {
     List<Integer> memberIds = findMemberIdsInRoute(startRouteId, endRouteId, createdAt);
-    return this.memberQueryService.membersWithFcmQuery(memberIds);
+    return this.memberQueryService.findMembers(new FindMembersByIdQuery(memberIds));
   }
 
   private List<Integer> findMemberIdsInRoute(Integer startRouteId,
@@ -94,11 +95,11 @@ public class EventService {
   }
 
   private void processNotificationForMembers(Integer resourceId,
-      String situationDescription, String eventType, List<MemberWithFcm> membersWithFcm) {
+      String situationDescription, String eventType, List<MemberPayload> memberPayloads) {
     this.notiCommandService.notifiedMembersCommand(
         this.notificationProcessor.processNotifications(
             resourceId, situationDescription, eventType,
-            membersWithFcm
-        ));
+            memberPayloads)
+    );
   }
 }
