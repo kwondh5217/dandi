@@ -13,9 +13,8 @@ import com.e205.command.member.service.MemberQueryService;
 import com.e205.entity.CommentNotification;
 import com.e205.entity.Notification;
 import com.e205.events.EventPublisher;
+import com.e205.exception.GlobalException;
 import com.e205.repository.CommentNotificationRepository;
-import com.e205.repository.FoundItemNotificationRepository;
-import com.e205.repository.LostItemNotificationRepository;
 import com.e205.repository.NotificationRepository;
 import com.e205.util.NotificationFactory;
 import java.time.LocalDateTime;
@@ -32,8 +31,6 @@ public class NotiCommandService implements com.e205.NotiCommandService {
 
   private final NotificationRepository notificationRepository;
   private final ItemCommandService itemCommandService;
-  private final LostItemNotificationRepository lostItemNotificationRepository;
-  private final FoundItemNotificationRepository foundItemNotificationRepository;
   private final CommentNotificationRepository commentNotificationRepository;
   private final EventPublisher eventPublisher;
   private final MemberQueryService memberQueryService;
@@ -57,8 +54,9 @@ public class NotiCommandService implements com.e205.NotiCommandService {
   }
 
   public void confirmItemNotification(ConfirmItemCommand command) {
-    findNotificationByTypeAndId(command.type(), command.itemId())
-        .forEach(Notification::confirmRead);
+    Notification notification = this.notificationRepository.findById(command.itemId())
+        .orElseThrow(() -> new GlobalException("E801"));
+    notification.confirmRead();
   }
 
   public void createCommentNotification(CommentSaveCommand command) {
@@ -79,13 +77,5 @@ public class NotiCommandService implements com.e205.NotiCommandService {
             new NotifyOutboxEvent(member.fcmCode(), command.type(), notification.getBody()));
       }
     }
-  }
-
-  private List<Notification> findNotificationByTypeAndId(String type, Integer itemId) {
-    return switch (NotificationType.fromString(type)) {
-      case LOST_ITEM -> lostItemNotificationRepository.findByLostItemId(itemId);
-      case FOUND_ITEM -> foundItemNotificationRepository.findByFoundItemId(itemId);
-      default -> throw new IllegalArgumentException("지원하지 않는 알림 유형입니다.");
-    };
   }
 }

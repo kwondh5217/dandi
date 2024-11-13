@@ -25,4 +25,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
   @Query("DELETE FROM Notification n WHERE n.memberId = :memberId AND n.id IN :notificationIds")
   void deleteAllByIdAndMemberId(@Param("memberId") Integer memberId,
       @Param("notificationIds") List<Integer> notificationIds);
+
+  boolean existsByIdAndMemberId(Integer id, Integer memberId);
 }
