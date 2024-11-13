@@ -6,9 +6,9 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.e205.auth.dto.MemberDetails;
 import com.e205.entity.CommentNotification;
 import com.e205.entity.FoundItemNotification;
 import com.e205.entity.LostItemNotification;
@@ -27,6 +27,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
@@ -49,6 +51,9 @@ class NotificationControllerTest {
   @WithMockUser(username = "1")
   @Test
   void findNotifications() throws Exception {
+    SecurityContextHolder.getContext().setAuthentication(
+        new UsernamePasswordAuthenticationToken(new MemberDetails(1), null, List.of())
+    );
     Integer resourceId = 0;
     List<String> types = List.of("comment", "foundItem", "lostItem", "route");
 
@@ -59,7 +64,6 @@ class NotificationControllerTest {
         createRouteNotification(4, 1, "Route Title", 301)
     );
     given(queryService.queryNotificationWithCursor(any())).willReturn(mockNotifications);
-    given(resolver.resolveArgument(any(), any(), any(), any())).willReturn(1);
 
     this.mockMvc.perform(get("/noti")
         .param("resourceId", resourceId.toString())
@@ -70,8 +74,10 @@ class NotificationControllerTest {
   @WithMockUser(username = "1")
   @Test
   void deleteNotifications() throws Exception {
+    SecurityContextHolder.getContext().setAuthentication(
+        new UsernamePasswordAuthenticationToken(new MemberDetails(1), null, List.of())
+    );
     List<Integer> notificationIds = List.of(1, 2, 3, 4, 5);
-    given(resolver.resolveArgument(any(), any(), any(), any())).willReturn(1);
 
     this.mockMvc.perform(delete("/noti")
         .with(csrf())
@@ -80,7 +86,6 @@ class NotificationControllerTest {
         .andExpect(status().isOk());
     verify(this.notiCommandService).deleteNotifications(any());
   }
-
 
   private LostItemNotification createLostItemNotification(Integer id, Integer memberId,
       String title, Integer lostItemId) {
