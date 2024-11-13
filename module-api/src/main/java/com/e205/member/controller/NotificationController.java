@@ -31,7 +31,7 @@ public class NotificationController {
 
   @GetMapping
   public ResponseEntity<List<NotificationResponse>> findNotifications(
-      @AuthenticationPrincipal Integer memberId,
+      @AuthenticationPrincipal(expression = "id") Integer memberId,
       @RequestParam("resourceId") Integer resourceId,
       @RequestParam("types") List<String> types
   ) {
