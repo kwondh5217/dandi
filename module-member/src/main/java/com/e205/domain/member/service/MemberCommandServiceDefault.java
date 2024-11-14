@@ -113,9 +113,9 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     // Redis에서 인증 여부 확인
     String isAuthenticated = (String) redisTemplate.opsForHash()
         .get(registrationKey, "authenticated");
-//    if (isAuthenticated == null || !isAuthenticated.equals("true")) {
-//      MemberError.VERIFICATION_PROCESS_NOT_COMPLETE.throwGlobalException();
-//    }
+    if (isAuthenticated == null || !isAuthenticated.equals("true")) {
+      MemberError.VERIFICATION_PROCESS_NOT_COMPLETE.throwGlobalException();
+    }
 
     Map<Object, Object> registrationData = redisTemplate.opsForHash().entries(registrationKey);
     if (registrationData.isEmpty()) {
