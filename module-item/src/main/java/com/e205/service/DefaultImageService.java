@@ -30,7 +30,7 @@ public class DefaultImageService implements ImageService {
     Resource image = command.image();
     String extension = FilenameUtils.getExtension(image.getFilename());
 
-    if (!IMAGE_EXTENSIONS.contains(extension)) {
+    if (!IMAGE_EXTENSIONS.contains(extension.toLowerCase())) {
       ItemError.IMAGE_EXT_NOT_VALID.throwGlobalException();
     }
 

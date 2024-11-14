@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DefaultLostItemCommandService implements LostItemCommandService {
 
   private static final int MAX_IMAGE_COUNT = 3;
-  private static final int LOST_ITEM_COOL_TIME = 24;
+  private static final int LOST_ITEM_COOL_TIME = 0;
 
   private final LostItemRepository lostItemRepository;
   private final EventPublisher eventPublisher;
