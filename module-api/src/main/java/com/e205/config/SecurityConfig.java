@@ -5,6 +5,8 @@ import com.e205.auth.jwt.filter.JwtAuthorizationFilter;
 import com.e205.auth.jwt.filter.LoginFilter;
 import com.e205.auth.jwt.handler.JwtAuthenticationEntryPoint;
 import com.e205.auth.jwt.repository.JwtRepository;
+import com.e205.auth.rateLimit.RateLimitFilter;
+import com.e205.auth.rateLimit.RateLimiterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +43,7 @@ public class SecurityConfig {
   private final AuthenticationConfiguration authenticationConfiguration;
   private final JwtRepository jwtRepository;
   private final JwtProvider jwtProvider;
+  private final RateLimiterService rateLimiterService;
 
   @Bean
   public SecurityFilterChain configure(HttpSecurity http) throws Exception {
@@ -61,6 +64,7 @@ public class SecurityConfig {
             new JwtAuthorizationFilter(jwtAuthenticationEntryPoint, jwtProvider),
             LoginFilter.class
         )
+        .addFilterAfter(new RateLimitFilter(rateLimiterService), JwtAuthorizationFilter.class)
         .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(
             (handler) -> handler.authenticationEntryPoint(jwtAuthenticationEntryPoint)
