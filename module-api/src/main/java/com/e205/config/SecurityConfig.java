@@ -33,7 +33,8 @@ public class SecurityConfig {
       "/auth/**",
       "/h2-console/**",
       "/manager/**",
-      "/error/**"
+      "/error/**",
+      "/geo/**"
   };
 
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;

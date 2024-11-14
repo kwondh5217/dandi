@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
 @RequestMapping("/geo")
 @RequiredArgsConstructor
@@ -20,7 +19,16 @@ public class GeoController {
 
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/address")
+  public AddressResponse readAddress(Point point) {
+    String address = geoClient.findFullAddress(point);
+    return new AddressResponse(address);
+  }
+
+  /*
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/address")
   public Mono<AddressResponse> readAddress(Point point) {
     return geoClient.findFullAddressMono(point);
   }
+  */
 }

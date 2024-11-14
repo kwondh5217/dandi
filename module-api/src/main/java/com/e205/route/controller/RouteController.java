@@ -9,10 +9,14 @@ import com.e205.route.dto.query.DailyRouteResponse;
 import com.e205.route.dto.query.RouteDetailResponse;
 import com.e205.route.dto.query.SnapshotDetailResponse;
 import com.e205.route.service.RouteService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @RequiredArgsConstructor
 @RequestMapping("/routes")
 @RestController
@@ -33,7 +38,7 @@ public class RouteController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public void createRoute(@RequestBody RouteCreateRequest request) {
+  public void createRoute(@Valid @RequestBody RouteCreateRequest request) {
     routeService.createRoute(request, authHelper.getMemberId());
   }
 
@@ -41,7 +46,7 @@ public class RouteController {
   @ResponseStatus(HttpStatus.OK)
   public void updateSnapshot(
       @PathVariable Integer routeId,
-      @RequestBody SnapshotUpdateRequest request
+      @Valid @RequestBody SnapshotUpdateRequest request
   ) {
     Integer memberId = authHelper.getMemberId();
     routeService.updateSnapshot(memberId, routeId, request);
@@ -56,7 +61,10 @@ public class RouteController {
 
   @GetMapping
   public ResponseEntity<DailyRouteResponse> readSpecificDayRoutes(
-      @RequestParam("date") LocalDate date
+      @RequestParam("date")
+      @DateTimeFormat(pattern = "yyyy-MM-dd")
+      @PastOrPresent(message = "날짜는 오늘 또는 과거 날짜여야 합니다.")
+      LocalDate date
   ) {
     Integer memberId = authHelper.getMemberId();
     DailyRouteResponse response = routeService.readDailyRoute(memberId, date);

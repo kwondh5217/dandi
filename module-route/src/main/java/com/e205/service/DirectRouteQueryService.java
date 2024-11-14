@@ -75,6 +75,9 @@ public class DirectRouteQueryService implements RouteQueryService {
 
   @Override
   public RoutesPayload readDailyRoute(DailyRouteReadQuery query) {
+    
+    // TODO : 현재 진행중인 이동 반환 생각해보기
+
     if (query.date().isAfter(LocalDate.now())) {
       throw new GlobalException("E205");
     }
@@ -108,9 +111,14 @@ public class DirectRouteQueryService implements RouteQueryService {
 
   @Override
   public List<Integer> findUserIdsNearPath(MembersInRouteQuery query) {
-    List<Route> routesInRange = routeRepository.findRoutesWithinRange(
-        query.startRouteId(), query.endRouteId()
-    );
+    Integer startId = query.startRouteId();
+    Integer endId = query.endRouteId();
+
+    if (endId == null) {
+      endId = startId;
+    }
+
+    List<Route> routesInRange = routeRepository.findRoutesWithinRange(startId, endId);
     LineString combinedTrack = geometryUtils.combineTracks(
         routesInRange.stream().map(Route::getTrack).collect(Collectors.toList())
     );
