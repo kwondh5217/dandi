@@ -9,6 +9,7 @@ import com.e205.member.dto.PasswordNumberEmailRequest;
 import com.e205.member.dto.PasswordResetRequest;
 import com.e205.member.dto.VerifyEmailRequest;
 import com.e205.member.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,31 +33,31 @@ public class MemberAuthController {
 
   @ResponseStatus(HttpStatus.OK)
   @PostMapping
-  public void registerMember(@RequestBody CreateMemberRequest request) {
+  public void registerMember(@Valid @RequestBody CreateMemberRequest request) {
     memberService.registerMember(request);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @PostMapping("/email")
-  public void requestAuthEmail(@RequestBody AuthEmailLinkRequest request) {
+  public void requestAuthEmail(@Valid @RequestBody AuthEmailLinkRequest request) {
     memberService.requestAuthLink(request);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/password")
-  public void requestPasswordChangeNumber(@RequestBody PasswordNumberEmailRequest request) {
+  public void requestPasswordChangeNumber(@Valid @RequestBody PasswordNumberEmailRequest request) {
     memberService.requestPasswordChangeNumber(request);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @PostMapping("/password")
-  public void changePassword(@RequestBody PasswordResetRequest request) {
+  public void changePassword(@Valid @RequestBody PasswordResetRequest request) {
     memberService.resetPassword(request);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @PostMapping("/verification")
-  public void checkVerificationNumber(@RequestBody CheckVerificationNumberRequest request) {
+  public void checkVerificationNumber(@Valid @RequestBody CheckVerificationNumberRequest request) {
     memberService.checkVerificationNumber(request);
   }
 

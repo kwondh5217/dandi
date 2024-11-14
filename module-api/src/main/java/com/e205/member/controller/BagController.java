@@ -8,12 +8,12 @@ import com.e205.member.dto.ChangeBagItemOrderRequest;
 import com.e205.member.dto.ChangeBagNameRequest;
 import com.e205.member.dto.CopySelectBagRequest;
 import com.e205.member.dto.CreateBagRequest;
-import com.e205.member.dto.CreateItemRequest;
 import com.e205.member.dto.DeleteBagRequest;
 import com.e205.member.dto.ItemResponse;
 import com.e205.member.dto.ReadBagRequest;
 import com.e205.member.dto.SelectBagRequest;
 import com.e205.member.service.BagService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,7 +39,7 @@ public class BagController {
 
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping
-  public void createBag(@RequestBody CreateBagRequest request) {
+  public void createBag(@Valid @RequestBody CreateBagRequest request) {
     bagService.createBag(new CreateBagRequest(authHelper.getMemberId(), request.name()));
   }
 
@@ -62,7 +62,7 @@ public class BagController {
 
   @PostMapping("/{bagId}")
   public void copySelectBag(@PathVariable Integer bagId,
-      @RequestBody CopySelectBagRequest request) {
+      @Valid @RequestBody CopySelectBagRequest request) {
     bagService.copySelectBag(
         new CopySelectBagRequest(bagId, request.newBagName(), authHelper.getMemberId()));
   }
@@ -70,7 +70,7 @@ public class BagController {
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/{bagId}")
   public void changeBagName(@PathVariable Integer bagId,
-      @RequestBody ChangeBagNameRequest request) {
+      @Valid @RequestBody ChangeBagNameRequest request) {
     bagService.changeBagName(
         new ChangeBagNameRequest(bagId, request.name(), authHelper.getMemberId()));
   }

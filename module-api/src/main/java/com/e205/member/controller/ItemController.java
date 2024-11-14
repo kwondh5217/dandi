@@ -8,6 +8,7 @@ import com.e205.member.dto.CreateItemRequest;
 import com.e205.member.dto.ItemResponse;
 import com.e205.member.service.ItemService;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class ItemController {
 
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping
-  public void createItemInBag(@RequestBody CreateItemRequest request) {
+  public void createItemInBag(@Valid @RequestBody CreateItemRequest request) {
     itemService.createItemInBag(request, authHelper.getMemberId());
   }
 
@@ -45,7 +46,7 @@ public class ItemController {
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/{itemId}")
   public void changeItemInfo(@PathVariable Integer itemId,
-      @RequestBody ChangeItemInfo changeItemInfo) {
+      @Valid @RequestBody ChangeItemInfo changeItemInfo) {
     itemService.changeItemInfo(authHelper.getMemberId(), itemId, changeItemInfo);
   }
 

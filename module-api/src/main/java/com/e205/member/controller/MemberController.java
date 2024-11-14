@@ -12,6 +12,7 @@ import com.e205.item.service.LostItemService;
 import com.e205.member.dto.FcmCodeUpdateRequest;
 import com.e205.member.dto.MemberInfoResponse;
 import com.e205.member.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,20 +44,20 @@ public class MemberController {
 
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/fcm")
-  public void updateFcmCode(@RequestBody FcmCodeUpdateRequest request) {
+  public void updateFcmCode(@Valid @RequestBody FcmCodeUpdateRequest request) {
     memberService.updateFcmCode(authHelper.getMemberId(), request.fcmCode());
   }
 
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/password")
-  public void updatePassword(@RequestBody ChangePasswordRequest request) {
+  public void updatePassword(@Valid @RequestBody ChangePasswordRequest request) {
     memberService.changePassword(authHelper.getMemberId(), request.newPassword(),
         request.pastPassword());
   }
 
   @ResponseStatus(HttpStatus.OK)
   @PutMapping("/nickname")
-  public void updateNickname(@RequestBody ChangeNicknameRequest request) {
+  public void updateNickname(@Valid @RequestBody ChangeNicknameRequest request) {
     memberService.changeNickname(authHelper.getMemberId(), request.nickname());
   }
 

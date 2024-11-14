@@ -12,6 +12,7 @@ public record MemberInfoResponse(
     String email,
     Integer bagId
 ) {
+
   public static MemberInfoResponse from(MemberPayload payload) {
     return MemberInfoResponse.builder()
         .id(payload.id())

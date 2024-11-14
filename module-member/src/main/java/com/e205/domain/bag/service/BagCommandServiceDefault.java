@@ -19,6 +19,8 @@ import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.exception.MemberError;
 import com.e205.domain.item.repository.ItemRepository;
+import com.e205.domain.member.entity.Member;
+import com.e205.domain.member.repository.MemberRepository;
 import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -41,6 +43,7 @@ public class BagCommandServiceDefault implements BagCommandService {
   private final BagItemRepository bagItemRepository;
   private final ItemRepository itemRepository;
   private final EventPublisher eventPublisher;
+  private final MemberRepository memberRepository;
 
   @Override
   public void save(CreateBagCommand createBagCommand) {
@@ -213,6 +216,9 @@ public class BagCommandServiceDefault implements BagCommandService {
   public void addItemToBag(AddItemsToBagCommand command) {
     Integer bagId = command.bagId();
     Integer memberId = command.memberId();
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
+
     List<Integer> itemIds = command.itemIds();
 
     Bag bag = bagRepository.findById(bagId)
@@ -244,7 +250,9 @@ public class BagCommandServiceDefault implements BagCommandService {
           .build());
     }
     bagItemRepository.saveAll(newBagItems);
-    eventPublisher.publishAtLeastOnce(new BagChangedEvent(memberId, bagId));
+    if (member.getBagId().equals(bagId)) {
+      eventPublisher.publishAtLeastOnce(new BagChangedEvent(memberId, bagId));
+    }
   }
 
   @Override
