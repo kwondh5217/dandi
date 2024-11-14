@@ -2,15 +2,21 @@ package com.e205.exception;
 
 import com.e205.exception.dto.ErrorDetails;
 import com.e205.exception.dto.ErrorResponse;
+import com.e205.exception.dto.FieldError;
+import com.e205.exception.dto.FieldError;
+import com.e205.exception.dto.ValidationErrorDetails;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -58,10 +64,23 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.from(e999));
   }
 
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ValidationErrorDetails> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
+    logRequestInfo(ex);
+    List<FieldError> errors = ex.getBindingResult().getFieldErrors().stream()
+        .map(error -> new FieldError(
+            error.getField(),
+            error.getDefaultMessage()))
+        .toList();
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body( new ValidationErrorDetails("E777", errors));
+  }
+
   private void logRequestInfo(Exception ex) {
     Map<String, String> mdcValues = MDC.getCopyOfContextMap();
 
-    if(mdcValues != null && !mdcValues.isEmpty()) {
+    if (mdcValues != null && !mdcValues.isEmpty()) {
       String mdcInfo = mdcValues.entrySet()
           .stream()
           .map(entry -> entry.getKey() + "=" + entry.getValue())
