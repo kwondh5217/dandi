@@ -4,6 +4,8 @@ import com.e205.commands.Command;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
+import org.springframework.util.Assert;
 
 @Getter
 public class CreateNotificationCommand implements Command {
@@ -16,8 +18,9 @@ public class CreateNotificationCommand implements Command {
   private String body;
 
   @Builder
-  public CreateNotificationCommand(Integer memberId, Integer resourceId, String title,
-      LocalDateTime createdAt, String type, String body) {
+  public CreateNotificationCommand(@NonNull Integer memberId, @NonNull Integer resourceId,
+      String title, @NonNull LocalDateTime createdAt, @NonNull String type, String body) {
+    Assert.hasText(type, "type must not be empty");
     this.memberId = memberId;
     this.resourceId = resourceId;
     this.title = title;

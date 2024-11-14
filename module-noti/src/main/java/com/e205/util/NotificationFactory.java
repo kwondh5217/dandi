@@ -14,7 +14,7 @@ import com.e205.service.NotificationType;
 
 public class NotificationFactory {
 
-  public static Notification createNotification(String type, Integer resourceId) {
+  public static Notification createNotification(final String type, final Integer resourceId) {
     String notificationBody = createNotificationBody(type, resourceId);
     Notification notification;
 
@@ -41,7 +41,7 @@ public class NotificationFactory {
     return notification;
   }
 
-  public static String createNotificationBody(String type, Integer resourceId) {
+  public static String createNotificationBody(final String type, final Integer resourceId) {
     return "{\"resourceId\":\"" + resourceId + "\",\"eventType\":\"" + type + "\"}";
   }
 

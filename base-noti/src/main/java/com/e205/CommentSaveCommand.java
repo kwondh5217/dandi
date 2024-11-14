@@ -1,10 +1,17 @@
 package com.e205;
 
 import java.util.Set;
+import lombok.NonNull;
+import org.springframework.util.Assert;
 
 public record CommentSaveCommand(
-    Integer commentId,
-    Integer writerId,
+    @NonNull Integer commentId,
+    @NonNull Integer writerId,
     Set<Integer> senders,
     String type
-){}
+){
+  public CommentSaveCommand {
+    Assert.notEmpty(senders, "senders cannot be empty");
+    Assert.hasText(type, " type cannot be empty");
+  }
+}

@@ -7,14 +7,12 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.e205.MemberWithFcm;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.event.LostItemSaveEvent;
 import com.e205.event.RouteSavedEvent;
 import com.e205.payload.LostItemPayload;
 import com.e205.query.MembersInRouteQuery;
 import java.time.LocalDateTime;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -48,16 +46,13 @@ class EventServiceTest {
     given(lostItemSaveEvent.saved()).willReturn(lostItemPayload);
     given(lostItemSaveEvent.getType()).willReturn("lostItemSaveEvent");
 
-    List<MemberWithFcm> memberWithFcms = List.of(new MemberWithFcm(1, "1"),
-        new MemberWithFcm(2, "2"));
-    given(this.memberQueryService.membersWithFcmQuery(any())).willReturn(memberWithFcms);
-
     // when
     this.eventService.handleLostItemSaveEvent(lostItemSaveEvent);
 
     // then
     verify(this.routeQueryService).findUserIdsNearPath(any(MembersInRouteQuery.class));
-    verify(this.notifier).processNotifications(any(), anyString(), anyString(), any());
+    verify(this.notifier).processNotifications(any(), any(), anyString(), anyString(),
+        any());
   }
 
   @Test

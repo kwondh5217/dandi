@@ -30,17 +30,17 @@ public class NotiQueryService {
         query.lastResourceId(), convertTypesToClass(query.types()), pageable);
   }
 
-  public boolean isOwner(Integer memberId, Integer notificationId) {
+  public boolean isOwner(final Integer memberId, final Integer notificationId) {
     return this.notificationRepository.existsByIdAndMemberId(memberId, notificationId);
   }
 
-  private List<Class<? extends Notification>> convertTypesToClass(List<String> types) {
+  private List<Class<? extends Notification>> convertTypesToClass(final List<String> types) {
     return types.stream()
         .map(this::mapType)
         .collect(Collectors.toList());
   }
 
-  private Class<? extends Notification> mapType(String type) {
+  private Class<? extends Notification> mapType(final String type) {
     return switch (NotificationType.fromString(type)) {
       case COMMENT -> CommentNotification.class;
       case LOST_ITEM -> LostItemNotification.class;

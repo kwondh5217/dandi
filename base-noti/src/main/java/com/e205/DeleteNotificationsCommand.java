@@ -1,8 +1,12 @@
 package com.e205;
 
 import java.util.List;
+import lombok.NonNull;
+import org.springframework.util.Assert;
 
-public record DeleteNotificationsCommand(Integer memberId,
+public record DeleteNotificationsCommand(@NonNull Integer memberId,
                                          List<Integer> notificationIds) {
-
+  public DeleteNotificationsCommand {
+    Assert.notEmpty(notificationIds, "notificationIds cannot be empty");
+  }
 }

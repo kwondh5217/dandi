@@ -18,7 +18,7 @@ public enum NotificationType {
     return type;
   }
 
-  public static NotificationType fromString(String type) {
+  public static NotificationType fromString(final String type) {
     for (NotificationType notificationType : NotificationType.values()) {
       if (notificationType.getType().equals(type)) {
         return notificationType;

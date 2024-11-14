@@ -7,6 +7,7 @@ import com.e205.dto.NotificationResponse;
 import com.e205.entity.Notification;
 import com.e205.service.NotiCommandService;
 import com.e205.service.NotiQueryService;
+import com.e205.service.NotificationType;
 import com.e205.util.NotificationFactory;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,10 +34,15 @@ public class NotificationController {
 
   @GetMapping
   public ResponseEntity<List<NotificationResponse>> findNotifications(
-      @AuthenticationPrincipal(expression = "id") Integer memberId,
+      @AuthenticationPrincipal(expression = "id") final Integer memberId,
       @RequestParam("resourceId") Integer resourceId,
-      @RequestParam("types") List<String> types
+      @RequestParam("types") final List<String> types
   ) {
+    checkTypes(types);
+    if(resourceId == null) {
+      resourceId = 0;
+    }
+
     List<Notification> notifications = this.notiQueryService.queryNotificationWithCursor(
         new QueryNotificationWithCursor(memberId, resourceId, types));
 
@@ -50,8 +56,8 @@ public class NotificationController {
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping
   public void deleteNotifications(
-      @AuthenticationPrincipal(expression = "id") Integer memberId,
-      @RequestBody List<Integer> notificationIds
+      @AuthenticationPrincipal(expression = "id") final Integer memberId,
+      @RequestBody final List<Integer> notificationIds
   ) {
     this.notiCommandService.deleteNotifications(
         new DeleteNotificationsCommand(memberId, notificationIds));
@@ -59,7 +65,7 @@ public class NotificationController {
 
   @PutMapping
   public ResponseEntity<Void> confirmNotifications(
-      @AuthenticationPrincipal(expression = "id") Integer memberId,
+      @AuthenticationPrincipal(expression = "id") final Integer memberId,
       @RequestBody ConfirmItemCommand confirmItemCommand
   ) {
     if (this.notiQueryService.isOwner(memberId, confirmItemCommand.itemId())) {
@@ -67,5 +73,9 @@ public class NotificationController {
       return ResponseEntity.ok().build();
     }
     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+  }
+
+  private static void checkTypes(final List<String> types) {
+    types.forEach(NotificationType::fromString);
   }
 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultNotiItemCommandService implements ItemCommandService {
 
-  private static final String LOST = "LOST_ITEM";
+  private static final String LOST = "lostItem";
 
   private final LostItemCommandService lostItemCommandService;
 

@@ -55,7 +55,6 @@ class NotificationControllerTest {
         new UsernamePasswordAuthenticationToken(new MemberDetails(1), null, List.of())
     );
     Integer resourceId = 0;
-    List<String> types = List.of("comment", "foundItem", "lostItem", "route");
 
     List<Notification> mockNotifications = List.of(
         createLostItemNotification(1, 1, "Lost Item Title", 101),
@@ -67,7 +66,7 @@ class NotificationControllerTest {
 
     this.mockMvc.perform(get("/noti")
         .param("resourceId", resourceId.toString())
-        .param("types", objectMapper.writeValueAsString(types))
+        .param("types", "comment", "foundItem", "lostItem", "route")
     ).andExpect(status().isOk());
   }
 

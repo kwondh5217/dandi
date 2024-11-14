@@ -1,9 +1,12 @@
 package com.e205.geo.service;
 
-import com.e205.item.dto.GeoResponse;
+import com.e205.geo.dto.AddressResponse;
 import com.e205.geo.dto.Point;
+import reactor.core.publisher.Mono;
 
 public interface GeoClient {
-  GeoResponse findLocation(Point point);
+
   String findFullAddress(Point point);
+
+  Mono<AddressResponse> findFullAddressMono(Point point);
 }

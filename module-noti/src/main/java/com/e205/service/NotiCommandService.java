@@ -46,7 +46,7 @@ public class NotiCommandService implements com.e205.NotiCommandService {
     this.notificationRepository.deleteAllByIdAndMemberId(command.memberId(), command.notificationIds());
   }
 
-  public void notifiedMembersCommand(List<NotifiedMembersCommand> command) {
+  public void notifiedMembersCommand(final List<NotifiedMembersCommand> command) {
     this.itemCommandService.saveNotifiedMembers(command);
   }
 
@@ -57,21 +57,23 @@ public class NotiCommandService implements com.e205.NotiCommandService {
   }
 
   public void createCommentNotification(CommentSaveCommand command) {
-    List<MemberPayload> members = memberQueryService.findMembers(
+    final List<MemberPayload> members = memberQueryService.findMembers(
         new FindMembersByIdQuery(new ArrayList<>(command.senders())));
 
-    for (MemberPayload member : members) {
-      Notification notification = NotificationFactory.createNotification(command.type(),
-          command.commentId());
-      notification.setMemberId(member.id());
-      notification.setTitle(command.type());
-      notification.setCreatedAt(LocalDateTime.now());
+    for (final MemberPayload member : members) {
+      if(!command.writerId().equals(member.id())) {
+        Notification notification = NotificationFactory.createNotification(command.type(),
+            command.commentId());
+        notification.setMemberId(member.id());
+        notification.setTitle(command.type());
+        notification.setCreatedAt(LocalDateTime.now());
 
-      this.notificationRepository.save(notification);
+        this.notificationRepository.save(notification);
 
-      if (member.commentAlarm()) {
-        this.eventPublisher.publishAtLeastOnce(
-            new NotifyOutboxEvent(member.fcmCode(), command.type(), notification.getBody()));
+        if (member.commentAlarm()) {
+          this.eventPublisher.publishAtLeastOnce(
+              new NotifyOutboxEvent(member.fcmCode(), command.type(), notification.getBody()));
+        }
       }
     }
   }

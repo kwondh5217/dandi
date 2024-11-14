@@ -3,7 +3,6 @@ package com.e205.exception;
 import com.e205.exception.dto.ErrorDetails;
 import com.e205.exception.dto.ErrorResponse;
 import com.e205.exception.dto.FieldError;
-import com.e205.exception.dto.FieldError;
 import com.e205.exception.dto.ValidationErrorDetails;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Arrays;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -59,7 +57,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> responseUnhandledExceptions(Exception ex) {
     ErrorDetails e999 = new ErrorDetails("E999", ex.getMessage(), 500);
-    logRequestInfo(ex);
+    logRequestInfo(ex, true); // Log stack trace for internal errors
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ErrorResponse.from(e999));
   }
@@ -74,10 +72,15 @@ public class GlobalExceptionHandler {
             error.getDefaultMessage()))
         .toList();
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body( new ValidationErrorDetails("E777", errors));
+        .body(new ValidationErrorDetails("E777", errors));
   }
 
+  // Common log method to log request info and optionally stack trace
   private void logRequestInfo(Exception ex) {
+    logRequestInfo(ex, false);
+  }
+
+  private void logRequestInfo(Exception ex, boolean includeStackTrace) {
     Map<String, String> mdcValues = MDC.getCopyOfContextMap();
 
     if (mdcValues != null && !mdcValues.isEmpty()) {
@@ -86,8 +89,15 @@ public class GlobalExceptionHandler {
           .map(entry -> entry.getKey() + "=" + entry.getValue())
           .collect(Collectors.joining(", "));
 
-      log.info("Exception handled: currentThread={}, {}, exceptionMessage={}, stackTrace={}",
-          Thread.currentThread().getName(), mdcInfo, ex.getMessage(), ex.getStackTrace());
+      if (includeStackTrace) {
+        log.info(
+            "Exception handled: currentThread={}, {}, exceptionMessage={}, stackTrace={}",
+            Thread.currentThread().getName(), mdcInfo, ex.getMessage(),
+            ex.getStackTrace());
+      } else {
+        log.info("Exception handled: currentThread={}, {}, exceptionMessage={}",
+            Thread.currentThread().getName(), mdcInfo, ex.getMessage());
+      }
     }
   }
 }

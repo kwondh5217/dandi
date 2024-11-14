@@ -29,7 +29,7 @@ public class NotificationProcessor {
   private final Notifier notifier;
   private final EventPublisher eventPublisher;
 
-  public void notify(String fcm, String title, String body) {
+  public void notify(final String fcm, final String title, final String body) {
     this.notifier.notify(fcm, title, body);
   }
 
@@ -40,33 +40,36 @@ public class NotificationProcessor {
 
   @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 2))
   @Transactional
-  public List<NotifiedMembersCommand> processNotifications(Integer resourceId,
-      String situationDescription, String eventType, List<MemberPayload> memberPayloads) {
+  public List<NotifiedMembersCommand> processNotifications(
+      final Integer resourceId, final Integer senderId, String situationDescription,
+      final String eventType, final List<MemberPayload> memberPayloads) {
     List<NotifiedMembersCommand> notifiedMembers = new ArrayList<>();
     String eventBody = NotificationFactory.createNotificationBody(eventType, resourceId);
 
     memberPayloads.forEach(member -> {
-      CreateNotificationCommand notification = createNotificationCommand(
-          resourceId, situationDescription, eventType, member, eventBody);
-      this.notiCommandService.createNotification(notification);
+      if(!senderId.equals(member.id())) {
+        CreateNotificationCommand notification = createNotificationCommand(
+            resourceId, situationDescription, eventType, member, eventBody);
+        this.notiCommandService.createNotification(notification);
 
-      if (shouldNotify(eventType, member)) {
-        this.eventPublisher.publishAtLeastOnce(new NotifyOutboxEvent(
-            member.fcmCode(), notification.getTitle(), eventBody)
+        if (shouldNotify(eventType, member)) {
+          this.eventPublisher.publishAtLeastOnce(new NotifyOutboxEvent(
+              member.fcmCode(), notification.getTitle(), eventBody)
+          );
+        }
+
+        notifiedMembers.add(new NotifiedMembersCommand(
+            member.id(), resourceId, LocalDateTime.now(), eventType)
         );
       }
-
-      notifiedMembers.add(new NotifiedMembersCommand(
-          member.id(), resourceId, LocalDateTime.now(), eventType)
-      );
     });
 
     return notifiedMembers;
   }
 
-  private CreateNotificationCommand createNotificationCommand(Integer resourceId,
-      String situationDescription,
-      String type, MemberPayload member, String body) {
+  private CreateNotificationCommand createNotificationCommand(final Integer resourceId,
+      final String situationDescription,
+      final String type, MemberPayload member, final String body) {
     String title = extractTitle(situationDescription);
     return CreateNotificationCommand.builder()
         .memberId(member.id())
@@ -78,13 +81,13 @@ public class NotificationProcessor {
         .build();
   }
 
-  private String extractTitle(String situationDescription) {
+  private String extractTitle(final String situationDescription) {
     return (situationDescription == null || situationDescription.isEmpty())
         ? "No description"
         : situationDescription.substring(0, Math.min(20, situationDescription.length()));
   }
 
-  private boolean shouldNotify(String eventType, MemberPayload member) {
+  private boolean shouldNotify(final String eventType, MemberPayload member) {
     return (eventType.equals(FOUND_ITEM_SAVE_EVENT) && member.foundItemAlarm()) ||
         (eventType.equals(LOST_ITEM_SAVE_EVENT) && member.lostItemAlarm());
   }

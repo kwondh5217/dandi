@@ -1,9 +1,11 @@
 package com.e205;
 
+import lombok.NonNull;
+
 public record NotifyEvent(
-    Integer ownerId,
-    Integer senderId,
-    String type
+    @NonNull Integer ownerId,
+    @NonNull Integer senderId,
+    @NonNull String type
 ) {
 
 }

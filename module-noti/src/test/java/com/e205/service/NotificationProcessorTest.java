@@ -44,7 +44,7 @@ class NotificationProcessorTest {
 
     // when
     List<NotifiedMembersCommand> notifiedMembers = notificationProcessor.processNotifications(
-        1, "Test Description", "lostItemSaveEvent", memberPayloads);
+        1, 4,"Test Description", "lostItemSaveEvent", memberPayloads);
 
     // then
     verify(notiCommandService, times(memberPayloads.size()))

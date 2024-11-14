@@ -38,14 +38,14 @@ public class EventService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleRouteSavedEvent(RouteSavedEvent event) {
-    String fcm = this.memberQueryService.findMemberFcmById(event.memberId());
+    final String fcm = this.memberQueryService.findMemberFcmById(event.memberId());
     Assert.state(fcm != null, "fcm must not be null");
     this.notificationProcessor.notify(fcm, event.getType(), event.payload());
   }
 
   @EventListener
   public void handleNotifyEvent(NotifyEvent event) {
-    String fcm = this.memberQueryService.findMemberFcmById(event.ownerId());
+    final String fcm = this.memberQueryService.findMemberFcmById(event.ownerId());
     Assert.state(fcm != null, "fcm must not be null");
     this.notificationProcessor.notify(fcm, event.senderId() + " ", event.type());
   }
@@ -53,7 +53,7 @@ public class EventService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleFoundItemSaveEvent(FoundItemSaveEvent event) {
-    List<Integer> userIdsNearPoint = this.routeQueryService.findUserIdsNearPoint(
+    final List<Integer> userIdsNearPoint = this.routeQueryService.findUserIdsNearPoint(
         new MembersInPointQuery(
             event.saved().lat(),
             event.saved().lon(),
@@ -61,6 +61,7 @@ public class EventService {
 
     processNotificationForMembers(
         event.saved().id(),
+        event.saved().memberId(),
         event.saved().description(),
         event.getType(),
         this.memberQueryService.findMembers(new FindMembersByIdQuery(userIdsNearPoint)));
@@ -69,36 +70,40 @@ public class EventService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleLostItemSaveEvent(LostItemSaveEvent event) {
-    List<MemberPayload> MemberPayloads = findMembersForNotification(
+    final List<MemberPayload> memberPayloads = findMembersForNotification(
         event.saved().startRouteId(),
         event.saved().endRouteId(),
         event.saved().createdAt());
 
     processNotificationForMembers(
         event.saved().id(),
+        event.saved().memberId(),
         event.saved().situationDescription(),
         event.getType(),
-        MemberPayloads);
+        memberPayloads);
   }
 
-  private List<MemberPayload> findMembersForNotification(Integer startRouteId,
-      Integer endRouteId, LocalDateTime createdAt) {
-    List<Integer> memberIds = findMemberIdsInRoute(startRouteId, endRouteId, createdAt);
+  private List<MemberPayload> findMembersForNotification(final Integer startRouteId,
+      final Integer endRouteId, final LocalDateTime createdAt) {
+    final List<Integer> memberIds = findMemberIdsInRoute(startRouteId, endRouteId,
+        createdAt);
     return this.memberQueryService.findMembers(new FindMembersByIdQuery(memberIds));
   }
 
-  private List<Integer> findMemberIdsInRoute(Integer startRouteId,
-      Integer endRouteId, LocalDateTime time) {
-    LocalDateTime since = time.minusHours(notificationWindowHours);
+  private List<Integer> findMemberIdsInRoute(final Integer startRouteId,
+      final Integer endRouteId, final LocalDateTime time) {
+    final LocalDateTime since = time.minusHours(notificationWindowHours);
     return this.routeQueryService.findUserIdsNearPath(
         new MembersInRouteQuery(startRouteId, endRouteId, since));
   }
 
-  private void processNotificationForMembers(Integer resourceId,
-      String situationDescription, String eventType, List<MemberPayload> memberPayloads) {
+  private void processNotificationForMembers(final Integer resourceId,
+      final Integer senderId, final String situationDescription, final String eventType,
+      final List<MemberPayload> memberPayloads) {
+    Assert.notNull(senderId, "senderId must not be null");
     this.notiCommandService.notifiedMembersCommand(
         this.notificationProcessor.processNotifications(
-            resourceId, situationDescription, eventType,
+            resourceId, senderId, situationDescription, eventType,
             memberPayloads)
     );
   }
