@@ -4,6 +4,7 @@ import com.e205.item.dto.QuizResponse;
 import com.e205.item.dto.QuizResultResponse;
 import com.e205.item.dto.QuizSubmitRequest;
 import com.e205.item.service.QuizService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,7 +35,7 @@ public class QuizController {
   public ResponseEntity<QuizResultResponse> submitQuiz(
       @AuthenticationPrincipal(expression = "id") Integer memberId,
       @PathVariable("foundId") Integer foundId,
-      @RequestBody QuizSubmitRequest request
+      @Valid @RequestBody QuizSubmitRequest request
   ) {
     return ResponseEntity.ok(
         new QuizResultResponse(quizService.submitQuiz(memberId, foundId, request)));

@@ -2,12 +2,14 @@ package com.e205.item.dto;
 
 import com.e205.CommentType;
 import com.e205.query.CommentListQuery;
+import jakarta.validation.constraints.NotNull;
 
 public record CommentQueryRequest(
     Integer cursor,
     Integer writerId,
     Integer parentId,
-    boolean fetchAll
+    @NotNull
+    Boolean fetchAll
 ) {
 
   public CommentListQuery toQuery(CommentType type, int itemId) {

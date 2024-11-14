@@ -73,6 +73,7 @@ public class FoundItemControllerTest {
     FoundItemCreateRequest request = FoundItemCreateRequest.builder()
         .category(FoundItemType.OTHER)
         .foundLocation(new Point(39.329034, 128.349023))
+        .image("image.png")
         .foundAt(now())
         .storageDesc("프론트 데스크에 맡겨두었어요.")
         .itemDesc("빨간색 우산입니다.")

@@ -11,6 +11,7 @@ import com.e205.item.service.LostItemService;
 import com.e205.payload.CommentPayload;
 import com.e205.query.CommentListQuery;
 import com.e205.service.CommentService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class LostItemController {
   @PostMapping
   public void createLostItem(
       @AuthenticationPrincipal(expression = "id") Integer memberId,
-      @RequestBody LostItemCreateRequest request) {
+      @Valid @RequestBody LostItemCreateRequest request) {
     lostItemService.createLostItem(memberId, request);
   }
 
@@ -62,7 +63,7 @@ public class LostItemController {
   @PostMapping("/{lostId}/comments")
   public void createLostItemComment(
       @AuthenticationPrincipal(expression = "id") Integer memberId,
-      @RequestBody CommentCreateRequest request,
+      @Valid @RequestBody CommentCreateRequest request,
       @PathVariable int lostId
   ) {
     commentService.createComment(request.toCommand(memberId, lostId, CommentType.LOST));
@@ -70,7 +71,7 @@ public class LostItemController {
 
   @GetMapping("/{lostId}/comments")
   public ResponseEntity<CommentListResponse> findComments(
-      @ModelAttribute CommentQueryRequest request,
+      @Valid @ModelAttribute CommentQueryRequest request,
       @PathVariable int lostId
   ) {
     return ResponseEntity.ok(commentService.findComments(request, lostId, CommentType.LOST));

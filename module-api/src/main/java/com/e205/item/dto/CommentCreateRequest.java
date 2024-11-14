@@ -2,9 +2,11 @@ package com.e205.item.dto;
 
 import com.e205.CommentType;
 import com.e205.command.CommentCreateCommand;
+import jakarta.validation.constraints.NotBlank;
 
 public record CommentCreateRequest(
     Integer parentId,
+    @NotBlank
     String content
 ) {
 

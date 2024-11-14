@@ -10,6 +10,7 @@ import com.e205.item.dto.FoundItemListResponse;
 import com.e205.item.dto.FoundItemResponse;
 import com.e205.item.service.CommentApiService;
 import com.e205.item.service.FoundItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,7 @@ public class FoundItemController {
   @PostMapping
   public void createFoundItem(
       @AuthenticationPrincipal(expression = "id") Integer memberId,
-      @RequestBody FoundItemCreateRequest request
+      @Valid @RequestBody FoundItemCreateRequest request
   ) {
     foundItemService.save(memberId, request);
   }
@@ -70,7 +71,7 @@ public class FoundItemController {
   @PostMapping("/{foundId}/comments")
   public void createComment(
       @AuthenticationPrincipal(expression = "id") Integer memberId,
-      @RequestBody CommentCreateRequest request,
+      @Valid @RequestBody CommentCreateRequest request,
       @PathVariable Integer foundId
   ) {
     CommentCreateCommand command = request.toCommand(memberId, foundId, CommentType.FOUND);
@@ -79,7 +80,7 @@ public class FoundItemController {
 
   @GetMapping("/{foundId}/comments")
   public ResponseEntity<CommentListResponse> findComment(
-      @ModelAttribute CommentQueryRequest request,
+      @Valid @ModelAttribute CommentQueryRequest request,
       @PathVariable Integer foundId
   ) {
     return ResponseEntity.ok(commentService.findComments(request, foundId, CommentType.FOUND));
