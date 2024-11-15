@@ -45,8 +45,4 @@ public enum MemberError {
   public GlobalException getGlobalException() {
     return new GlobalException(exception, code);
   }
-
-  public void throwGlobalException() {
-    throw new GlobalException(exception, code);
-  }
 }

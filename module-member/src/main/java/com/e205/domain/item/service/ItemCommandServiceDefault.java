@@ -48,23 +48,23 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     Bag bag = bagRepository.findById(bagId)
         .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
     if (!bag.getMemberId().equals(memberId)) {
-      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
+      throw MemberError.BAG_NOT_OWNED_BY_USER.getGlobalException();
     }
 
     boolean isDuplicateName = itemRepository.existsByNameAndMemberId(createItemCommand.name(),
         memberId);
     if (isDuplicateName) {
-      MemberError.ITEM_NAME_ALREADY_EXISTS.throwGlobalException();
+      throw MemberError.ITEM_NAME_ALREADY_EXISTS.getGlobalException();
     }
 
     List<Item> userItems = itemRepository.findAllByMemberId(memberId);
     if (userItems.size() >= MAX_ITEM_COUNT) {
-      MemberError.ITEM_COUNT_EXCEEDED.throwGlobalException();
+      throw MemberError.ITEM_COUNT_EXCEEDED.getGlobalException();
     }
 
     List<BagItem> bagItems = bagItemRepository.findAllByBagId(bagId);
     if (bagItems.size() >= MAX_BAG_ITEM_COUNT) {
-      MemberError.MAX_BAG_ITEM_COUNT_EXCEEDED.throwGlobalException();
+      throw MemberError.MAX_BAG_ITEM_COUNT_EXCEEDED.getGlobalException();
     }
 
     byte maxItemOrder = (byte) (bagItems.stream()
@@ -101,14 +101,14 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     ItemPayload previousItemPayload = item.toPayload();
 
     if (item.getMemberId() != updateCommand.memberId()) {
-      MemberError.ITEM_NOT_FOUND.throwGlobalException();
+      throw MemberError.ITEM_NOT_FOUND.getGlobalException();
     }
 
     boolean isDuplicateName = itemRepository.existsByNameAndMemberIdAndIdNot(
         updateCommand.name(), item.getMemberId(), item.getId());
 
     if (isDuplicateName) {
-      MemberError.ITEM_NAME_ALREADY_EXISTS.throwGlobalException();
+      throw MemberError.ITEM_NAME_ALREADY_EXISTS.getGlobalException();
     }
 
     item.updateName(updateCommand.name());

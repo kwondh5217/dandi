@@ -42,7 +42,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
   @Override
   public void registerMember(RegisterMemberCommand memberRegistrationCommand) {
     if (memberRepository.existsByEmail(memberRegistrationCommand.email())) {
-      MemberError.EMAIL_ALREADY_USED.throwGlobalException();
+      throw MemberError.EMAIL_ALREADY_USED.getGlobalException();
     }
 
     String redisKey = "registration:" + memberRegistrationCommand.email();
@@ -66,18 +66,18 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     String redisKey = "verifyEmail:" + verifyEmailAndRegisterCommand.email();
     Map<Object, Object> storedData = redisTemplate.opsForHash().entries(redisKey);
     if (storedData.isEmpty()) {
-      MemberError.VERIFICATION_TOKEN_INVALID.throwGlobalException();
+      throw MemberError.VERIFICATION_TOKEN_INVALID.getGlobalException();
     }
 
     String storedToken = (String) storedData.get("token");
     if (!verifyEmailAndRegisterCommand.token().equals(storedToken)) {
-      MemberError.VERIFICATION_TOKEN_INVALID.throwGlobalException();
+      throw MemberError.VERIFICATION_TOKEN_INVALID.getGlobalException();
     }
     String registrationKey = "registration:" + verifyEmailAndRegisterCommand.email();
     Map<Object, Object> registrationData = redisTemplate.opsForHash().entries(registrationKey);
 
     if (registrationData.isEmpty()) {
-      MemberError.VERIFICATION_INFO_EXPIRED.throwGlobalException();
+      throw MemberError.VERIFICATION_INFO_EXPIRED.getGlobalException();
     }
     redisTemplate.opsForHash().put(registrationKey, "authenticated", "true");
   }
@@ -89,12 +89,12 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     String storedVerificationNumber = redisTemplate.opsForValue().get(redisKey);
 
     if (storedVerificationNumber == null) {
-      MemberError.VERIFICATION_EXPIRED_OR_NOT_FOUND.throwGlobalException();
+      throw MemberError.VERIFICATION_EXPIRED_OR_NOT_FOUND.getGlobalException();
     }
 
     if (!storedVerificationNumber.equals(
         changePasswordWithVerificationNumber.verificationNumber())) {
-      MemberError.VERIFICATION_NUMBER_INVALID.throwGlobalException();
+      throw MemberError.VERIFICATION_NUMBER_INVALID.getGlobalException();
     }
 
     Member member = memberRepository.findByEmail(changePasswordWithVerificationNumber.email())
@@ -114,12 +114,12 @@ public class MemberCommandServiceDefault implements MemberCommandService {
     String isAuthenticated = (String) redisTemplate.opsForHash()
         .get(registrationKey, "authenticated");
     if (isAuthenticated == null || !isAuthenticated.equals("true")) {
-      MemberError.VERIFICATION_PROCESS_NOT_COMPLETE.throwGlobalException();
+      throw MemberError.VERIFICATION_PROCESS_NOT_COMPLETE.getGlobalException();
     }
 
     Map<Object, Object> registrationData = redisTemplate.opsForHash().entries(registrationKey);
     if (registrationData.isEmpty()) {
-      MemberError.VERIFICATION_INFO_EXPIRED.throwGlobalException();
+      throw MemberError.VERIFICATION_INFO_EXPIRED.getGlobalException();
     }
 
     String password = (String) registrationData.get("password");
@@ -154,7 +154,7 @@ public class MemberCommandServiceDefault implements MemberCommandService {
       MemberVerificationLinkCommand requestEmailVerificationCommand) {
 
     if (Boolean.FALSE.equals(redisTemplate.hasKey("verifyEmail:"))) {
-      MemberError.INVALID_SIGNUP.throwGlobalException();
+      throw MemberError.INVALID_SIGNUP.getGlobalException();
     }
 
     String token = emailService.createAndStoreToken(

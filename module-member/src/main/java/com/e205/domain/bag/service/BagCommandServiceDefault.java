@@ -51,11 +51,11 @@ public class BagCommandServiceDefault implements BagCommandService {
 
     List<Bag> userBags = bagRepository.findAllByMemberId(memberId);
     if (userBags.size() >= MAX_BAG_COUNT) {
-      MemberError.MAX_BAG_COUNT_EXCEEDED.throwGlobalException();
+      throw MemberError.MAX_BAG_COUNT_EXCEEDED.getGlobalException();
     }
 
     if (bagRepository.existsByMemberIdAndName(memberId, createBagCommand.name())) {
-      MemberError.BAG_NAME_ALREADY_EXISTS.throwGlobalException();
+      throw MemberError.BAG_NAME_ALREADY_EXISTS.getGlobalException();
     }
 
     byte maxOrder = (byte) (userBags.stream()
@@ -97,7 +97,7 @@ public class BagCommandServiceDefault implements BagCommandService {
         .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     if (bagRepository.existsByMemberIdAndName(bag.getMemberId(), bagNameUpdateCommand.name())) {
-      MemberError.BAG_NAME_ALREADY_EXISTS.throwGlobalException();
+      throw MemberError.BAG_NAME_ALREADY_EXISTS.getGlobalException();
     }
     bag.updateName(bagNameUpdateCommand.name());
   }
@@ -134,7 +134,7 @@ public class BagCommandServiceDefault implements BagCommandService {
         .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     if (!Objects.equals(bag.getMemberId(), bagItemOrderUpdateCommand.memberId())) {
-      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
+      throw MemberError.BAG_NOT_OWNED_BY_USER.getGlobalException();
     }
 
     List<BagItem> bagItems = bagItemRepository.findAllByBagId(bagItemOrderUpdateCommand.bagId());
@@ -157,7 +157,7 @@ public class BagCommandServiceDefault implements BagCommandService {
 
     Integer memberId = copyBagCommand.memberId();
     if (bagRepository.findAllByMemberId(memberId).size() >= MAX_BAG_COUNT) {
-      MemberError.MAX_BAG_COUNT_EXCEEDED.throwGlobalException();
+      throw MemberError.MAX_BAG_COUNT_EXCEEDED.getGlobalException();
     }
 
     Bag newBag = Bag.builder()
@@ -185,14 +185,14 @@ public class BagCommandServiceDefault implements BagCommandService {
   @Override
   public void delete(BagDeleteCommand command) {
     if (Objects.equals(command.memberBagId(), command.bagId())) {
-      MemberError.CANNOT_DELETE_DEFAULT_BAG.throwGlobalException();
+      throw MemberError.CANNOT_DELETE_DEFAULT_BAG.getGlobalException();
     }
 
     Bag targetBag = bagRepository.findById(command.bagId())
         .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     if (!Objects.equals(targetBag.getMemberId(), command.memberId())) {
-      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
+      throw MemberError.BAG_NOT_OWNED_BY_USER.getGlobalException();
     }
 
     bagItemRepository.deleteAllByBagId(targetBag.getId());
@@ -206,7 +206,7 @@ public class BagCommandServiceDefault implements BagCommandService {
         .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
 
     if (!Objects.equals(bag.getMemberId(), command.memberId())) {
-      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
+      throw MemberError.BAG_NOT_OWNED_BY_USER.getGlobalException();
     }
 
     bagItemRepository.deleteByBagIdAndItemId(command.bagId(), command.bagItemId());
@@ -224,12 +224,12 @@ public class BagCommandServiceDefault implements BagCommandService {
     Bag bag = bagRepository.findById(bagId)
         .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
     if (!Objects.equals(bag.getMemberId(), memberId)) {
-      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
+      throw MemberError.BAG_NOT_OWNED_BY_USER.getGlobalException();
     }
 
     List<BagItem> existingBagItems = bagItemRepository.findAllByBagId(bagId);
     if (existingBagItems.size() + itemIds.size() >= 20) {
-      MemberError.MAX_BAG_ITEM_COUNT_EXCEEDED.throwGlobalException();
+      throw MemberError.MAX_BAG_ITEM_COUNT_EXCEEDED.getGlobalException();
     }
 
     // 중복 아이템 제외하기
@@ -260,7 +260,7 @@ public class BagCommandServiceDefault implements BagCommandService {
     Bag bag = bagRepository.findById(command.bagId())
         .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
     if (!Objects.equals(bag.getMemberId(), command.memberId())) {
-      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
+      throw MemberError.BAG_NOT_OWNED_BY_USER.getGlobalException();
     }
 
     List<BagItem> existingItems = bagItemRepository.findAllByBagId(command.bagId());

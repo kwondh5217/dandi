@@ -77,7 +77,7 @@ public class EmailCommandServiceDefault implements EmailCommandService {
 
       mailSender.send(message);
     } catch (Exception e) {
-      MemberError.EMAIL_SEND_FAILED.throwGlobalException();
+      throw MemberError.EMAIL_SEND_FAILED.getGlobalException();
     }
   }
 
@@ -98,10 +98,10 @@ public class EmailCommandServiceDefault implements EmailCommandService {
     String storedVerificationNumber = redisTemplate.opsForValue().get(redisKey);
 
     if (storedVerificationNumber == null) {
-      MemberError.VERIFICATION_EXPIRED_OR_NOT_FOUND.throwGlobalException();
+      throw MemberError.VERIFICATION_EXPIRED_OR_NOT_FOUND.getGlobalException();
     }
     if (!storedVerificationNumber.equals(checkVerificationNumberCommand.verificationNumber())) {
-      MemberError.VERIFICATION_NUMBER_INVALID.throwGlobalException();
+      throw MemberError.VERIFICATION_NUMBER_INVALID.getGlobalException();
     }
   }
 
@@ -127,7 +127,7 @@ public class EmailCommandServiceDefault implements EmailCommandService {
 
       mailSender.send(message);
     } catch (Exception e) {
-      MemberError.EMAIL_SEND_FAILED.throwGlobalException();
+      throw MemberError.EMAIL_SEND_FAILED.getGlobalException();
     }
   }
 
@@ -135,7 +135,7 @@ public class EmailCommandServiceDefault implements EmailCommandService {
     String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
     Pattern pattern = Pattern.compile(emailRegex);
     if (!pattern.matcher(email).matches()) {
-      MemberError.INVALID_EMAIL_FORMAT.throwGlobalException();
+      throw MemberError.INVALID_EMAIL_FORMAT.getGlobalException();
     }
   }
 }

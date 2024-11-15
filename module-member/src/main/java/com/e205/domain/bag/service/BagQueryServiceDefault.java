@@ -42,7 +42,7 @@ public class BagQueryServiceDefault implements BagQueryService {
     log.info("bagId : {}", readAllBagItemsQuery.bagId());
     if (!bagRepository.existsByIdAndMemberId(readAllBagItemsQuery.bagId(),
         readAllBagItemsQuery.memberId())) {
-      MemberError.BAG_NOT_OWNED_BY_USER.throwGlobalException();
+      throw MemberError.BAG_NOT_OWNED_BY_USER.getGlobalException();
     }
 
     return bagItemRepository.findAllByBagId(readAllBagItemsQuery.bagId()).stream()
