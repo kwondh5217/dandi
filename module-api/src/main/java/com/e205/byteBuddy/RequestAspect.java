@@ -1,5 +1,6 @@
 package com.e205.byteBuddy;
 
+import com.e205.auth.dto.MemberDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Map;
@@ -12,6 +13,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.MDC;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -41,10 +44,9 @@ public class RequestAspect {
       MDC.clear();
 
       HttpServletRequest request = attributes.getRequest();
-      Principal userPrincipal = request.getUserPrincipal();
 
       String requestId = UUID.randomUUID().toString();
-      String userId = (userPrincipal != null) ? userPrincipal.getName() : "unknown";
+      String userId = extractMemberId();
 
       MDC.put("userId", userId);
       MDC.put("requestId", requestId);
@@ -75,5 +77,15 @@ public class RequestAspect {
     } finally {
       MDC.clear();
     }
+  }
+
+  private String extractMemberId() {
+    Authentication authentication = SecurityContextHolder.getContext()
+        .getAuthentication();
+    if (authentication != null && authentication.isAuthenticated()) {
+      MemberDetails details = (MemberDetails) authentication.getPrincipal();
+      return Integer.toString(details.id());
+    }
+    return "anonymous";
   }
 }
