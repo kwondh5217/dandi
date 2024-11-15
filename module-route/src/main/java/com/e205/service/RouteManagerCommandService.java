@@ -6,6 +6,8 @@ import com.e205.repository.RouteRepository;
 import com.e205.util.GeometryUtils;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -17,9 +19,14 @@ public class RouteManagerCommandService implements RouteDummyCommandService {
 
   @Override
   public void createRouteDummy(RouteDummyCreateCommand command) {
+    LineString track = geometryUtils.getLineString(command.track());
+    LineString filteredTrack = geometryUtils.filterTrackPoints(track);
+    Polygon radiusTrack = geometryUtils.createLineCirclePolygon(filteredTrack);
+
     routeRepository.save(Route.builder()
         .memberId(command.memberId())
-        .track(geometryUtils.getLineString(command.track()))
+        .track(track)
+        .radiusTrack(radiusTrack)
         .skip('N')
         .snapshot(command.snapshot())
         .startAddress(command.startAddress())

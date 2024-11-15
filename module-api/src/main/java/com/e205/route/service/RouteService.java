@@ -36,7 +36,7 @@ public class RouteService {
   private final VwolrdGeoClient vwolrdGeoClient;
 
   public void createRoute(RouteCreateRequest request, Integer memberId) {
-    RouteCreateCommand comm = new RouteCreateCommand(request.bagId(), memberId);
+    RouteCreateCommand comm = new RouteCreateCommand(memberId, request.bagId());
     commandService.createRoute(comm);
   }
 
