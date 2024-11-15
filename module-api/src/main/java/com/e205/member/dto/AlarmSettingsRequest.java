@@ -1,18 +1,18 @@
 package com.e205.member.dto;
 
 import com.e205.command.member.command.ChangeAlarmSettingCommand;
-import com.e205.command.member.payload.AlarmType;
 
 public record AlarmSettingsRequest(
-    boolean enabled,
-    AlarmType target
+    boolean comment,
+    boolean lostItem,
+    boolean foundItem
 ) {
-
   public ChangeAlarmSettingCommand toCommand(Integer memberId) {
     return ChangeAlarmSettingCommand.builder()
-        .enabled(enabled)
+        .comment(comment)
+        .lostItem(lostItem)
+        .foundItem(foundItem)
         .memberId(memberId)
-        .target(target)
         .build();
   }
 }

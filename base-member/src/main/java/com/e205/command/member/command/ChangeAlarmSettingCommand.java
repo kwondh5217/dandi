@@ -5,9 +5,10 @@ import lombok.Builder;
 
 @Builder
 public record ChangeAlarmSettingCommand(
-    boolean enabled,
-    Integer memberId,
-    AlarmType target
+    boolean comment,
+    boolean lostItem,
+    boolean foundItem,
+    Integer memberId
 ) {
 
 }

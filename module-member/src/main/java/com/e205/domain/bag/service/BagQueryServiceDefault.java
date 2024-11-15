@@ -38,6 +38,8 @@ public class BagQueryServiceDefault implements BagQueryService {
 
   @Override
   public List<BagItemPayload> readAllBagItemsByBagId(ReadAllBagItemsQuery readAllBagItemsQuery) {
+    log.info("MemberId : {}", readAllBagItemsQuery.memberId());
+    log.info("BagId: {}", readAllBagItemsQuery.bagId());
     if (!bagRepository.existsByIdAndMemberId(readAllBagItemsQuery.bagId(),
         readAllBagItemsQuery.memberId())) {
       throw MemberError.BAG_NOT_OWNED_BY_USER.getGlobalException();

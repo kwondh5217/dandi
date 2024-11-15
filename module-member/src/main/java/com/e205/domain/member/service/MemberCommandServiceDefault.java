@@ -199,16 +199,8 @@ public class MemberCommandServiceDefault implements MemberCommandService {
   public void changeAlarmSetting(ChangeAlarmSettingCommand command) {
     Member member = memberRepository.findById(command.memberId())
         .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
-
-    switch (command.target()) {
-      case ALL -> {
-        member.updateCommentAlarm(command.enabled());
-        member.updateFoundItemAlarm(command.enabled());
-        member.updateLostItemAlarm(command.enabled());
-      }
-      case COMMENT -> member.updateCommentAlarm(command.enabled());
-      case LOST_ITEM -> member.updateLostItemAlarm(command.enabled());
-      case FOUND_ITEM -> member.updateFoundItemAlarm(command.enabled());
-    }
+    member.updateCommentAlarm(command.comment());
+    member.updateFoundItemAlarm(command.lostItem());
+    member.updateLostItemAlarm(command.lostItem());
   }
 }
