@@ -56,7 +56,7 @@ public class DefaultQuizCommandService implements QuizCommandService {
   public void submit(QuizSubmitCommand command) {
     quizSolverRepository.findByMemberIdAndQuizId(command.memberId(), command.quizId())
         .ifPresent(solver -> {
-          ItemError.FOUND_QUIZ_ALREADY_SOLVED.throwGlobalException();
+          throw ItemError.FOUND_QUIZ_ALREADY_SOLVED.getGlobalException();
         });
 
     Quiz quiz = getQuiz(command.quizId());
@@ -90,11 +90,11 @@ public class DefaultQuizCommandService implements QuizCommandService {
         .orElseThrow(ItemError.FOUND_NOT_EXIST::getGlobalException);
 
     if (!foundItem.getMemberId().equals(memberId)) {
-      ItemError.FOUND_QUIZ_NOT_AUTH.throwGlobalException();
+      throw ItemError.FOUND_QUIZ_NOT_AUTH.getGlobalException();
     }
 
     if (foundItem.isEnded()) {
-      ItemError.FOUND_ALREADY_ENDED.throwGlobalException();
+      throw ItemError.FOUND_ALREADY_ENDED.getGlobalException();
     }
 
     return foundItem;
@@ -105,7 +105,7 @@ public class DefaultQuizCommandService implements QuizCommandService {
         QUIZ_CANDIDATE_COUNT);
 
     if (candidates.size() < QUIZ_CANDIDATE_COUNT) {
-      ItemError.FOUND_QUIZ_IMAGE_INSUFFICIENT.throwGlobalException();
+      throw ItemError.FOUND_QUIZ_IMAGE_INSUFFICIENT.getGlobalException();
     }
 
     return candidates.stream().filter(candidate -> !candidate.getId().equals(answerId)).toList();

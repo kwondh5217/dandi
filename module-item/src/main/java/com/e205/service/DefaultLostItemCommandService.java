@@ -52,7 +52,7 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
   @Override
   public void grant(LostItemGrantCommand command) {
     if (!isExistsLostItem(command.lostId())) {
-      ItemError.LOST_NOT_FOUND.throwGlobalException();
+      throw ItemError.LOST_NOT_FOUND.getGlobalException();
     }
 
     if (!isExistsAuth(command)) {
@@ -86,7 +86,7 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
         .filter(recent -> recent.getCreatedAt()
             .isAfter(LocalDateTime.now().minusHours(LOST_ITEM_COOL_TIME)))
         .ifPresent(recent -> {
-          ItemError.LOST_SAVE_TIMEOUT.throwGlobalException();
+          throw ItemError.LOST_SAVE_TIMEOUT.getGlobalException();
         });
   }
 
@@ -99,7 +99,7 @@ public class DefaultLostItemCommandService implements LostItemCommandService {
 
   private static void verifyImageCount(LostItemSaveCommand command) {
     if (command.images().size() > MAX_IMAGE_COUNT) {
-      ItemError.LOST_MAX_IMAGE_COUNT_EXCEEDED.throwGlobalException();
+      throw ItemError.LOST_MAX_IMAGE_COUNT_EXCEEDED.getGlobalException();
     }
   }
 }

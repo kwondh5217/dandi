@@ -41,7 +41,7 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
     }
 
     if (lostItem.isEnded()) {
-      ItemError.LOST_ALREADY_ENDED.throwGlobalException();
+      throw ItemError.LOST_ALREADY_ENDED.getGlobalException();
     }
 
     // TODO <fosong98> 분실물 조회 시 이전에 읽지 않았으면 적절한 위치에 있어야 읽을 수 있다.

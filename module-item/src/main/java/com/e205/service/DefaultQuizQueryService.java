@@ -33,11 +33,11 @@ public class DefaultQuizQueryService implements QuizQueryService {
         .orElseThrow(ItemError.FOUND_NOT_EXIST::getGlobalException);
 
     if (foundItem.isEnded()) {
-      ItemError.FOUND_ALREADY_ENDED.throwGlobalException();
+      throw ItemError.FOUND_ALREADY_ENDED.getGlobalException();
     }
 
     if (foundItem.getMemberId().equals(query.memberId())) {
-      ItemError.FOUND_QUIZ_OWNER_CANNOT_SOLVE.throwGlobalException();
+      throw ItemError.FOUND_QUIZ_OWNER_CANNOT_SOLVE.getGlobalException();
     }
 
     Quiz quiz = quizQueryRepository.findByFoundItemId(foundItem.getId())
@@ -45,7 +45,7 @@ public class DefaultQuizQueryService implements QuizQueryService {
 
     quizSolverRepository.findByMemberIdAndQuizId(query.memberId(), quiz.getId())
         .ifPresent(solver -> {
-          ItemError.FOUND_QUIZ_ALREADY_SOLVED.throwGlobalException();
+          throw ItemError.FOUND_QUIZ_ALREADY_SOLVED.getGlobalException();
         });
 
     List<QuizImagePayload> options = quizImageRepository.findQuizImagesByQuizId(quiz.getId())

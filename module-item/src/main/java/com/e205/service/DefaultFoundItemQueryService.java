@@ -29,12 +29,12 @@ public class DefaultFoundItemQueryService implements FoundItemQueryService {
     QuizSolver solver = getQuizSolver(query);
 
     if (!solver.isSolved()) {
-      ItemError.FOUND_NOT_AUTH.throwGlobalException();
+      throw ItemError.FOUND_NOT_AUTH.getGlobalException();
     }
 
     FoundItem foundItem = solver.getQuiz().getFoundItem();
     if (foundItem.isEnded()) {
-      ItemError.FOUND_ALREADY_ENDED.throwGlobalException();
+      throw ItemError.FOUND_ALREADY_ENDED.getGlobalException();
     }
 
     return foundItem.toPayload();

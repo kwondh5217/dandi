@@ -4,7 +4,6 @@ import com.e205.FoundItemType;
 import com.e205.command.FoundItemDeleteCommand;
 import com.e205.command.FoundItemSaveCommand;
 import com.e205.exception.ItemError;
-import com.e205.geo.dto.Point;
 import com.e205.geo.service.GeoClient;
 import com.e205.item.dto.FoundItemCreateRequest;
 import com.e205.item.dto.FoundItemListResponse;
@@ -53,7 +52,7 @@ public class FoundItemService {
     FoundItemDeleteCommand command = new FoundItemDeleteCommand(memberId, foundId);
     FoundItemPayload payload = foundItemQueryService.find(new FoundItemQuery(memberId, foundId));
     if (payload.memberId() != memberId) {
-      ItemError.LOST_NOT_AUTH.throwGlobalException();
+      throw ItemError.LOST_NOT_AUTH.getGlobalException();
     }
     foundItemCommandService.delete(command);
   }

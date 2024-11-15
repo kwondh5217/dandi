@@ -31,7 +31,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
   @Override
   public void save(FoundItemSaveCommand command) {
     if (command.foundAt().isAfter(LocalDateTime.now())) {
-      ItemError.FOUND_AT_FUTURE.throwGlobalException();
+      throw ItemError.FOUND_AT_FUTURE.getGlobalException();
     }
 
     switch (command.type()) {
@@ -48,7 +48,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
 
   private void processOther(FoundItemSaveCommand command) {
     if (command.image() == null) {
-      ItemError.FOUND_OTHER_REQUIRE_IMAGE.throwGlobalException();
+      throw ItemError.FOUND_OTHER_REQUIRE_IMAGE.getGlobalException();
     }
     FoundItem foundItem = foundItemCommandRepository.save(new FoundItem(command));
 
@@ -64,7 +64,7 @@ public class DefaultFoundItemCommandService implements FoundItemCommandService {
 
   private void processCard(FoundItemSaveCommand command) {
     if (command.image() != null) {
-      ItemError.FOUND_CARD_NOT_REQUIRE_IMAGE.throwGlobalException();
+      throw ItemError.FOUND_CARD_NOT_REQUIRE_IMAGE.getGlobalException();
     }
     // TODO <fosong98> 카드 퀴즈는 다음에 고민
     FoundItem foundItem = foundItemCommandRepository.save(new FoundItem(command));

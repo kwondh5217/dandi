@@ -7,8 +7,8 @@ import lombok.Builder;
 public record LostItemPayload(
     Integer id,
     Integer memberId,
-    int startRouteId,
-    int endRouteId,
+    Integer startRouteId,
+    Integer endRouteId,
     String situationDescription,
     String itemDescription,
     LocalDateTime lostAt,

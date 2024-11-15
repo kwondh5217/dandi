@@ -31,7 +31,7 @@ public class DefaultImageService implements ImageService {
     String extension = FilenameUtils.getExtension(image.getFilename());
 
     if (!IMAGE_EXTENSIONS.contains(extension.toLowerCase())) {
-      ItemError.IMAGE_EXT_NOT_VALID.throwGlobalException();
+      throw ItemError.IMAGE_EXT_NOT_VALID.getGlobalException();
     }
 
     String filename = fileRepository.save(image);
@@ -41,13 +41,12 @@ public class DefaultImageService implements ImageService {
       switch (command.type()) {
         case LOST -> imageRepository.save(new LostImage(id, extension, null));
         case FOUND -> imageRepository.save(new FoundImage(id, extension, null));
-        default -> ItemError.IMAGE_TYPE_NOT_VALID.throwGlobalException();
+        default -> throw ItemError.IMAGE_TYPE_NOT_VALID.getGlobalException();
       }
       return filename;
     } catch (Exception e) {
       fileRepository.delete(filename);
-      ItemError.IMAGE_SAVE_FAIL.throwGlobalException();
-      return null;
+      throw ItemError.IMAGE_SAVE_FAIL.getGlobalException();
     }
   }
 
