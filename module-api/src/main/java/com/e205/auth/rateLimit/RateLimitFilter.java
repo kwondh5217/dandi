@@ -1,5 +1,6 @@
 package com.e205.auth.rateLimit;
 
+import com.e205.auth.dto.MemberDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,25 +18,49 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class RateLimitFilter extends OncePerRequestFilter {
 
-  private Logger log = LoggerFactory.getLogger(RateLimitFilter.class);
+  private static final Logger log = LoggerFactory.getLogger(RateLimitFilter.class);
   private final RateLimiterService rateLimiterService;
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+  protected void doFilterInternal(HttpServletRequest request,
+      HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    String memberId = (authentication == null || !authentication.isAuthenticated())
-        ? "anonymous" : authentication.getName();
+    if (isPostRequest(request)) {
+      String memberId = extractMemberId();
 
-    if (!rateLimiterService.isRequestAllowed(
-        memberId, HttpMethod.valueOf(request.getMethod()), request.getRequestURI())) {
-      log.info("Request rejected by rate limiter, memberId:{}, method:{}, uri:{}",
-          memberId, request.getMethod(), request.getRequestURI());
-      response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-      return;
+      if (!isRequestAllowed(memberId, request)) {
+        logRateLimitExceeded(memberId, request);
+        response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+        return;
+      }
     }
 
     filterChain.doFilter(request, response);
+  }
+
+  private boolean isPostRequest(HttpServletRequest request) {
+    return HttpMethod.POST.name().equals(request.getMethod());
+  }
+
+  private String extractMemberId() {
+    Authentication authentication = SecurityContextHolder.getContext()
+        .getAuthentication();
+    if (authentication != null && authentication.isAuthenticated()) {
+      MemberDetails details = (MemberDetails) authentication.getPrincipal();
+      return Integer.toString(details.id());
+    }
+    return "anonymous";
+  }
+
+  private boolean isRequestAllowed(String memberId, HttpServletRequest request) {
+    HttpMethod method = HttpMethod.valueOf(request.getMethod());
+    String requestUri = request.getRequestURI();
+    return rateLimiterService.isRequestAllowed(memberId, method, requestUri);
+  }
+
+  private void logRateLimitExceeded(String memberId, HttpServletRequest request) {
+    log.info("Request rejected by rate limiter - memberId: {}, method: {}, uri: {}",
+        memberId, request.getMethod(), request.getRequestURI());
   }
 }
