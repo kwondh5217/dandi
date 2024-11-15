@@ -28,6 +28,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -57,6 +59,9 @@ public class RouteCommandServiceIntgTests {
   @Autowired
   private RouteRepository routeRepository;
 
+  @Autowired
+  private GeometryUtils geometryUtils;
+
   @MockBean
   private BagQueryService bagQueryService;
 
@@ -79,7 +84,11 @@ public class RouteCommandServiceIntgTests {
 
   private Snapshot initializeSnapshot(Integer bagId, List<SnapshotItem> items) {
     Snapshot snapshot = new Snapshot(bagId, items);
-    routeRepository.save(Route.toEntity(MEMBER_ID_1, Snapshot.toJson(snapshot)));
+    LineString emptyLineString = geometryUtils.createEmptyLineString();
+    Polygon emptyPolygon = geometryUtils.createEmptyPolygon();
+    routeRepository.save(
+        Route.toEntity(MEMBER_ID_1, Snapshot.toJson(snapshot), emptyLineString, emptyPolygon)
+    );
     return snapshot;
   }
 
@@ -167,7 +176,9 @@ public class RouteCommandServiceIntgTests {
   @DisplayName("이동 종료 테스트")
   void 이동_종료_테스트() {
     Snapshot snapshot = new Snapshot(requestBagId1.bagId(), currentBagItems);
-    Route route = routeRepository.save(Route.toEntity(MEMBER_ID_1, Snapshot.toJson(snapshot)));
+    LineString el = geometryUtils.createEmptyLineString();
+    Polygon ep = geometryUtils.createEmptyPolygon();
+    Route route = routeRepository.save(Route.toEntity(MEMBER_ID_1, Snapshot.toJson(snapshot), el, ep));
     List<TrackPoint> trackPoints = List.of(
         TrackPoint.builder().lat(37.7749).lon(-122.4194).build(),
         TrackPoint.builder().lat(34.0522).lon(-118.2437).build()
@@ -176,7 +187,7 @@ public class RouteCommandServiceIntgTests {
 
     routeCommandService.endRoute(command);
     Route endedRoute = routeRepository.findById(route.getId()).orElseThrow();
-    List<TrackPoint> savedTrackPoints = GeometryUtils.getPoints(endedRoute.getTrack());
+    List<TrackPoint> savedTrackPoints = geometryUtils.getPoints(endedRoute.getTrack());
 
     assertThat(endedRoute.getEndedAt()).isNotNull();
     assertThat(savedTrackPoints).containsExactlyElementsOf(trackPoints);

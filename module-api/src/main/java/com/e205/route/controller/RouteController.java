@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,7 +43,7 @@ public class RouteController {
     routeService.createRoute(request, authHelper.getMemberId());
   }
 
-  @PatchMapping("/{routeId}/snapshot")
+  @PutMapping("/{routeId}/snapshot")
   @ResponseStatus(HttpStatus.OK)
   public void updateSnapshot(
       @PathVariable Integer routeId,
@@ -52,7 +53,7 @@ public class RouteController {
     routeService.updateSnapshot(memberId, routeId, request);
   }
 
-  @PatchMapping("/{routeId}")
+  @PutMapping("/{routeId}")
   @ResponseStatus(HttpStatus.OK)
   public void endRoute(@PathVariable Integer routeId, @RequestBody RouteEndRequest request) {
     Integer memberId = authHelper.getMemberId();

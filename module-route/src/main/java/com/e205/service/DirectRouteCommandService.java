@@ -14,7 +14,8 @@ import com.e205.service.reader.SnapshotHelper;
 import com.e205.util.GeometryUtils;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class DirectRouteCommandService implements RouteCommandService {
   private final EventPublisher eventPublisher;
   private final RouteRepository routeRepository;
   private final SnapshotHelper snapshotHelper;
+  private final GeometryUtils geometryUtils;
 
   @Override
   public void createRoute(RouteCreateCommand command) {
@@ -37,8 +39,14 @@ public class DirectRouteCommandService implements RouteCommandService {
     Snapshot baseSnapshot = snapshotHelper.loadBaseSnapshot(memberId, bagId);
 
     String determinedSnapshot = SnapshotHelper.mergeSnapshots(baseSnapshot, currentSnapshot);
-    Route savedRoute = routeRepository.save(Route.toEntity(memberId, determinedSnapshot));
+    Route initialRoute = Route.toEntity(
+        memberId,
+        determinedSnapshot,
+        geometryUtils.createEmptyLineString(),
+        geometryUtils.createEmptyPolygon()
+    );
 
+    Route savedRoute = routeRepository.save(initialRoute);
     String payload = RouteEventPayload.toJson(getPayload(savedRoute, determinedSnapshot));
     eventPublisher.publishAtLeastOnce(new RouteSavedEvent(memberId, payload));
   }
@@ -55,7 +63,6 @@ public class DirectRouteCommandService implements RouteCommandService {
   public void updateSnapshot(SnapshotUpdateCommand command) {
     Route route = getRoute(command.routeId(), command.memberId());
     route.updateSnapshot(Snapshot.toJson(command.snapshot()));
-    routeRepository.save(route);
   }
 
   @Override
@@ -64,12 +71,17 @@ public class DirectRouteCommandService implements RouteCommandService {
     if (route.getEndedAt() != null) {
       throw new GlobalException("E202");
     }
+
+    LineString track = geometryUtils.getLineString(command.points());
+    LineString filteredTrack = geometryUtils.filterTrackPoints(track);
+    Polygon radiusTrack = geometryUtils.createLineCirclePolygon(filteredTrack);
+
     route.endRoute(
-        GeometryUtils.getLineString(command.points()),
+        track,
+        radiusTrack,
         command.startAddress(),
         command.endAddress()
     );
-    routeRepository.save(route);
   }
 
   private Route getRoute(Integer routeId, Integer memberId) {

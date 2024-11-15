@@ -59,8 +59,7 @@ public interface RouteRepository extends JpaRepository<Route, Integer> {
   @Query("SELECT r.memberId "
       + "FROM Route r "
       + "WHERE r.track IS NOT NULL "
-      + "AND (ST_Contains(:polygon, ST_StartPoint(r.track)) "
-      + "OR ST_Contains(:polygon, ST_EndPoint(r.track))) "
+      + "AND (ST_Intersects(:polygon, r.radiusTrack)) "
       + "AND (r.createdAt >= :timestamp OR r.endedAt >= :timestamp)")
   Set<Integer> findUsersWithinPolygon(
       @Param("polygon") Polygon polygon,

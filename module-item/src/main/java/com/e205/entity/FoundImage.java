@@ -17,7 +17,6 @@ import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 @DiscriminatorValue("found_item")
 public class FoundImage extends Image implements LoggableEntity {

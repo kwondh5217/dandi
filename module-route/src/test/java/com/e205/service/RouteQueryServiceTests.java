@@ -129,7 +129,7 @@ class RouteQueryServiceTests {
     given(routeRepository.findByIdAndMemberId(routeId, memberId)).willReturn(Optional.of(route));
     given(routeRepository.findFirstByMemberIdAndIdGreaterThanOrderByIdAsc(MEMBER_ID_1, routeId))
         .willReturn(Optional.of(nextRoute));
-    given(geometryUtils.isWithinDistance(route.getTrack(), nextRoute.getTrack(), 1000))
+    given(geometryUtils.isWithinDistance(route.getTrack(), nextRoute.getTrack()))
         .willReturn(false);
 
     // when
@@ -196,7 +196,7 @@ class RouteQueryServiceTests {
     given(
         routeRepository.findFirstByMemberIdAndIdGreaterThanOrderByIdAsc(MEMBER_ID_1, route.getId()))
         .willReturn(Optional.of(nextRoute));
-    given(geometryUtils.isWithinDistance(route.getTrack(), nextRoute.getTrack(), 1000))
+    given(geometryUtils.isWithinDistance(route.getTrack(), nextRoute.getTrack()))
         .willReturn(false);
 
     // when

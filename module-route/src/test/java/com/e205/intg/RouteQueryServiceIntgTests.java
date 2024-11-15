@@ -34,6 +34,7 @@ import com.e205.service.RouteQueryService;
 import com.e205.util.GeometryUtils;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,6 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -89,6 +91,9 @@ public class RouteQueryServiceIntgTests {
   @Autowired
   private EntityManager entityManager;
 
+  @Autowired
+  private GeometryUtils geometryUtils;
+
   @MockBean
   private BagQueryService bagQueryService;
 
@@ -98,6 +103,8 @@ public class RouteQueryServiceIntgTests {
   @BeforeEach
   void setUp() {
     entityManager.createNativeQuery("ALTER TABLE route AUTO_INCREMENT = 1").executeUpdate();
+    createSpatialIndexIfNotExists();
+
     initTracksPoints();
     initBagsItems();
     createSnapshot();
@@ -133,7 +140,7 @@ public class RouteQueryServiceIntgTests {
 
     routeRepository.findById(ROUTE_ID_2).ifPresent(
         (route) -> {
-          route.updateTrack(GeometryUtils.getLineString(trackPoints2));
+          route.updateTrack(geometryUtils.getLineString(trackPoints2));
           routeRepository.save(route);
         }
     );
@@ -201,7 +208,7 @@ public class RouteQueryServiceIntgTests {
       "37.7749, 127.0, 3, '1'", // 최근 1시간 이내, 예상되는 사용자 ID 1
 
       // lat : 39.7749, lon : 127.1 좌표에는 사용자 3의 이동밖에 없음
-      "39.7749, 127.1, 3, '3'" // 좌표 39.7749, 127.1 반경 내, 예상되는 사용자 ID 3
+      "38.7749, 128.0, 3, '3'" // 좌표 39.7749, 127.1 반경 내, 예상되는 사용자 ID 3
   })
   @DisplayName("특정 좌표 반경 내의 사용자를 시간 기준으로 조회 테스트")
   void 특정_좌표_반경_내_사용자_조회_테스트(double lat, double lon, int subtractionTime, String ids) {
@@ -224,25 +231,23 @@ public class RouteQueryServiceIntgTests {
   }
 
   private void initTracksPoints() {
-    trackPoints1 = List.of(
-        TrackPoint.builder().lat(37.7749).lon(127.0).build(),
-        TrackPoint.builder().lat(37.7749).lon(127.1).build()
-    );
+    // TrackPoints 1, 2, 3 - 1km 내에서 가까운 위치에 1000개의 TrackPoint 생성
+    trackPoints1 = generateTrackPoints(37.7749, 127.0);
+    trackPoints2 = generateTrackPoints(37.7750, 127.01);
+    trackPoints3 = generateTrackPoints(37.7751, 127.02);
 
-    trackPoints2 = List.of(
-        TrackPoint.builder().lat(37.7749).lon(127.0).build(),
-        TrackPoint.builder().lat(37.7749).lon(127.1).build()
-    );
+    // TrackPoints 4 - 100km 떨어진 위치에서 1000개의 TrackPoint 생성
+    trackPoints4 = generateTrackPoints(38.7749, 128.0);
+  }
 
-    trackPoints3 = List.of(
-        TrackPoint.builder().lat(37.7749).lon(127.0).build(),
-        TrackPoint.builder().lat(37.7749).lon(127.1).build()
-    );
-
-    trackPoints4 = List.of(
-        TrackPoint.builder().lat(39.7749).lon(127.0).build(),
-        TrackPoint.builder().lat(39.7749).lon(127.1).build()
-    );
+  private List<TrackPoint> generateTrackPoints(double baseLat, double baseLon) {
+    List<TrackPoint> trackPoints = new ArrayList<>();
+    for (int i = 0; i < 500; i++) {
+      double lat = baseLat + (Math.random() - 0.5) * 0.01;
+      double lon = baseLon + (Math.random() - 0.5) * 0.01;
+      trackPoints.add(TrackPoint.builder().lat(lat).lon(lon).build());
+    }
+    return trackPoints;
   }
 
   private void initBagsItems() {
@@ -267,9 +272,26 @@ public class RouteQueryServiceIntgTests {
   }
 
   private void createRoutes() {
+    long startTime = System.nanoTime();
+    LineString track1 = geometryUtils.getLineString(trackPoints1);
+    LineString track2 = geometryUtils.getLineString(trackPoints2);
+    LineString track3 = geometryUtils.getLineString(trackPoints3);
+    LineString track4 = geometryUtils.getLineString(trackPoints4);
+
+    LineString filteredTrack1 = geometryUtils.filterTrackPoints(track1);
+    LineString filteredTrack2 = geometryUtils.filterTrackPoints(track2);
+    LineString filteredTrack3 = geometryUtils.filterTrackPoints(track3);
+    LineString filteredTrack4 = geometryUtils.filterTrackPoints(track4);
+
+    Polygon radiusTrack1 = geometryUtils.createLineCirclePolygon(filteredTrack1);
+    Polygon radiusTrack2 = geometryUtils.createLineCirclePolygon(filteredTrack2);
+    Polygon radiusTrack3 = geometryUtils.createLineCirclePolygon(filteredTrack3);
+    Polygon radiusTrack4 = geometryUtils.createLineCirclePolygon(filteredTrack4);
+
     route1 = createRoute(
         ROUTE_ID_1, MEMBER_ID_1,
-        GeometryUtils.getLineString(trackPoints1),
+        track1,
+        radiusTrack1,
         snapshot1,
         dateNow,
         endDateNow
@@ -277,7 +299,8 @@ public class RouteQueryServiceIntgTests {
 
     route2 = createRoute(
         ROUTE_ID_2, MEMBER_ID_1,
-        GeometryUtils.getLineString(trackPoints2),
+        track2,
+        radiusTrack2,
         snapshot2,
         dateNow,
         endDateNow
@@ -285,7 +308,8 @@ public class RouteQueryServiceIntgTests {
 
     route3 = createRoute(
         ROUTE_ID_3, MEMBER_ID_1,
-        GeometryUtils.getLineString(trackPoints3),
+        track3,
+        radiusTrack3,
         snapshot1,
         dateNow,
         endDateNow
@@ -293,7 +317,8 @@ public class RouteQueryServiceIntgTests {
 
     route4 = createRoute(
         ROUTE_ID_4, MEMBER_ID_1,
-        GeometryUtils.getLineString(trackPoints3),
+        track3,
+        radiusTrack3,
         snapshot2,
         dateTomorrow,
         endDateTomorrow
@@ -301,7 +326,8 @@ public class RouteQueryServiceIntgTests {
 
     route5 = createRoute(
         ROUTE_ID_7, MEMBER_ID_4,
-        GeometryUtils.getLineString(trackPoints2),
+        track2,
+        radiusTrack2,
         snapshot2,
         dateNow.minusHours(8),
         endDateNow.minusHours(7)
@@ -309,7 +335,8 @@ public class RouteQueryServiceIntgTests {
 
     withinPolygonRoute = createRoute(
         ROUTE_ID_5, MEMBER_ID_2,
-        GeometryUtils.getLineString(trackPoints2),
+        track2,
+        radiusTrack2,
         snapshot2,
         dateNow.minusHours(5),
         endDateNow.minusHours(4)
@@ -317,7 +344,8 @@ public class RouteQueryServiceIntgTests {
 
     noneWithinPolygonRoute = createRoute(
         ROUTE_ID_6, MEMBER_ID_3,
-        GeometryUtils.getLineString(trackPoints4),
+        track4,
+        radiusTrack4,
         snapshot2,
         dateNow,
         endDateNow
@@ -330,19 +358,41 @@ public class RouteQueryServiceIntgTests {
     routeRepository.save(withinPolygonRoute);
     routeRepository.save(noneWithinPolygonRoute);
     routeRepository.save(route5);
+
+    long endTime = System.nanoTime();
+    long duration = endTime - startTime;
+    System.out.println("createRoutes 실행 시간: " + duration / 1_000_000 + " ms");
   }
 
   private Route createRoute(
-      Integer id, Integer memberId, LineString track, Snapshot snapshot,
+      Integer id, Integer memberId, LineString track, Polygon radiusTrack, Snapshot snapshot,
       LocalDateTime createdAt, LocalDateTime endedAt) {
     return Route.builder()
         .id(id)
         .memberId(memberId)
         .track(track)
+        .radiusTrack(radiusTrack)
         .skip('N')
         .snapshot(Snapshot.toJson(snapshot))
         .createdAt(createdAt)
         .endedAt(endedAt)
         .build();
+  }
+
+  private void createSpatialIndexIfNotExists() {
+    Long indexCount = (Long) entityManager.createNativeQuery(
+        "SELECT COUNT(*) " +
+            "FROM INFORMATION_SCHEMA.STATISTICS " +
+            "WHERE TABLE_SCHEMA = DATABASE() " +
+            "AND TABLE_NAME = 'route' " +
+            "AND INDEX_NAME = 'idx_radius_track'"
+    ).getSingleResult();
+
+    // 인덱스가 없으면 생성
+    if (indexCount == 0) {
+      entityManager.createNativeQuery(
+          "CREATE SPATIAL INDEX idx_radius_track ON route (radius_track)"
+      ).executeUpdate();
+    }
   }
 }

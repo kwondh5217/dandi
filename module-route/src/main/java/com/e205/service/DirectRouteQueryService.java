@@ -21,11 +21,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @Service
 public class DirectRouteQueryService implements RouteQueryService {
-
-  @Value("${route.max-radius}")
-  private double radius;
 
   private final RouteRepository routeRepository;
   private final GeometryUtils geometryUtils;
@@ -119,17 +113,19 @@ public class DirectRouteQueryService implements RouteQueryService {
     }
 
     List<Route> routesInRange = routeRepository.findRoutesWithinRange(startId, endId);
-    LineString combinedTrack = geometryUtils.combineTracks(
-        routesInRange.stream().map(Route::getTrack).collect(Collectors.toList())
-    );
+    List<Polygon> radiusPolygons = routesInRange.stream()
+        .map(Route::getRadiusTrack)
+        .toList();
 
-    Polygon bufferedPolygon = geometryUtils.createLineCirclePolygon(combinedTrack, radius);
+    Polygon bufferedPolygon = geometryUtils.combinePolygons(radiusPolygons);
+
     return new ArrayList<>(routeRepository.findUsersWithinPolygon(bufferedPolygon, query.since()));
   }
 
+
   @Override
   public List<Integer> findUserIdsNearPoint(MembersInPointQuery query) {
-    Polygon polygon = geometryUtils.createCirclePolygon(query.lat(), query.lon(), radius);
+    Polygon polygon = geometryUtils.createCirclePolygon(query.lat(), query.lon());
     LocalDateTime timestamp = LocalDateTime.now().minusHours(query.subtractionTime());
     return new ArrayList<>(routeRepository.findUsersWithinPolygon(polygon, timestamp));
   }
@@ -148,7 +144,6 @@ public class DirectRouteQueryService implements RouteQueryService {
   }
 
   private boolean isWithinDistance(Route nextRoute, Route lastRoute) {
-    return geometryUtils.isWithinDistance(
-        lastRoute.getTrack(), nextRoute.getTrack(), radius);
+    return geometryUtils.isWithinDistance(lastRoute.getTrack(), nextRoute.getTrack());
   }
 }

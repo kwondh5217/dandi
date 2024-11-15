@@ -5,7 +5,9 @@ import static com.e205.env.TestConstant.MEMBER_ID_2;
 import static com.e205.env.TestConstant.MEMBER_ID_3;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.e205.command.bag.service.BagQueryService;
 import com.e205.domain.Route;
+import com.e205.events.EventPublisher;
 import com.e205.util.GeometryUtils;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +24,8 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,24 +34,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Sql("/test-sql/route.sql")
 @ActiveProfiles(value = "test")
 @AutoConfigureTestDatabase(replace = Replace.NONE)
-@DataJpaTest
+@SpringBootTest
 class RouteRepositoryTests {
-
-  @Autowired
-  private RouteRepository routeRepository;
-
-  private GeometryFactory geometryFactory;
-  private GeometryUtils geometryUtils = new GeometryUtils();
 
   LineString track1;
   LineString track2;
   LineString track3;
-
   Route route1;
   Route route2;
   Route route3;
   Route otherRoute1;
   Route otherRoute2;
+  @Autowired
+  private RouteRepository routeRepository;
+  private GeometryFactory geometryFactory;
+  @Autowired
+  private GeometryUtils geometryUtils;
+  @MockBean
+  private EventPublisher eventPublisher;
+  @MockBean
+  private BagQueryService bagQueryService;
 
   @BeforeEach
   public void setUp() {
@@ -162,13 +167,11 @@ class RouteRepositoryTests {
         new Coordinate(127.0, 37.5),
         new Coordinate(127.1, 37.6)
     });
-    double radius = 1000; // 1km
-    Polygon bufferedPolygon = geometryUtils.createLineCirclePolygon(testPath, radius);
+    Polygon bufferedPolygon = geometryUtils.createLineCirclePolygon(testPath);
     LocalDateTime recentTime = LocalDateTime.now().minusHours(2);
 
     // when
-    Set<Integer> userIds = routeRepository.findUsersWithinPolygon(bufferedPolygon,
-        recentTime);
+    Set<Integer> userIds = routeRepository.findUsersWithinPolygon(bufferedPolygon, recentTime);
 
     // then
     assertThat(userIds).contains(MEMBER_ID_1); // MEMBER_ID_1이 1km 반경 내에 포함되어야 함
@@ -180,6 +183,7 @@ class RouteRepositoryTests {
     route1 = Route.builder()
         .memberId(MEMBER_ID_1)
         .track(track1)
+        .radiusTrack(geometryUtils.createLineCirclePolygon(track1))
         .createdAt(LocalDateTime.now())
         .endedAt(LocalDateTime.now().plusMinutes(40))
         .build();
@@ -187,6 +191,7 @@ class RouteRepositoryTests {
     route2 = Route.builder()
         .memberId(MEMBER_ID_1)
         .track(track2)
+        .radiusTrack(geometryUtils.createLineCirclePolygon(track2))
         .createdAt(LocalDateTime.now())
         .endedAt(LocalDateTime.now().plusHours(1))
         .build();
@@ -194,6 +199,7 @@ class RouteRepositoryTests {
     route3 = Route.builder()
         .memberId(MEMBER_ID_1)
         .track(track2)
+        .radiusTrack(geometryUtils.createLineCirclePolygon(track2))
         .createdAt(LocalDateTime.now())
         .endedAt(LocalDateTime.now().plusMinutes(40))
         .build();
@@ -201,6 +207,7 @@ class RouteRepositoryTests {
     otherRoute1 = Route.builder()
         .memberId(MEMBER_ID_2)
         .track(track1)
+        .radiusTrack(geometryUtils.createLineCirclePolygon(track1))
         .createdAt(LocalDateTime.now())
         .endedAt(LocalDateTime.now().plusMinutes(10))
         .build();
@@ -208,6 +215,7 @@ class RouteRepositoryTests {
     otherRoute2 = Route.builder()
         .memberId(MEMBER_ID_3)
         .track(track3)
+        .radiusTrack(geometryUtils.createLineCirclePolygon(track3))
         .createdAt(LocalDateTime.now())
         .endedAt(LocalDateTime.now().plusMinutes(10))
         .build();

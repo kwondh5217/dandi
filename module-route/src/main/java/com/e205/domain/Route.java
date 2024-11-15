@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 
 @Getter
 @Builder
@@ -38,7 +39,11 @@ public class Route implements LoggableEntity {
   private Integer id;
   private Integer memberId;
   @JsonIgnore
+  @Column(nullable = false)
   private LineString track;
+  @JsonIgnore
+  @Column(nullable = false)
+  private Polygon radiusTrack;
   @Column(length = 1)
   private char skip;
   @Column(length = 2000)
@@ -54,8 +59,9 @@ public class Route implements LoggableEntity {
     this.track = track;
   }
 
-  public void endRoute(LineString track, String startAddress, String endAddress) {
+  public void endRoute(LineString track, Polygon radiusTrack, String startAddress, String endAddress) {
     this.track = track;
+    this.radiusTrack = radiusTrack;
     this.startAddress = startAddress;
     this.endAddress = endAddress;
     this.endedAt = LocalDateTime.now();
@@ -66,9 +72,14 @@ public class Route implements LoggableEntity {
     this.snapshot = snapshot;
   }
 
-  public static Route toEntity(Integer memberId, String snapshot) {
+  public static Route toEntity(
+      Integer memberId, String snapshot,
+      LineString track, Polygon radiusTrack
+  ) {
     return Route.builder()
         .memberId(memberId)
+        .track(track)
+        .radiusTrack(radiusTrack)
         .skip('Y')
         .snapshot(snapshot)
         .createdAt(LocalDateTime.now())

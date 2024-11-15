@@ -36,3 +36,4 @@ noti:
 
 route:
   max-radius: 1000
+  distance-threshold: 800

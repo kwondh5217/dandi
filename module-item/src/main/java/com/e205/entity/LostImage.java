@@ -14,7 +14,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 @DiscriminatorValue("lost_item")
 public class LostImage extends Image implements LoggableEntity {

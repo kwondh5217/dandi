@@ -13,12 +13,13 @@ import org.springframework.stereotype.Service;
 public class RouteManagerCommandService implements RouteDummyCommandService {
 
   private final RouteRepository routeRepository;
+  private final GeometryUtils geometryUtils;
 
   @Override
   public void createRouteDummy(RouteDummyCreateCommand command) {
     routeRepository.save(Route.builder()
         .memberId(command.memberId())
-        .track(GeometryUtils.getLineString(command.track()))
+        .track(geometryUtils.getLineString(command.track()))
         .skip('N')
         .snapshot(command.snapshot())
         .startAddress(command.startAddress())

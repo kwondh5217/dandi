@@ -4,6 +4,8 @@ import com.e205.FoundItemType;
 import com.e205.command.FoundItemSaveCommand;
 import com.e205.log.LoggableEntity;
 import com.e205.payload.FoundItemPayload;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Getter
 @Entity
 public class FoundItem implements LoggableEntity {

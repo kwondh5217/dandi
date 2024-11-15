@@ -1,3 +1,7 @@
+route:
+  max-radius: 1000
+  distance-threshold: 800
+
 spring:
   datasource:
     url: jdbc:tc:mysql:8:///test?TC_REUSABLE=true

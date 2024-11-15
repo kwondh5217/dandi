@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -13,11 +12,7 @@ import static org.mockito.Mockito.verify;
 import com.e205.command.RouteCreateCommand;
 import com.e205.command.RouteEndCommand;
 import com.e205.command.SnapshotUpdateCommand;
-import com.e205.command.bag.payload.BagItemPayload;
-import com.e205.command.bag.query.ReadAllBagItemsQuery;
-import com.e205.command.bag.query.ReadAllItemInfoQuery;
 import com.e205.command.bag.service.BagQueryService;
-import com.e205.command.item.payload.ItemPayload;
 import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
@@ -26,6 +21,7 @@ import com.e205.events.EventPublisher;
 import com.e205.exception.GlobalException;
 import com.e205.repository.RouteRepository;
 import com.e205.service.reader.SnapshotHelper;
+import com.e205.util.GeometryUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,11 +31,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -62,6 +58,8 @@ public class RouteCommandServiceTests {
   private EventPublisher eventPublisher;
   @Mock
   private SnapshotHelper snapshotHelper;
+  @Mock
+  private GeometryUtils geometryUtils;
 
   @BeforeEach
   void setUp() {
@@ -84,6 +82,7 @@ public class RouteCommandServiceTests {
 
     given(snapshotHelper.loadBaseSnapshot(MEMBER_ID, BAG_ID)).willReturn(snapshot);
     given(routeRepository.save(any(Route.class))).willReturn(savedRoute);
+    given(geometryUtils.createEmptyPolygon()).willReturn(any(Polygon.class));
 
     // when
     commandService.createRoute(command);
@@ -98,7 +97,7 @@ public class RouteCommandServiceTests {
   }
 
   private @NotNull Route getRoute() {
-    return new Route(VALID_ROUTE_ID, MEMBER_ID, null, 'Y', Snapshot.toJson(snapshot), "", "",
+    return new Route(VALID_ROUTE_ID, MEMBER_ID, null, null, 'Y', Snapshot.toJson(snapshot), "", "",
         LocalDateTime.now(), LocalDateTime.now());
   }
 
@@ -124,8 +123,9 @@ public class RouteCommandServiceTests {
   void 이미_종료_된_이동_실패_테스트() {
     // given
     LineString lineString = mock(LineString.class);
+    Polygon polygon = mock(Polygon.class);
     Route route = new Route();
-    route.endRoute(lineString, "", "");
+    route.endRoute(lineString, polygon, "", "");
     RouteEndCommand command = new RouteEndCommand(MEMBER_ID, VALID_ROUTE_ID, null, "", "");
     given(routeRepository.findByIdAndMemberId(VALID_ROUTE_ID, MEMBER_ID))
         .willReturn(Optional.of(route));
