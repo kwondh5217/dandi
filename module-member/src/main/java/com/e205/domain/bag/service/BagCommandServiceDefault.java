@@ -11,6 +11,7 @@ import com.e205.command.bag.command.CreateBagCommand;
 import com.e205.command.bag.command.RemoveItemsInBagCommand;
 import com.e205.command.bag.command.SelectBagCommand;
 import com.e205.command.bag.event.BagChangedEvent;
+import com.e205.command.bag.event.BagItemDeleteEvent;
 import com.e205.command.bag.payload.BagPayload;
 import com.e205.command.bag.service.BagCommandService;
 import com.e205.domain.bag.entity.Bag;
@@ -18,9 +19,11 @@ import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.exception.MemberError;
+import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
+import com.e205.events.Event;
 import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -208,8 +211,15 @@ public class BagCommandServiceDefault implements BagCommandService {
     if (!Objects.equals(bag.getMemberId(), command.memberId())) {
       throw MemberError.BAG_NOT_OWNED_BY_USER.getGlobalException();
     }
+    Member member = memberRepository.findById(command.memberId())
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
 
+    Item item = itemRepository.findById(command.bagItemId())
+        .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
     bagItemRepository.deleteByBagIdAndItemId(command.bagId(), command.bagItemId());
+    if(member.getBagId().equals(command.bagId())) {
+      eventPublisher.publishAtLeastOnce(new BagItemDeleteEvent(item.toPayload()));
+    }
   }
 
   @Override
@@ -257,6 +267,8 @@ public class BagCommandServiceDefault implements BagCommandService {
 
   @Override
   public void removeItemsInBag(RemoveItemsInBagCommand command) {
+    Member member = memberRepository.findById(command.memberId())
+        .orElseThrow(MemberError.USER_NOT_FOUND::getGlobalException);
     Bag bag = bagRepository.findById(command.bagId())
         .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
     if (!Objects.equals(bag.getMemberId(), command.memberId())) {
@@ -270,5 +282,8 @@ public class BagCommandServiceDefault implements BagCommandService {
         .toList();
 
     bagItemRepository.deleteAll(itemsToDelete);
+    if (member.getBagId().equals(command.bagId())) {
+      eventPublisher.publishAtLeastOnce(new BagChangedEvent(member.getId(), command.bagId()));
+    }
   }
 }

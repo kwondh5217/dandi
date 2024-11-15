@@ -16,6 +16,8 @@ import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.exception.MemberError;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
+import com.e205.domain.member.entity.Member;
+import com.e205.domain.member.repository.MemberRepository;
 import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -39,12 +41,14 @@ public class ItemCommandServiceDefault implements ItemCommandService {
   private final BagItemRepository bagItemRepository;
   private final EventPublisher eventPublisher;
   private final BagRepository bagRepository;
+  private final MemberRepository memberRepository;
 
   @Override
   public void save(CreateItemCommand createItemCommand) {
     Integer memberId = createItemCommand.memberId();
     Integer bagId = createItemCommand.bagId();
-
+    Member member = memberRepository.findById(memberId).orElseThrow(
+        MemberError.USER_NOT_FOUND::getGlobalException);
     Bag bag = bagRepository.findById(bagId)
         .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
     if (!bag.getMemberId().equals(memberId)) {
@@ -90,7 +94,9 @@ public class ItemCommandServiceDefault implements ItemCommandService {
         .build();
     bagItemRepository.save(bagItem);
 
-    eventPublisher.publishAtLeastOnce(new BagItemAddEvent(item.toPayload()));
+    if(member.getBagId().equals(bagId)) {
+      eventPublisher.publishAtLeastOnce(new BagItemAddEvent(item.toPayload()));
+    }
   }
 
   @Override
@@ -114,6 +120,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     item.updateName(updateCommand.name());
     item.updateEmoticon(updateCommand.emoticon());
     item.updateColorKey(updateCommand.colorKey());
+
 
     eventPublisher.publishAtLeastOnce(new BagItemChangedEvent(previousItemPayload, item.toPayload()));
   }
