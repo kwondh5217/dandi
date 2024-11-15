@@ -1,6 +1,7 @@
 package com.e205.entity;
 
 import com.e205.payload.CommentPayload;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,6 +22,7 @@ public class FoundComment extends Comment {
   @JoinColumn(name = "found_item_id")
   @ManyToOne
   private FoundItem foundItem;
+  @JsonIgnore
   @JoinColumn(name = "parent_id")
   @ManyToOne(fetch = FetchType.LAZY)
   private FoundComment parent;

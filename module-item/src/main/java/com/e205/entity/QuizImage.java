@@ -2,6 +2,7 @@ package com.e205.entity;
 
 import com.e205.log.LoggableEntity;
 import com.e205.payload.QuizImagePayload;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -21,9 +22,11 @@ public class QuizImage implements LoggableEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Id
   private Integer id;
+  @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "quiz_id")
   private Quiz quiz;
+  @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "image_id")
   private Image image;

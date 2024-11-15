@@ -2,6 +2,7 @@ package com.e205.entity;
 
 import com.e205.log.LoggableEntity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 @DiscriminatorValue("lost_item")
 public class LostImage extends Image implements LoggableEntity {
 
+  @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "lost_id")
   private LostItem lostItem;

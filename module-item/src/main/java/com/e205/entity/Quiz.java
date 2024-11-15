@@ -1,6 +1,7 @@
 package com.e205.entity;
 
 import com.e205.log.LoggableEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -20,9 +21,11 @@ public class Quiz implements LoggableEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Id
   private Integer id;
+  @JsonIgnore
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "found_id")
   private FoundItem foundItem;
+  @JsonIgnore
   @OneToOne(fetch = FetchType.LAZY)
   private FoundImage answer;
 

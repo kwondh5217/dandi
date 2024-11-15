@@ -2,6 +2,7 @@ package com.e205.entity;
 
 import com.e205.log.LoggableEntity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -22,6 +23,7 @@ import lombok.Setter;
 @DiscriminatorValue("found_item")
 public class FoundImage extends Image implements LoggableEntity {
 
+  @JsonIgnore
   @Setter
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "found_id")
