@@ -36,7 +36,7 @@ public class Member implements LoggableEntity {
   @Column(nullable = false, length = 15)
   private String nickname;
 
-  @Column(nullable = false, length = 70)
+  @Column(length = 70)
   private String password;
 
   @Column(length = 30)
