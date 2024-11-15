@@ -35,6 +35,13 @@ public class LostItemController {
   private final LostItemService lostItemService;
   private final CommentApiService commentService;
 
+  @GetMapping("/creatable")
+  public void canCreateLostItem(
+      @AuthenticationPrincipal(expression = "id") Integer memberId
+  ) {
+    lostItemService.isCreatable(memberId);
+  }
+
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping
   public void createLostItem(

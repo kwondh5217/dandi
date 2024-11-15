@@ -15,6 +15,7 @@ import com.e205.repository.LostItemAuthRepository;
 import com.e205.repository.LostItemRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,8 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
   private final ItemImageRepository itemImageRepository;
   private final EventPublisher itemEventPublisher;
   private final LostItemRepository lostItemRepository;
+
+  private static final int LOST_ITEM_COOL_TIME = 0;
 
   @Override
   public LostItemPayload find(LostItemQuery query) {
@@ -68,6 +71,13 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
     return itemImageRepository.findAllByLostItemId(lostId).stream()
         .map(image -> new ItemImagePayload(image.getName()))
         .toList();
+  }
+
+  @Override
+  public boolean isCreatable(Integer memberId) {
+      return lostItemRepository.findFirstByMemberIdOrderByCreatedAtDesc(memberId)
+        .filter(l -> l.getCreatedAt().isAfter(LocalDateTime.now().minusHours(LOST_ITEM_COOL_TIME)))
+        .isPresent();
   }
 
   private LostItemAuth getLostItemAuth(LostItemQuery query) {

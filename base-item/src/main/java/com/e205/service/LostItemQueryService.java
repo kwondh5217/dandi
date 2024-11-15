@@ -13,4 +13,6 @@ public interface LostItemQueryService {
   List<LostItemPayload> find(LostItemListQuery query);
 
   List<ItemImagePayload> findImages(Integer lostId);
+
+  boolean isCreatable(Integer memberId);
 }

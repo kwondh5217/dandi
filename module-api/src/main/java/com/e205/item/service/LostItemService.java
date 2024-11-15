@@ -62,4 +62,8 @@ public class LostItemService {
         .map(ItemImagePayload::image).toList();
     return LostItemResponse.from(payload, images);
   }
+
+  public boolean isCreatable(Integer memberId) {
+    return lostItemQueryService.isCreatable(memberId);
+  }
 }

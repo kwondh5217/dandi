@@ -11,13 +11,13 @@ import lombok.Builder;
 
 @Builder
 public record LostItemCreateRequest(
-    @NotBlank
+    @NotBlank(message = "공백일 수 없습니다.")
     @Size(min=1, max=255, message = "길이는 {min}~{max} 사이여야 합니다.")
     String situationDesc,
-    @NotBlank
+    @NotBlank(message = "공백일 수 없습니다.")
     @Size(min=1, max=255, message = "길이는 {min}~{max} 사이여야 합니다.")
     String itemDesc,
-    @Size(max=3, message = "이미지는 {max}자 이하여야 합니다..")
+    @Size(max=3, message = "이미지는 {max}개 이하여야 합니다..")
     List<String> images,
     @NotNull
     Integer startRoute,
@@ -26,8 +26,10 @@ public record LostItemCreateRequest(
     LocalDateTime lostAt) {
 
   public LostItemSaveCommand toCommand(Integer memberId) {
-    return LostItemSaveCommand.builder().lostMemberId(memberId).situationDesc(situationDesc)
-        .itemDesc(itemDesc).images(images).startRouteId(startRoute).endRouteId(endRoute)
+    String newSituationDesc = situationDesc.replaceAll("\\n{3}", "\n\n");
+    String newItemDesc = itemDesc.replaceAll("\\n{3}", "\n\n");
+    return LostItemSaveCommand.builder().lostMemberId(memberId).situationDesc(newSituationDesc)
+        .itemDesc(newItemDesc).images(images).startRouteId(startRoute).endRouteId(endRoute)
         .lostAt(lostAt).build();
   }
 }

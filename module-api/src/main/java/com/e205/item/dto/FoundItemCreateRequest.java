@@ -3,8 +3,10 @@ package com.e205.item.dto;
 import com.e205.FoundItemType;
 import com.e205.command.FoundItemSaveCommand;
 import com.e205.geo.dto.Point;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import lombok.Builder;
 
@@ -18,16 +20,22 @@ public record FoundItemCreateRequest(
     String image,
     @PastOrPresent(message = "습득날짜는 미래일 수 없습니다.")
     LocalDateTime foundAt,
-    @NotNull(message = "저장 위치 묘사는 필수입니다.")
+    @NotBlank(message = "저장 위치 묘사는 필수입니다.")
+    @Size(min = 1, max = 255, message = "길이는 {min} ~ {max} 사이여야 합니다.")
     String storageDesc,
-    @NotNull(message = "물건 위치 묘사는 필수입니다.")
+    @NotBlank(message = "물건 묘사는 필수입니다.")
+    @Size(min = 1, max = 255, message = "길이는 {min} ~ {max} 사이여야 합니다.")
     String itemDesc
 ) {
   public FoundItemSaveCommand toCommand(Integer memberId, String address) {
+
+    String newStorageDesc = storageDesc.replaceAll("\\n{3}", "\n\n");
+    String newItemDesc = itemDesc.replaceAll("\\n{3}", "\n\n");
+
     return FoundItemSaveCommand.builder()
         .foundAt(foundAt)
-        .itemDesc(itemDesc)
-        .storageDesc(storageDesc)
+        .itemDesc(newItemDesc)
+        .storageDesc(newStorageDesc)
         .type(category)
         .location(foundLocation.toGeoPoint())
         .address(address)
