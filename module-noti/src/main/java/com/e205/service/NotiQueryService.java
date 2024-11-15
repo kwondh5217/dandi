@@ -26,6 +26,10 @@ public class NotiQueryService {
   public List<Notification> queryNotificationWithCursor(
       QueryNotificationWithCursor query) {
     Pageable pageable = PageRequest.of(0, DEFAULT_LIMIT);
+    if (query.lastResourceId() == 0) {
+      return notificationRepository.findByMemberIdWithCursor(query.memberId(),
+          convertTypesToClass(query.types()), pageable);
+    }
     return notificationRepository.findByMemberIdWithCursor(query.memberId(),
         query.lastResourceId(), convertTypesToClass(query.types()), pageable);
   }
@@ -34,7 +38,8 @@ public class NotiQueryService {
     return this.notificationRepository.existsByIdAndMemberId(memberId, notificationId);
   }
 
-  private List<Class<? extends Notification>> convertTypesToClass(final List<String> types) {
+  private List<Class<? extends Notification>> convertTypesToClass(
+      final List<String> types) {
     return types.stream()
         .map(this::mapType)
         .collect(Collectors.toList());

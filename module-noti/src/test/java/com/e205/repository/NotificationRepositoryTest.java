@@ -8,6 +8,7 @@ import com.e205.entity.LostItemNotification;
 import com.e205.entity.Notification;
 import com.e205.entity.RouteNotification;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
@@ -78,7 +79,7 @@ class NotificationRepositoryTest {
         () -> assertThat(notifications).isNotEmpty(),
         () -> assertThat(notifications.size()).isLessThanOrEqualTo(limit),
         () -> assertThat(notifications).extracting(Notification::getId)
-            .isSortedAccordingTo(Integer::compareTo),
+            .isSortedAccordingTo(Comparator.reverseOrder()),
         () -> notifications.forEach(
             notification -> assertThat(notification.getMemberId()).isEqualTo(memberId)
         )

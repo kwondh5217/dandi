@@ -11,13 +11,22 @@ import org.springframework.data.repository.query.Param;
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
 
   @Query("SELECT n FROM Notification n " +
-         "WHERE n.memberId = :memberId " +
-         "AND n.id > :lastResourceId " +
-         "AND (TYPE(n) IN :types) " +
-         "ORDER BY n.id ASC")
+      "WHERE n.memberId = :memberId " +
+      "AND n.id > :lastResourceId " +
+      "AND (TYPE(n) IN :types) " +
+      "ORDER BY n.id DESC")
   List<Notification> findByMemberIdWithCursor(
       @Param("memberId") Integer memberId,
       @Param("lastResourceId") Integer lastResourceId,
+      @Param("types") List<Class<? extends Notification>> types,
+      Pageable pageable);
+
+  @Query("SELECT n FROM Notification n " +
+      "WHERE n.memberId = :memberId " +
+      "AND (TYPE(n) IN :types) " +
+      "ORDER BY n.id DESC")
+  List<Notification> findByMemberIdWithCursor(
+      @Param("memberId") Integer memberId,
       @Param("types") List<Class<? extends Notification>> types,
       Pageable pageable);
 
