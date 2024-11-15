@@ -78,4 +78,9 @@ public class NotificationController {
   private static void checkTypes(final List<String> types) {
     types.forEach(NotificationType::fromString);
   }
+
+  @GetMapping("/test")
+  public ResponseEntity<Void> testNotifications() {
+    return ResponseEntity.ok().build();
+  }
 }
