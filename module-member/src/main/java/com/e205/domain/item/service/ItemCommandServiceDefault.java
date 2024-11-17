@@ -27,15 +27,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @RequiredArgsConstructor
 @Transactional
 @Service
 public class ItemCommandServiceDefault implements ItemCommandService {
 
-  private static final int MAX_ITEM_COUNT = 50;
+  private static final int MAX_ITEM_COUNT = 40;
   private static final int MAX_BAG_ITEM_COUNT = 20;
   private final ItemRepository itemRepository;
   private final BagItemRepository bagItemRepository;
