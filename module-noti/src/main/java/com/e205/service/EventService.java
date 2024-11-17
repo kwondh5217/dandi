@@ -57,7 +57,7 @@ public class EventService {
         new MembersInPointQuery(
             event.saved().lat(),
             event.saved().lon(),
-            event.saved().foundAt().getHour()));
+            notificationWindowHours));
 
     processNotificationForMembers(
         event.saved().id(),
