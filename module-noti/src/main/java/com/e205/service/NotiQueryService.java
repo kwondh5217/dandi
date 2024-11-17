@@ -35,7 +35,7 @@ public class NotiQueryService {
   }
 
   public boolean isOwner(final Integer memberId, final Integer notificationId) {
-    return this.notificationRepository.existsByIdAndMemberId(memberId, notificationId);
+    return this.notificationRepository.existsByIdAndMemberId(notificationId, memberId);
   }
 
   private List<Class<? extends Notification>> convertTypesToClass(
