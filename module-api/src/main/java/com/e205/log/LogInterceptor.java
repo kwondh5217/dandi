@@ -140,8 +140,20 @@ public class LogInterceptor implements Interceptor, ApplicationContextAware {
 
   private void setField(Object target, String fieldName, Object value)
       throws NoSuchFieldException, IllegalAccessException {
-    Field field = target.getClass().getDeclaredField(fieldName);
+    Field field = getField(target.getClass(), fieldName);
     field.setAccessible(true);
     field.set(target, value);
   }
+
+  private Field getField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+    while (clazz != null) {
+      try {
+        return clazz.getDeclaredField(fieldName);
+      } catch (NoSuchFieldException e) {
+        clazz = clazz.getSuperclass();
+      }
+    }
+    throw new NoSuchFieldException(fieldName);
+  }
+
 }
