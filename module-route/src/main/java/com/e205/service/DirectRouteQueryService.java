@@ -118,7 +118,7 @@ public class DirectRouteQueryService implements RouteQueryService {
       endId = temp;
     }
 
-    List<Route> routesInRange = routeRepository.findRoutesWithinRange(startId, endId);
+    List<Route> routesInRange = routeRepository.findRoutesWithinRange(query.memberId(), startId, endId);
     List<Polygon> radiusPolygons = routesInRange.stream()
         .map(Route::getRadiusTrack)
         .toList();

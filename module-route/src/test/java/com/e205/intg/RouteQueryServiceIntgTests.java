@@ -186,7 +186,7 @@ public class RouteQueryServiceIntgTests {
   void 특정_기간_내_경로_사용자_조회_테스트(int minutesAgo, boolean expectedResult) {
     // given
     LocalDateTime since = LocalDateTime.now().minusMinutes(minutesAgo);
-    MembersInRouteQuery query = new MembersInRouteQuery(ROUTE_ID_1, ROUTE_ID_4, since);
+    MembersInRouteQuery query = new MembersInRouteQuery(MEMBER_ID_1, ROUTE_ID_1, ROUTE_ID_4, since);
 
     // when
     List<Integer> userIds = queryService.findUserIdsNearPath(query);
