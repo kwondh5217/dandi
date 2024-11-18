@@ -48,8 +48,18 @@ dependencies {
     implementation 'com.bucket4j:bucket4j_jdk17-redis-common:8.14.0'
     implementation 'com.bucket4j:bucket4j_jdk17-lettuce:8.14.0'
 
+    // BINLOG
+    implementation 'com.zendesk:mysql-binlog-connector-java:0.30.1'
+
     // TEST
     testImplementation 'org.springframework.security:spring-security-test'
+
+    // TEST CONTAINER
+    implementation 'org.testcontainers:jdbc'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mysql'
+    testImplementation 'com.h2database:h2:2.3.232'
 }
 
 shadowJar {
@@ -78,6 +88,6 @@ bootRun {
 
 test {
     useJUnitPlatform()
-    dependsOn shadowJar
-    jvmArgs = ["-javaagent:${projectDir}/build/libs/event-agent-0.0.1-SNAPSHOT-all.jar"]
+//    dependsOn shadowJar
+//    jvmArgs = ["-javaagent:${projectDir}/build/libs/event-agent-0.0.1-SNAPSHOT-all.jar"]
 }
