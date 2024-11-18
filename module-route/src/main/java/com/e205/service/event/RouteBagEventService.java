@@ -35,7 +35,7 @@ public class RouteBagEventService {
     Integer memberId = event.memberId();
     Integer bagId = event.bagId();
 
-    routeRepository.findFirstByMemberIdAndEndedAtIsNull(memberId).ifPresent(route -> {
+    routeRepository.findFirstByMemberIdAndEndedAtIsNullOrderByIdDesc(memberId).ifPresent(route -> {
       Snapshot baseSnapshot = snapshotHelper.loadBaseSnapshot(memberId, bagId);
 
       SnapshotUpdateCommand command = new SnapshotUpdateCommand(
@@ -54,7 +54,7 @@ public class RouteBagEventService {
     ItemPayload item = event.itemPayload();
     Integer memberId = item.memberId();
 
-    routeRepository.findFirstByMemberIdAndEndedAtIsNull(memberId).ifPresent(route -> {
+    routeRepository.findFirstByMemberIdAndEndedAtIsNullOrderByIdDesc(memberId).ifPresent(route -> {
       Snapshot currentSnapshot = snapshotHelper.loadCurrentSnapshot(route);
       SnapshotItem snapshotItem = setSnapshotItem(item);
       Snapshot updatedSnapshot = currentSnapshot.addItem(snapshotItem);
@@ -75,7 +75,7 @@ public class RouteBagEventService {
     ItemPayload item = event.itemPayload();
     Integer memberId = item.memberId();
 
-    routeRepository.findFirstByMemberIdAndEndedAtIsNull(memberId).ifPresent(route -> {
+    routeRepository.findFirstByMemberIdAndEndedAtIsNullOrderByIdDesc(memberId).ifPresent(route -> {
       Snapshot currentSnapshot = snapshotHelper.loadCurrentSnapshot(route);
       SnapshotItem snapshotItem = setSnapshotItem(item);
       Snapshot updatedSnapshot = currentSnapshot.removeItem(snapshotItem);
@@ -95,7 +95,7 @@ public class RouteBagEventService {
     ItemPayload updatedItem = event.itemPayload();
     Integer memberId = updatedItem.memberId();
 
-    routeRepository.findFirstByMemberIdAndEndedAtIsNull(memberId).ifPresent(route -> {
+    routeRepository.findFirstByMemberIdAndEndedAtIsNullOrderByIdDesc(memberId).ifPresent(route -> {
       Snapshot currentSnapshot = snapshotHelper.loadCurrentSnapshot(route);
       Snapshot updatedSnapshot = currentSnapshot
           .removeItem(setSnapshotItem(previousItem))

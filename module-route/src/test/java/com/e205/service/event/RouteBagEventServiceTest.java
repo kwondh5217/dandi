@@ -59,7 +59,7 @@ class RouteBagEventServiceTest {
         Route mockRoute = mock(Route.class);
         when(mockRoute.getId()).thenReturn(1);
         Snapshot mockSnapshot = createInitialSnapshot("😊");
-        when(routeRepository.findFirstByMemberIdAndEndedAtIsNull(1)).thenReturn(Optional.of(mockRoute));
+        when(routeRepository.findFirstByMemberIdAndEndedAtIsNullOrderByIdDesc(1)).thenReturn(Optional.of(mockRoute));
         when(snapshotHelper.loadBaseSnapshot(1, 1)).thenReturn(mockSnapshot);
 
         // when
@@ -181,14 +181,14 @@ class RouteBagEventServiceTest {
         ItemPayload previousItem = new ItemPayload(1, 1, "😊", "pre", (byte) 1, (byte) 1);
         ItemPayload updatedItem = new ItemPayload(2, 1, "🙂", "update", (byte) 2, (byte) 1);
         BagItemChangedEvent event = new BagItemChangedEvent(previousItem, updatedItem);
-        given(routeRepository.findFirstByMemberIdAndEndedAtIsNull(1)).willReturn(Optional.empty());
+        given(routeRepository.findFirstByMemberIdAndEndedAtIsNullOrderByIdDesc(1)).willReturn(Optional.empty());
 
         // when
         routeBagEventService.handleBagItemChanged(event);
 
         // then
         // 최근 스냅샷을 불러왔는지 검증
-        verify(routeRepository, times(1)).findFirstByMemberIdAndEndedAtIsNull(any());
+        verify(routeRepository, times(1)).findFirstByMemberIdAndEndedAtIsNullOrderByIdDesc(any());
         // updateSnapshot 메서드 호출 X 검증
         ArgumentCaptor<SnapshotUpdateCommand> captor = ArgumentCaptor.forClass(SnapshotUpdateCommand.class);
         verify(routeCommandService, never()).updateSnapshot(captor.capture());
@@ -214,7 +214,7 @@ class RouteBagEventServiceTest {
 
     private void mockRouteAndSnapshot(Snapshot snapshot) {
         Route mockRoute = mock(Route.class);
-        when(routeRepository.findFirstByMemberIdAndEndedAtIsNull(1)).thenReturn(
+        when(routeRepository.findFirstByMemberIdAndEndedAtIsNullOrderByIdDesc(1)).thenReturn(
                 Optional.of(mockRoute));
         when(snapshotHelper.loadCurrentSnapshot(mockRoute)).thenReturn(snapshot);
     }
