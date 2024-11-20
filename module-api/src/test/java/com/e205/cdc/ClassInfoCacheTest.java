@@ -1,6 +1,15 @@
 package com.e205.cdc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.e205.domain.Route;
+import com.e205.domain.member.entity.Member;
+import com.e205.entity.Comment;
+import com.e205.entity.FoundItem;
+import com.e205.entity.LostItem;
+import com.e205.entity.Notification;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,13 +25,12 @@ import org.testcontainers.utility.MountableFile;
 @ActiveProfiles("test")
 @Testcontainers
 @SpringBootTest
-class BinlogPositionTrackerTest {
+class ClassInfoCacheTest {
 
   @MockBean
   private LettuceBasedProxyManager lettuceBasedProxyManager;
-  @Autowired
+  @MockBean
   private BinlogReader binlogReader;
-
   @Container
   private static final MySQLContainer<?> MYSQL_CONTAINER = new MySQLContainer<>(
       "mysql:8.0")
@@ -50,9 +58,25 @@ class BinlogPositionTrackerTest {
     registry.add("spring.datasource.password", MYSQL_CONTAINER::getPassword);
   }
 
+  @Autowired
+  private ClassInfoCache classInfoCache;
+
   @Test
-  void test() throws InterruptedException {
-    Thread.sleep(10000000);
-    this.binlogReader.close();
+  void whenStartApplicationClassInfoCacheShouldBeInitialized() {
+    Assertions.assertAll(
+        () -> assertThat(this.classInfoCache.getMappedClass("LostItem")).isNotNull(),
+        () -> assertThat(this.classInfoCache.getMappedClass("LostItem")).isEqualTo(LostItem.class),
+        () -> assertThat(this.classInfoCache.getMappedClass("FoundItem")).isNotNull(),
+        () -> assertThat(this.classInfoCache.getMappedClass("FoundItem")).isEqualTo(FoundItem.class),
+        () -> assertThat(this.classInfoCache.getMappedClass("Comment")).isNotNull(),
+        () -> assertThat(this.classInfoCache.getMappedClass("Comment")).isEqualTo(Comment.class),
+        () -> assertThat(this.classInfoCache.getMappedClass("Notification")).isNotNull(),
+        () -> assertThat(this.classInfoCache.getMappedClass("Notification")).isEqualTo(Notification.class),
+        () -> assertThat(this.classInfoCache.getMappedClass("Member")).isNotNull(),
+        () -> assertThat(this.classInfoCache.getMappedClass("Member")).isEqualTo(Member.class),
+        () -> assertThat(this.classInfoCache.getMappedClass("Route")).isNotNull(),
+        () -> assertThat(this.classInfoCache.getMappedClass("Route")).isEqualTo(Route.class)
+    );
   }
+
 }

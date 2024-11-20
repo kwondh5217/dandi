@@ -2,7 +2,6 @@ package com.e205.cdc;
 
 import jakarta.annotation.PostConstruct;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -12,41 +11,40 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class BinlogPositionTracker {
 
+  public static final int ID = 1;
   private final BinlogPositionRepository positionRepository;
   private final JdbcTemplate jdbcTemplate;
 
   @Transactional
   @PostConstruct
   public void init() {
-    Optional<BinlogPosition> position = positionRepository.findById(1);
-
-    if (position.isEmpty()) {
-      String latestBinlogFile = getLatestBinlogFile();
-      BinlogPosition newPosition = new BinlogPosition();
-      newPosition.setBinlogFileName(latestBinlogFile);
-      newPosition.setBinlogPosition(4L);
-      positionRepository.save(newPosition);
-      System.out.println("Initialized Binlog position: " + latestBinlogFile + " at position 4");
-    } else {
-      System.out.println("Resuming from last position: " + position.get());
-    }
+    positionRepository.findById(ID).orElseGet(this::initBinlogPosition);
   }
 
   @Transactional(readOnly = true)
   public BinlogPosition loadPosition() {
-    return this.positionRepository.findById(1)
-        .orElseThrow(() -> new RuntimeException("Position not found"));
+    return positionRepository.findDefaultBinlogPosition()
+        .orElseGet(this::initBinlogPosition);
   }
 
   @Transactional
   public void updatePosition(String currentBinlogFile, long currentPosition) {
-    String sql = "UPDATE BinlogPosition SET binlogFileName = ?, binlogPosition = ? WHERE id = 1";
-    this.jdbcTemplate.update(sql, currentBinlogFile, currentPosition);
+    String sql = "UPDATE BinlogPosition SET binlogFileName = ?, binlogPosition = ? WHERE id = ?";
+    jdbcTemplate.update(sql, currentBinlogFile, currentPosition, ID);
+  }
+
+  @Transactional
+  protected BinlogPosition initBinlogPosition() {
+    String latestBinlogFile = getLatestBinlogFile();
+    BinlogPosition newPosition = new BinlogPosition();
+    newPosition.setBinlogFileName(latestBinlogFile);
+    newPosition.setBinlogPosition(4L);
+    return positionRepository.save(newPosition);
   }
 
   @Transactional(readOnly = true)
   public String getLatestBinlogFile() {
-    List<String> logs = this.jdbcTemplate.query(
+    List<String> logs = jdbcTemplate.query(
         "SHOW BINARY LOGS",
         (rs, rowNum) -> rs.getString("Log_name")
     );
@@ -57,5 +55,4 @@ public class BinlogPositionTracker {
 
     return logs.get(logs.size() - 1);
   }
-
 }

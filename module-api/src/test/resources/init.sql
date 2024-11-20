@@ -96,18 +96,18 @@ CREATE TABLE LostItemAuth (
 ) ENGINE=InnoDB;
 
 CREATE TABLE Member (
-                        bagId INTEGER,
-                        commentAlarm BIT NOT NULL,
-                        foundItemAlarm BIT NOT NULL,
                         id INTEGER NOT NULL AUTO_INCREMENT,
-                        lostItemAlarm BIT NOT NULL,
-                        createdAt DATETIME(6),
+                        bagId INTEGER,
                         nickname VARCHAR(15) NOT NULL,
-                        email VARCHAR(30),
                         password VARCHAR(70),
-                        fcmToken VARCHAR(255),
-                        memberStatus ENUM ('ACTIVE', 'BANNED', 'DISABLED') NOT NULL,
+                        email VARCHAR(30),
                         status ENUM ('PENDING', 'VERIFIED') NOT NULL,
+                        memberStatus ENUM ('ACTIVE', 'BANNED', 'DISABLED') NOT NULL,
+                        fcmToken VARCHAR(255),
+                        createdAt DATETIME(6),
+                        foundItemAlarm CHAR(1) NOT NULL CHECK (foundItemAlarm IN ('N', 'Y')),
+                        lostItemAlarm CHAR(1) NOT NULL CHECK (lostItemAlarm IN ('N', 'Y')),
+                        commentAlarm CHAR(1) NOT NULL CHECK (commentAlarm IN ('N', 'Y')),
                         PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 

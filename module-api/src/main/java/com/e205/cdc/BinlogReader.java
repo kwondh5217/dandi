@@ -10,7 +10,8 @@ import com.github.shyiko.mysql.binlog.event.UpdateRowsEventData;
 import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
+import java.lang.reflect.Field;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,27 +32,34 @@ public class BinlogReader implements ApplicationRunner {
   private final BinlogPositionTracker tracker;
   private final BinaryLogClient client;
   private final ExecutorService executorService;
-  private final Map<Long, String> tableIdToNameMap = new HashMap<>();
+  private final Map<Long, String> tableIdToNameMap;
+  private final ClassInfoCache classInfoCache;
 
-  public BinlogReader(DataSourceProperties dataSourceProperties, BinlogPositionTracker tracker) {
+  public BinlogReader(DataSourceProperties dataSourceProperties,
+      BinlogPositionTracker tracker, ClassInfoCache classInfoCache) {
     this.dataSourceProperties = dataSourceProperties;
     this.tracker = tracker;
+    this.classInfoCache = classInfoCache;
+    this.tableIdToNameMap = new HashMap<>();
 
-    String url = dataSourceProperties.getUrl();
-    String[] hostAndPort = parseHostAndPort(url);
+    String[] dbInfo = extractDBInfo(dataSourceProperties.getUrl());
+    String host = dbInfo[0];
+    int port = Integer.parseInt(dbInfo[1]);
+    String schema = dbInfo[2];
+    String username = dataSourceProperties.getUsername();
+    String password = dataSourceProperties.getPassword();
 
-    this.client = new BinaryLogClient(hostAndPort[0], Integer.parseInt(hostAndPort[1]),
-        dataSourceProperties.getUsername(), dataSourceProperties.getPassword());
+    this.client = new BinaryLogClient(host, port, schema, username, password);
     BinlogPosition position = tracker.loadPosition();
-    client.setBinlogFilename(position.getBinlogFileName());
-    client.setBinlogPosition(position.getBinlogPosition());
+    this.client.setBinlogFilename(position.getBinlogFileName());
+    this.client.setBinlogPosition(position.getBinlogPosition());
 
     this.executorService = Executors.newSingleThreadExecutor();
   }
 
   @Override
   public void run(ApplicationArguments args) {
-    executorService.submit(() -> {
+    this.executorService.submit(() -> {
       try {
         startBinlogClient();
       } catch (IOException e) {
@@ -61,9 +69,9 @@ public class BinlogReader implements ApplicationRunner {
   }
 
   private void startBinlogClient() throws IOException {
-    client.registerEventListener(this::processEvent);
+    this.client.registerEventListener(this::processEvent);
     try {
-      client.connect();
+      this.client.connect();
     } catch (IOException e) {
       log.error("Failed to connect to Binlog server", e);
       throw new IOException("Failed to connect to MySQL Binlog", e);
@@ -72,57 +80,78 @@ public class BinlogReader implements ApplicationRunner {
 
   private void processEvent(Event event) {
     EventHeaderV4 header = event.getHeader();
-    String currentBinlog = client.getBinlogFilename();
+    String currentBinlog = this.client.getBinlogFilename();
     long currentPosition = header.getPosition();
     EventType eventType = header.getEventType();
-    log.info(eventType.toString());
 
     switch (eventType) {
       case TABLE_MAP -> {
-        TableMapEventData data = event.getData();
-        long tableId = data.getTableId();
-        String tableName = data.getTable();
-        tableIdToNameMap.put(tableId, tableName);
-        log.info("Mapped Table ID {} to Table {}", tableId, tableName);
+        saveTableInfo(event);
       }
-
       case WRITE_ROWS, EXT_WRITE_ROWS -> {
         WriteRowsEventData data = event.getData();
-        List<Serializable[]> rows = data.getRows();
-        for (Serializable[] row : rows) {
-          String tableName = tableIdToNameMap.get(data.getTableId());
-          System.out.println("Inserted Row in Table " + tableName + ": " + Arrays.toString(row));
-        }
-      }
+        String tableName = this.tableIdToNameMap.get(data.getTableId());
+        Class<?> mappedClass = this.classInfoCache.getMappedClass(tableName);
 
+        log.info("Table: {}, Class: {}", tableName, mappedClass.getName());
+      }
       case UPDATE_ROWS, EXT_UPDATE_ROWS -> {
         UpdateRowsEventData data = event.getData();
         List<Entry<Serializable[], Serializable[]>> updatedRows = data.getRows();
-        for (Entry<Serializable[], Serializable[]> entry : updatedRows) {
-          String tableName = tableIdToNameMap.get(data.getTableId());
-          System.out.println("Updated Row in Table " + tableName + ": Before: " + Arrays.toString(entry.getKey()) +
-              ", After: " + Arrays.toString(entry.getValue()));
-        }
-      }
+        String tableName = this.tableIdToNameMap.get(data.getTableId());
+        Class<?> mappedClass = this.classInfoCache.getMappedClass(tableName);
 
+        log.info("Table: {}, Class: {}", tableName, mappedClass.getName());
+      }
       case DELETE_ROWS, EXT_DELETE_ROWS -> {
         DeleteRowsEventData data = event.getData();
+        data.getIncludedColumns();
         List<Serializable[]> deletedRows = data.getRows();
-        for (Serializable[] row : deletedRows) {
-          String tableName = tableIdToNameMap.get(data.getTableId());  // 테이블 이름 가져오기
-          System.out.println("Deleted Row in Table " + tableName + ": " + Arrays.toString(row));
-        }
+        String tableName = this.tableIdToNameMap.get(data.getTableId());
+        Class<?> mappedClass = this.classInfoCache.getMappedClass(tableName);
+
+        log.info("Table: {}, Class: {}", tableName, mappedClass.getName());
       }
     }
 
-    tracker.updatePosition(currentBinlog, currentPosition);
+    this.tracker.updatePosition(currentBinlog, currentPosition);
   }
 
-  private String[] parseHostAndPort(String url) {
-    String[] urlParts = url.split(":");
-    String host = urlParts[2].replaceAll("/", "");
-    String port = urlParts[3].split("/")[0];
-    return new String[]{host, port};
+  private Map<String, Object> mapRowToEntity(String tableName, Serializable[] row, BitSet includedColumns) {
+    Map<String, Object> map = new HashMap<>();
+    try {
+      Class<?> mappedClass = classInfoCache.getMappedClass(tableName);
+      Field[] declaredFields = mappedClass.getDeclaredFields();
+
+      int idx = 0;
+      for (int i = 0; i < row.length; i++) {
+        if (includedColumns.get(i)) {
+          String columnName = declaredFields[i].getName();
+          map.put(columnName, row[idx++]);
+        }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Row 데이터를 Map으로 변환하는 중 오류 발생", e);
+    }
+    return map;
+  }
+
+  private void saveTableInfo(Event event) {
+    TableMapEventData data = event.getData();
+    long tableId = data.getTableId();
+    String tableName = data.getTable();
+    if (!this.tableIdToNameMap.containsKey(tableId)) {
+      this.tableIdToNameMap.put(tableId, tableName);
+    }
+  }
+
+  private String[] extractDBInfo(String mysqlUrl) {
+    String[] urlSegments = mysqlUrl.split(":");
+    String host = urlSegments[2].replaceAll("/", "");
+    String[] portAndSchemaSegments = urlSegments[3].split("/");
+    String port = portAndSchemaSegments[0];
+    String schema = portAndSchemaSegments.length > 1 ? portAndSchemaSegments[1] : null;
+    return new String[]{host, port, schema};
   }
 
   public void close() {

@@ -1,4 +1,5 @@
 [mysqld]
 log_bin=/var/lib/mysql/binlog
 server_id=1
+binlog-do-db=dandi
 binlog_row_image=FULL
