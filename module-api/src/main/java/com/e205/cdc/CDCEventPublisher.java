@@ -1,5 +1,8 @@
 package com.e205.cdc;
 
+import com.e205.FoundItemType;
+import com.e205.event.FoundItemSaveEvent;
+import com.e205.payload.FoundItemPayload;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -7,8 +10,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.shyiko.mysql.binlog.event.Event;
 import com.github.shyiko.mysql.binlog.event.EventType;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -79,6 +84,7 @@ public class CDCEventPublisher {
     return rowList;
   }
 
+  @SuppressWarnings("unchecked")
   private List<Map<String, Object>> generateInsertOrDeleteRows(RowsEventData data, String tableName, EventType eventType) {
     List<Map<String, Object>> rowList = new ArrayList<>();
     List<Serializable[]> rows = data.getRows();
@@ -87,6 +93,12 @@ public class CDCEventPublisher {
     for (Serializable[] rowValues : rows) {
       Map<String, Object> row = mapRowData(rowValues, tableName);
       rowList.add(Map.of(key, row));
+    }
+
+    if ("FoundItem".equals(tableName) && !rowList.isEmpty()) {
+      Map<String, Object> firstRow = (Map<String, Object>) rowList.get(0).get(key);
+      FoundItemSaveEvent event = BinlogMappingUtils.mapToFoundItemPayload(firstRow);
+      this.eventChannel.publish("foundItemSaveEvent", event);
     }
 
     return rowList;
