@@ -71,6 +71,7 @@ public class EventService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleLostItemSaveEvent(LostItemSaveEvent event) {
     final List<MemberPayload> memberPayloads = findMembersForNotification(
+        event.saved().memberId(),
         event.saved().startRouteId(),
         event.saved().endRouteId(),
         event.saved().createdAt());
@@ -83,18 +84,18 @@ public class EventService {
         memberPayloads);
   }
 
-  private List<MemberPayload> findMembersForNotification(final Integer startRouteId,
+  private List<MemberPayload> findMembersForNotification(final Integer memberId, final Integer startRouteId,
       final Integer endRouteId, final LocalDateTime createdAt) {
-    final List<Integer> memberIds = findMemberIdsInRoute(startRouteId, endRouteId,
+    final List<Integer> memberIds = findMemberIdsInRoute(memberId, startRouteId, endRouteId,
         createdAt);
     return this.memberQueryService.findMembers(new FindMembersByIdQuery(memberIds));
   }
 
-  private List<Integer> findMemberIdsInRoute(final Integer startRouteId,
+  private List<Integer> findMemberIdsInRoute(final Integer memberId, final Integer startRouteId,
       final Integer endRouteId, final LocalDateTime time) {
     final LocalDateTime since = time.minusHours(notificationWindowHours);
     return this.routeQueryService.findUserIdsNearPath(
-        new MembersInRouteQuery(startRouteId, endRouteId, since));
+        new MembersInRouteQuery(memberId, startRouteId, endRouteId, since));
   }
 
   private void processNotificationForMembers(final Integer resourceId,

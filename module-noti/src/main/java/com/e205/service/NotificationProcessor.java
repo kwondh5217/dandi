@@ -23,8 +23,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 public class NotificationProcessor {
 
-  public static final String FOUND_ITEM_SAVE_EVENT = "foundItemSaveEvent";
-  public static final String LOST_ITEM_SAVE_EVENT = "lostItemSaveEvent";
+  public static final String FOUND_ITEM_SAVE_EVENT = "foundItem";
+  public static final String LOST_ITEM_SAVE_EVENT = "lostItem";
   private final NotiCommandService notiCommandService;
   private final Notifier notifier;
   private final EventPublisher eventPublisher;
