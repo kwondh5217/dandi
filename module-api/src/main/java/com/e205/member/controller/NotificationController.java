@@ -9,9 +9,13 @@ import com.e205.service.NotiCommandService;
 import com.e205.service.NotiQueryService;
 import com.e205.service.NotificationType;
 import com.e205.util.NotificationFactory;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,24 +35,53 @@ public class NotificationController {
 
   private final NotiQueryService notiQueryService;
   private final NotiCommandService notiCommandService;
+  private static final String NOTI_CACHE_KEY_PREFIX = "noti:";
+  private final RedisTemplate<String, Object> redisTemplate;
 
   @GetMapping
   public ResponseEntity<List<NotificationResponse>> findNotifications(
       @AuthenticationPrincipal(expression = "id") final Integer memberId,
-      @RequestParam("resourceId") Integer resourceId,
+      @RequestParam(value = "resourceId", required = false) Integer resourceId,
       @RequestParam("types") final List<String> types
   ) {
     checkTypes(types);
-    if(resourceId == null) {
+
+    if (resourceId == null) {
       resourceId = 0;
+    }
+
+    String redisKey = NOTI_CACHE_KEY_PREFIX + memberId;
+
+    Map<Object, Object> cachedNotifications = redisTemplate.opsForHash().entries(redisKey);
+
+    if (!cachedNotifications.isEmpty()) {
+      List<NotificationResponse> filteredNotifications = cachedNotifications.values().stream()
+          .map(obj -> (NotificationResponse) obj)
+          .sorted(Comparator.comparing(NotificationResponse::getId))
+          .collect(Collectors.toList());
+
+      if (!filteredNotifications.isEmpty()) {
+        return ResponseEntity.ok(filteredNotifications);
+      }
     }
 
     List<Notification> notifications = this.notiQueryService.queryNotificationWithCursor(
         new QueryNotificationWithCursor(memberId, resourceId, types));
 
-    var notificationResponses = notifications.stream()
+    List<NotificationResponse> notificationResponses = notifications.stream()
         .map(NotificationFactory::convertToDto)
         .collect(Collectors.toList());
+
+    if (!notificationResponses.isEmpty()) {
+      Map<String, NotificationResponse> cacheMap = notificationResponses.stream()
+          .collect(Collectors.toMap(
+              response -> response.getId().toString(),
+              response -> response
+          ));
+      redisTemplate.opsForHash().putAll(redisKey, cacheMap);
+
+      redisTemplate.expire(redisKey, 1, TimeUnit.HOURS);
+    }
 
     return ResponseEntity.ok(notificationResponses);
   }
@@ -75,7 +108,7 @@ public class NotificationController {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
   }
 
-  private static void checkTypes(final List<String> types) {
+  private void checkTypes(final List<String> types) {
     types.forEach(NotificationType::fromString);
   }
 
