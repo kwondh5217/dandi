@@ -41,49 +41,46 @@ public class NotificationController {
   @GetMapping
   public ResponseEntity<List<NotificationResponse>> findNotifications(
       @AuthenticationPrincipal(expression = "id") final Integer memberId,
-      @RequestParam(value = "resourceId", required = false) Integer resourceId,
+      @RequestParam(value = "resourceId", defaultValue = "0") Integer resourceId,
       @RequestParam("types") final List<String> types
   ) {
     checkTypes(types);
 
-    if (resourceId == null) {
-      resourceId = 0;
-    }
+    if (resourceId == 0) {
 
-    String redisKey = NOTI_CACHE_KEY_PREFIX + memberId;
+      String redisKey = NOTI_CACHE_KEY_PREFIX + memberId;
 
-    Map<Object, Object> cachedNotifications = redisTemplate.opsForHash().entries(redisKey);
+      Map<Object, Object> cachedNotifications = redisTemplate.opsForHash().entries(redisKey);
 
-    if (!cachedNotifications.isEmpty()) {
-      List<NotificationResponse> filteredNotifications = cachedNotifications.values().stream()
-          .map(obj -> (NotificationResponse) obj)
-          .sorted(Comparator.comparing(NotificationResponse::getId))
-          .collect(Collectors.toList());
+      if (!cachedNotifications.isEmpty()) {
+        List<NotificationResponse> filteredNotifications = cachedNotifications.values().stream()
+            .map(obj -> (NotificationResponse) obj)
+            .sorted(Comparator.comparing(NotificationResponse::getId))
+            .collect(Collectors.toList());
 
-      if (!filteredNotifications.isEmpty()) {
-        return ResponseEntity.ok(filteredNotifications);
+        if (!filteredNotifications.isEmpty()) {
+          return ResponseEntity.ok(filteredNotifications);
+        }
       }
+
+      List<NotificationResponse> notificationResponses = getNotificationResponses(
+          memberId, resourceId, types);
+
+      if (!notificationResponses.isEmpty()) {
+        Map<String, NotificationResponse> cacheMap = notificationResponses.stream()
+            .collect(Collectors.toMap(
+                response -> response.getId().toString(),
+                response -> response
+            ));
+        redisTemplate.opsForHash().putAll(redisKey, cacheMap);
+
+        redisTemplate.expire(redisKey, 1, TimeUnit.HOURS);
+      }
+
+      return ResponseEntity.ok(notificationResponses);
     }
 
-    List<Notification> notifications = this.notiQueryService.queryNotificationWithCursor(
-        new QueryNotificationWithCursor(memberId, resourceId, types));
-
-    List<NotificationResponse> notificationResponses = notifications.stream()
-        .map(NotificationFactory::convertToDto)
-        .collect(Collectors.toList());
-
-    if (!notificationResponses.isEmpty()) {
-      Map<String, NotificationResponse> cacheMap = notificationResponses.stream()
-          .collect(Collectors.toMap(
-              response -> response.getId().toString(),
-              response -> response
-          ));
-      redisTemplate.opsForHash().putAll(redisKey, cacheMap);
-
-      redisTemplate.expire(redisKey, 1, TimeUnit.HOURS);
-    }
-
-    return ResponseEntity.ok(notificationResponses);
+    return ResponseEntity.ok(getNotificationResponses(memberId, resourceId, types));
   }
 
   @ResponseStatus(HttpStatus.OK)
@@ -108,12 +105,18 @@ public class NotificationController {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
   }
 
-  private void checkTypes(final List<String> types) {
-    types.forEach(NotificationType::fromString);
+  private List<NotificationResponse> getNotificationResponses(Integer memberId,
+      Integer resourceId, List<String> types) {
+    List<Notification> notifications = this.notiQueryService.queryNotificationWithCursor(
+        new QueryNotificationWithCursor(memberId, resourceId, types));
+
+    List<NotificationResponse> notificationResponses = notifications.stream()
+        .map(NotificationFactory::convertToDto)
+        .collect(Collectors.toList());
+    return notificationResponses;
   }
 
-  @GetMapping("/test")
-  public ResponseEntity<Void> testNotifications() {
-    return ResponseEntity.ok().build();
+  private void checkTypes(final List<String> types) {
+    types.forEach(NotificationType::fromString);
   }
 }
