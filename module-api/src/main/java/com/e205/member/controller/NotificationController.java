@@ -47,37 +47,7 @@ public class NotificationController {
     checkTypes(types);
 
     if (resourceId == 0) {
-
-      String redisKey = NOTI_CACHE_KEY_PREFIX + memberId;
-
-      Map<Object, Object> cachedNotifications = redisTemplate.opsForHash().entries(redisKey);
-
-      if (!cachedNotifications.isEmpty()) {
-        List<NotificationResponse> filteredNotifications = cachedNotifications.values().stream()
-            .map(obj -> (NotificationResponse) obj)
-            .sorted(Comparator.comparing(NotificationResponse::getId))
-            .collect(Collectors.toList());
-
-        if (!filteredNotifications.isEmpty()) {
-          return ResponseEntity.ok(filteredNotifications);
-        }
-      }
-
-      List<NotificationResponse> notificationResponses = getNotificationResponses(
-          memberId, resourceId, types);
-
-      if (!notificationResponses.isEmpty()) {
-        Map<String, NotificationResponse> cacheMap = notificationResponses.stream()
-            .collect(Collectors.toMap(
-                response -> response.getId().toString(),
-                response -> response
-            ));
-        redisTemplate.opsForHash().putAll(redisKey, cacheMap);
-
-        redisTemplate.expire(redisKey, 1, TimeUnit.HOURS);
-      }
-
-      return ResponseEntity.ok(notificationResponses);
+      return getFromCacheOrLoad(memberId, resourceId, types);
     }
 
     return ResponseEntity.ok(getNotificationResponses(memberId, resourceId, types));
@@ -118,5 +88,39 @@ public class NotificationController {
 
   private void checkTypes(final List<String> types) {
     types.forEach(NotificationType::fromString);
+  }
+
+  private ResponseEntity<List<NotificationResponse>> getFromCacheOrLoad(
+      Integer memberId, Integer resourceId, List<String> types) {
+    String redisKey = NOTI_CACHE_KEY_PREFIX + memberId;
+
+    Map<Object, Object> cachedNotifications = redisTemplate.opsForHash().entries(redisKey);
+
+    if (!cachedNotifications.isEmpty()) {
+      List<NotificationResponse> filteredNotifications = cachedNotifications.values().stream()
+          .map(obj -> (NotificationResponse) obj)
+          .sorted(Comparator.comparing(NotificationResponse::getId))
+          .collect(Collectors.toList());
+
+      if (!filteredNotifications.isEmpty()) {
+        return ResponseEntity.ok(filteredNotifications);
+      }
+    }
+
+    List<NotificationResponse> notificationResponses = getNotificationResponses(
+        memberId, resourceId, types);
+
+    if (!notificationResponses.isEmpty()) {
+      Map<String, NotificationResponse> cacheMap = notificationResponses.stream()
+          .collect(Collectors.toMap(
+              response -> response.getId().toString(),
+              response -> response
+          ));
+      redisTemplate.opsForHash().putAll(redisKey, cacheMap);
+
+      redisTemplate.expire(redisKey, 1, TimeUnit.HOURS);
+    }
+
+    return ResponseEntity.ok(notificationResponses);
   }
 }
