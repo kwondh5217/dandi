@@ -25,6 +25,13 @@ public class BinlogMappingUtils {
     return new FoundItemSaveEvent(foundItemPayload, LocalDateTime.now());
   }
 
+  public static NotificationInsertEvent mapToNotificationEvent(Map<String, Object> source) {
+    return new NotificationInsertEvent((Integer) source.get("memberId"),
+        (String) source.get("title"),
+        (String) source.get("body")
+    );
+  }
+
   private static FoundItemType resolveFoundItemType(Object type) {
     if (type instanceof Integer) {
       return FoundItemType.values()[((Integer) type) - 1];
@@ -43,5 +50,9 @@ public class BinlogMappingUtils {
           .toLocalDateTime();
     }
     throw new IllegalArgumentException("Unsupported type for date: " + date);
+  }
+
+  public record NotificationInsertEvent(Integer memberId, String title, String body){
+
   }
 }

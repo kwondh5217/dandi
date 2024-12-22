@@ -1,6 +1,5 @@
 package com.e205.member.service;
 
-import com.e205.auth.helper.AuthHelper;
 import com.e205.command.bag.command.AddItemsToBagCommand;
 import com.e205.command.bag.command.BagDeleteCommand;
 import com.e205.command.bag.command.BagItemDeleteCommand;
@@ -35,7 +34,6 @@ import com.e205.member.dto.DeleteBagRequest;
 import com.e205.member.dto.ItemResponse;
 import com.e205.member.dto.ReadBagRequest;
 import com.e205.member.dto.SelectBagRequest;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

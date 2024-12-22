@@ -56,7 +56,7 @@ class NotificationProcessorTest {
   }
 
   @Test
-  void notify_shouldDirectlyInvokeNotifierWithCorrectParameters() {
+  void notify_shouldDirectlyInvokeNotifierWithCorrectParameters() throws Exception {
     // given
     String fcmToken = "fcmToken";
     String title = "Test Title";
