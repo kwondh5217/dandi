@@ -30,12 +30,20 @@ public class NotificationProcessor {
   private final EventPublisher eventPublisher;
 
   public void notify(final String fcm, final String title, final String body) {
-    this.notifier.notify(fcm, title, body);
+    try {
+      this.notifier.notify(fcm, title, body);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleNotifyOutboxEvent(NotifyOutboxEvent event) {
-    this.notifier.notify(event.fcmToken(), event.notiType(), event.title());
+    try {
+      this.notifier.notify(event.fcmToken(), event.notiType(), event.title());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 2))

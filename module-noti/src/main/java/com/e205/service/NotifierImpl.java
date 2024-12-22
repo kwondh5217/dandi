@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotifierImpl implements Notifier {
 
-  @Async("fcmPushTaskExecutor")
+//  @Async("fcmPushTaskExecutor")
   @Override
-  public void notify(final String deviceToken, final String title, final String body) {
+  public void notify(final String deviceToken, final String title, final String body) throws FirebaseMessagingException {
     Message message = Message.builder()
         .setToken(deviceToken)
         .setNotification(
@@ -23,7 +23,6 @@ public class NotifierImpl implements Notifier {
                 .setBody(body)
                 .build())
         .build();
-
     try {
       FirebaseMessaging instance = FirebaseMessaging.getInstance();
       instance.send(message);

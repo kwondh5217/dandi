@@ -3,15 +3,15 @@ package com.e205.cdc;
 import com.github.shyiko.mysql.binlog.event.Event;
 import com.github.shyiko.mysql.binlog.event.TableMapEventData;
 import jakarta.annotation.PostConstruct;
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentHashMap;
-import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -25,33 +25,31 @@ public class TableMetadataCache {
   public TableMetadataCache(JdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
     this.tableColumnCache = new HashMap<>();
-    this.tableIdToNameMap = new ConcurrentHashMap<>();
+    this.tableIdToNameMap = new HashMap<>();
   }
 
   @PostConstruct
-  public void init() {
-    jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
-      java.sql.DatabaseMetaData metaData = connection.getMetaData();
+  public void init() throws SQLException {
+    try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+        ResultSet tables = connection.getMetaData().getTables(null, null, "%", new String[]{"TABLE"})) {
 
-      ResultSet tables = metaData.getTables(null, null, "%", new String[]{"TABLE"});
       while (tables.next()) {
         String tableName = tables.getString("TABLE_NAME");
 
-        ResultSet columns = metaData.getColumns(null, null, tableName, "%");
-        List<ColumnInfo> columnInfos = new ArrayList<>();
-        while (columns.next()) {
-          String columnName = columns.getString("COLUMN_NAME");
-          String columnType = columns.getString("TYPE_NAME");
-          boolean isPrimaryKey = isPrimaryKey(metaData, tableName, columnName);
+        try (ResultSet columns = connection.getMetaData().getColumns(null, null, tableName, "%")) {
+          List<ColumnInfo> columnInfos = new ArrayList<>();
+          while (columns.next()) {
+            String columnName = columns.getString("COLUMN_NAME");
+            String columnType = columns.getString("TYPE_NAME");
+            boolean isPrimaryKey = isPrimaryKey(connection.getMetaData(), tableName, columnName);
 
-          columnInfos.add(new ColumnInfo(columnName, columnType, isPrimaryKey));
+            columnInfos.add(new ColumnInfo(columnName, columnType, isPrimaryKey));
+          }
+          tableColumnCache.put(tableName, columnInfos);
         }
-        tableColumnCache.put(tableName, columnInfos);
       }
-      return null;
-    });
+    }
   }
-
   public ColumnInfo getColumnInfo(String tableName, int index) {
     List<ColumnInfo> columnInfos = tableColumnCache.get(tableName);
 
