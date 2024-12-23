@@ -2,7 +2,7 @@ package com.e205.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.e205.command.bag.service.BagQueryService;
+import com.e205.base.member.command.bag.service.BagQueryService;
 import com.e205.events.EventPublisher;
 import com.e205.service.DirectRouteCommandService;
 import org.junit.jupiter.api.BeforeEach;

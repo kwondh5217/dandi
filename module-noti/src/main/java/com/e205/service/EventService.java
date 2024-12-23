@@ -1,14 +1,15 @@
 package com.e205.service;
 
-import com.e205.NotifyEvent;
-import com.e205.command.bag.payload.MemberPayload;
-import com.e205.command.member.query.FindMembersByIdQuery;
-import com.e205.command.member.service.MemberQueryService;
-import com.e205.event.FoundItemSaveEvent;
-import com.e205.event.LostItemSaveEvent;
-import com.e205.event.RouteSavedEvent;
-import com.e205.query.MembersInPointQuery;
-import com.e205.query.MembersInRouteQuery;
+import com.e205.base.noti.NotifyEvent;
+import com.e205.base.route.service.RouteQueryService;
+import com.e205.base.member.command.bag.payload.MemberPayload;
+import com.e205.base.member.command.member.query.FindMembersByIdQuery;
+import com.e205.base.member.command.member.service.MemberQueryService;
+import com.e205.base.item.event.FoundItemSaveEvent;
+import com.e205.base.item.event.LostItemSaveEvent;
+import com.e205.base.route.event.RouteSavedEvent;
+import com.e205.base.route.query.MembersInPointQuery;
+import com.e205.base.route.query.MembersInRouteQuery;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,6 @@ public class EventService {
   private final RouteQueryService routeQueryService;
   private final NotificationProcessor notificationProcessor;
   private final MemberQueryService memberQueryService;
-  private final NotiCommandService notiCommandService;
 
   @Transactional
   @EventListener
@@ -81,28 +81,30 @@ public class EventService {
         memberPayloads);
   }
 
-  private List<MemberPayload> findMembersForNotification(final Integer memberId, final Integer startRouteId,
-      final Integer endRouteId, final LocalDateTime createdAt) {
+  private List<MemberPayload> findMembersForNotification(
+      final Integer memberId, final Integer startRouteId,
+      final Integer endRouteId, final LocalDateTime createdAt
+  ) {
     final List<Integer> memberIds = findMemberIdsInRoute(memberId, startRouteId, endRouteId,
         createdAt);
     return this.memberQueryService.findMembers(new FindMembersByIdQuery(memberIds));
   }
 
-  private List<Integer> findMemberIdsInRoute(final Integer memberId, final Integer startRouteId,
-      final Integer endRouteId, final LocalDateTime time) {
+  private List<Integer> findMemberIdsInRoute(
+      final Integer memberId, final Integer startRouteId,
+      final Integer endRouteId, final LocalDateTime time
+  ) {
     final LocalDateTime since = time.minusHours(notificationWindowHours);
     return this.routeQueryService.findUserIdsNearPath(
         new MembersInRouteQuery(memberId, startRouteId, endRouteId, since));
   }
 
-  private void processNotificationForMembers(final Integer resourceId,
-      final Integer senderId, final String situationDescription, final String eventType,
-      final List<MemberPayload> memberPayloads) {
+  private void processNotificationForMembers(
+      final Integer resourceId, final Integer senderId, final String situationDescription,
+      final String eventType, final List<MemberPayload> memberPayloads
+  ) {
     Assert.notNull(senderId, "senderId must not be null");
-    this.notiCommandService.notifiedMembersCommand(
-        this.notificationProcessor.processNotifications(
-            resourceId, senderId, situationDescription, eventType,
-            memberPayloads)
-    );
+    this.notificationProcessor.processNotifications(resourceId, senderId, situationDescription,
+        eventType, memberPayloads);
   }
 }

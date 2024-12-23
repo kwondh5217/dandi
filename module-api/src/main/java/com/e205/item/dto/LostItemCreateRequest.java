@@ -1,6 +1,6 @@
 package com.e205.item.dto;
 
-import com.e205.command.LostItemSaveCommand;
+import com.e205.base.item.command.LostItemSaveCommand;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;

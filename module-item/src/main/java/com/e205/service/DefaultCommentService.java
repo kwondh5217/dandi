@@ -1,17 +1,18 @@
 package com.e205.service;
 
-import com.e205.CommentSaveCommand;
-import com.e205.CommentType;
-import com.e205.NotiCommandService;
-import com.e205.command.CommentCreateCommand;
+import com.e205.base.item.service.CommentService;
+import com.e205.base.noti.CommentSaveCommand;
+import com.e205.base.item.CommentType;
+import com.e205.base.noti.NotiCommandService;
+import com.e205.base.item.command.CommentCreateCommand;
 import com.e205.entity.FoundComment;
 import com.e205.entity.FoundItem;
 import com.e205.entity.LostComment;
 import com.e205.entity.LostItem;
 import com.e205.exception.ItemError;
-import com.e205.payload.CommentPayload;
-import com.e205.query.CommentListQuery;
-import com.e205.query.CommentQuery;
+import com.e205.base.item.payload.CommentPayload;
+import com.e205.base.item.query.CommentListQuery;
+import com.e205.base.item.query.CommentQuery;
 import com.e205.repository.CommentQueryCondition;
 import com.e205.repository.CommentRepository;
 import com.e205.repository.FoundItemQueryRepository;

@@ -1,6 +1,6 @@
 package com.e205.member.dto;
 
-import com.e205.command.bag.command.SelectBagCommand;
+import com.e205.base.member.command.bag.command.SelectBagCommand;
 
 public record SelectBagRequest(
     Integer bagId,

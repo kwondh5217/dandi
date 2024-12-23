@@ -1,8 +1,7 @@
 package com.e205.member.dto;
 
-import com.e205.command.bag.command.BagNameUpdateCommand;
+import com.e205.base.member.command.bag.command.BagNameUpdateCommand;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ChangeBagNameRequest(

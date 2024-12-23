@@ -1,6 +1,6 @@
 package com.e205.member.dto;
 
-import com.e205.command.item.command.UpdateItemCommand;
+import com.e205.base.member.command.item.command.UpdateItemCommand;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

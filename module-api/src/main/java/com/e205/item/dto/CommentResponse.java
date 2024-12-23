@@ -1,6 +1,6 @@
 package com.e205.item.dto;
 
-import com.e205.payload.CommentPayload;
+import com.e205.base.item.payload.CommentPayload;
 import java.time.LocalDateTime;
 import lombok.Builder;
 

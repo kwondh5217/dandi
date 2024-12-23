@@ -1,9 +1,9 @@
 package com.e205.route.dto.query;
 
-import com.e205.dto.Snapshot;
-import com.e205.dto.TrackPoint;
+import com.e205.base.route.dto.Snapshot;
+import com.e205.base.route.dto.TrackPoint;
 import com.e205.geo.dto.Point;
-import com.e205.payload.RoutePayload;
+import com.e205.base.route.payload.RoutePayload;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

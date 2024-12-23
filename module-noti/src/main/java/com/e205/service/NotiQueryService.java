@@ -1,6 +1,6 @@
 package com.e205.service;
 
-import com.e205.QueryNotificationWithCursor;
+import com.e205.base.noti.QueryNotificationWithCursor;
 import com.e205.entity.CommentNotification;
 import com.e205.entity.FoundItemNotification;
 import com.e205.entity.LostItemNotification;

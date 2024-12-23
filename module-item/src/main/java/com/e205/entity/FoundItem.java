@@ -1,9 +1,9 @@
 package com.e205.entity;
 
-import com.e205.FoundItemType;
-import com.e205.command.FoundItemSaveCommand;
+import com.e205.base.item.FoundItemType;
+import com.e205.base.item.command.FoundItemSaveCommand;
 import com.e205.log.LoggableEntity;
-import com.e205.payload.FoundItemPayload;
+import com.e205.base.item.payload.FoundItemPayload;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.Column;

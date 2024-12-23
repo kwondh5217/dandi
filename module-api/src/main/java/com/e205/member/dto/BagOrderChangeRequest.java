@@ -1,6 +1,6 @@
 package com.e205.member.dto;
 
-import com.e205.command.bag.command.BagOrderCommand;
+import com.e205.base.member.command.bag.command.BagOrderCommand;
 
 public record BagOrderChangeRequest(
     Integer bagId,

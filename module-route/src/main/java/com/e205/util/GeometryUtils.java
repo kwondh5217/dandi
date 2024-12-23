@@ -1,6 +1,6 @@
 package com.e205.util;
 
-import com.e205.dto.TrackPoint;
+import com.e205.base.route.dto.TrackPoint;
 import com.e205.exception.GlobalException;
 import java.util.ArrayList;
 import java.util.List;

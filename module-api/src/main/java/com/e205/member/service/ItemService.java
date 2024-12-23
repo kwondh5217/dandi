@@ -1,14 +1,14 @@
 package com.e205.member.service;
 
-import com.e205.command.item.command.CreateItemCommand;
-import com.e205.command.item.command.DeleteItemCommand;
-import com.e205.command.item.command.ItemOrderCommand;
-import com.e205.command.item.command.UpdateItemCommand;
-import com.e205.command.item.command.UpdateItemOrderCommand;
-import com.e205.command.item.payload.ItemPayload;
-import com.e205.command.item.query.ReadItemNotInBagQuery;
-import com.e205.command.item.service.ItemCommandService;
-import com.e205.command.item.service.ItemQueryService;
+import com.e205.base.member.command.item.command.CreateItemCommand;
+import com.e205.base.member.command.item.command.DeleteItemCommand;
+import com.e205.base.member.command.item.command.ItemOrderCommand;
+import com.e205.base.member.command.item.command.UpdateItemCommand;
+import com.e205.base.member.command.item.command.UpdateItemOrderCommand;
+import com.e205.base.member.command.item.payload.ItemPayload;
+import com.e205.base.member.command.item.query.ReadItemNotInBagQuery;
+import com.e205.base.member.command.item.service.ItemCommandService;
+import com.e205.base.member.command.item.service.ItemQueryService;
 import com.e205.member.dto.ChangeItemInfo;
 import com.e205.member.dto.ChangeItemOrderRequest;
 import com.e205.member.dto.CreateItemRequest;

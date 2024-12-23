@@ -1,6 +1,7 @@
 package com.e205.service;
 
-import com.e205.command.RouteDummyCreateCommand;
+import com.e205.base.route.command.RouteDummyCreateCommand;
+import com.e205.base.route.service.RouteDummyCommandService;
 import com.e205.domain.Route;
 import com.e205.repository.RouteRepository;
 import com.e205.util.GeometryUtils;

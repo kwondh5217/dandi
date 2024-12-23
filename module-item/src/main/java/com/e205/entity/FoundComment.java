@@ -1,6 +1,6 @@
 package com.e205.entity;
 
-import com.e205.payload.CommentPayload;
+import com.e205.base.item.payload.CommentPayload;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

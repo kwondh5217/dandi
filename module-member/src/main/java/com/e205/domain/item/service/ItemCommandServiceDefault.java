@@ -1,14 +1,14 @@
 package com.e205.domain.item.service;
 
-import com.e205.command.bag.event.BagItemAddEvent;
-import com.e205.command.bag.event.BagItemChangedEvent;
-import com.e205.command.bag.event.BagItemDeleteEvent;
-import com.e205.command.item.command.CreateItemCommand;
-import com.e205.command.item.command.DeleteItemCommand;
-import com.e205.command.item.command.UpdateItemCommand;
-import com.e205.command.item.command.UpdateItemOrderCommand;
-import com.e205.command.item.payload.ItemPayload;
-import com.e205.command.item.service.ItemCommandService;
+import com.e205.base.member.command.bag.event.BagItemAddEvent;
+import com.e205.base.member.command.bag.event.BagItemChangedEvent;
+import com.e205.base.member.command.bag.event.BagItemDeleteEvent;
+import com.e205.base.member.command.item.command.CreateItemCommand;
+import com.e205.base.member.command.item.command.DeleteItemCommand;
+import com.e205.base.member.command.item.command.UpdateItemCommand;
+import com.e205.base.member.command.item.command.UpdateItemOrderCommand;
+import com.e205.base.member.command.item.payload.ItemPayload;
+import com.e205.base.member.command.item.service.ItemCommandService;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;

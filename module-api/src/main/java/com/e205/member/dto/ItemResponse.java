@@ -1,7 +1,7 @@
 package com.e205.member.dto;
 
-import com.e205.command.bag.payload.BagItemPayload;
-import com.e205.command.item.payload.ItemPayload;
+import com.e205.base.member.command.bag.payload.BagItemPayload;
+import com.e205.base.member.command.item.payload.ItemPayload;
 import lombok.Builder;
 
 @Builder

@@ -4,8 +4,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import com.e205.ImageType;
-import com.e205.command.ImageSaveCommand;
+import com.e205.base.item.ImageType;
+import com.e205.base.item.command.ImageSaveCommand;
+import com.e205.base.item.service.ImageService;
 import com.e205.repository.FileRepository;
 import com.e205.repository.ItemImageRepository;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;

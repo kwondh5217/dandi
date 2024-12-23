@@ -1,6 +1,6 @@
 package com.e205.repository;
 
-import com.e205.query.CommentListQuery;
+import com.e205.base.item.query.CommentListQuery;
 import lombok.Builder;
 
 @Builder

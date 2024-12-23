@@ -1,7 +1,7 @@
 package com.e205.item.controller;
 
-import com.e205.CommentType;
-import com.e205.command.CommentCreateCommand;
+import com.e205.base.item.CommentType;
+import com.e205.base.item.command.CommentCreateCommand;
 import com.e205.item.dto.CommentCreateRequest;
 import com.e205.item.dto.CommentListResponse;
 import com.e205.item.dto.CommentQueryRequest;

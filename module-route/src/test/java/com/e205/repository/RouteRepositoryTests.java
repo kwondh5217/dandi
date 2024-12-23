@@ -5,7 +5,7 @@ import static com.e205.env.TestConstant.MEMBER_ID_2;
 import static com.e205.env.TestConstant.MEMBER_ID_3;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.e205.command.bag.service.BagQueryService;
+import com.e205.base.member.command.bag.service.BagQueryService;
 import com.e205.domain.Route;
 import com.e205.events.EventPublisher;
 import com.e205.util.GeometryUtils;

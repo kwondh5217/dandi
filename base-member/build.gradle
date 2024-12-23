@@ -1,7 +1,0 @@
-dependencies {
-    implementation project(":module-common")
-    implementation project(":base-noti")
-}
-
-bootJar.enabled = false
-jar.enabled = true

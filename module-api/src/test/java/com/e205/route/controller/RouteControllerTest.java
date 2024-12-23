@@ -9,8 +9,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.e205.auth.helper.AuthHelper;
-import com.e205.dto.Snapshot;
-import com.e205.dto.SnapshotItem;
+import com.e205.base.route.dto.Snapshot;
+import com.e205.base.route.dto.SnapshotItem;
 import com.e205.geo.dto.Point;
 import com.e205.route.dto.command.RouteCreateRequest;
 import com.e205.route.dto.command.RouteEndRequest;
