@@ -1,7 +1,7 @@
 package com.e205.member.dto;
 
-import com.e205.command.member.payload.EmailStatus;
-import com.e205.command.bag.payload.MemberPayload;
+import com.e205.base.member.command.member.payload.EmailStatus;
+import com.e205.base.member.command.bag.payload.MemberPayload;
 import lombok.Builder;
 
 @Builder

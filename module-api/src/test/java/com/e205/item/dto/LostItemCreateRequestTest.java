@@ -1,8 +1,6 @@
 package com.e205.item.dto;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.e205.command.LostItemSaveCommand;
+import com.e205.base.item.command.LostItemSaveCommand;
 import org.junit.jupiter.api.Test;
 
 class LostItemCreateRequestTest {

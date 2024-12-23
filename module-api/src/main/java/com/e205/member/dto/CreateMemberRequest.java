@@ -1,6 +1,6 @@
 package com.e205.member.dto;
 
-import com.e205.command.member.command.RegisterMemberCommand;
+import com.e205.base.member.command.member.command.RegisterMemberCommand;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 

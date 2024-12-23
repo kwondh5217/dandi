@@ -1,6 +1,6 @@
 package com.e205.member.dto;
 
-import com.e205.command.bag.command.CopyBagCommand;
+import com.e205.base.member.command.bag.command.CopyBagCommand;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 

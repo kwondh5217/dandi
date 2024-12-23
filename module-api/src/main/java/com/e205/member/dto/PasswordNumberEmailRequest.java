@@ -1,6 +1,6 @@
 package com.e205.member.dto;
 
-import com.e205.command.member.command.CreateVerificationNumberCommand;
+import com.e205.base.member.command.member.command.CreateVerificationNumberCommand;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 

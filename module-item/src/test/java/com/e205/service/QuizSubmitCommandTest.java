@@ -8,7 +8,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.e205.command.QuizSubmitCommand;
+import com.e205.base.item.command.QuizSubmitCommand;
+import com.e205.base.item.service.QuizCommandService;
 import com.e205.entity.FoundImage;
 import com.e205.entity.Quiz;
 import com.e205.entity.QuizSolver;

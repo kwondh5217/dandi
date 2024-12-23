@@ -4,7 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.e205.QueryNotificationWithCursor;
+import com.e205.base.noti.QueryNotificationWithCursor;
 import com.e205.repository.NotificationRepository;
 import java.util.List;
 import org.junit.jupiter.api.Test;

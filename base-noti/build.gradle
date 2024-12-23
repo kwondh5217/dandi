@@ -1,7 +1,0 @@
-dependencies {
-    implementation project(":module-common")
-    implementation 'org.locationtech.jts:jts-core:1.19.0'
-}
-
-bootJar.enabled = false
-jar.enabled = true

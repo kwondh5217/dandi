@@ -1,11 +1,11 @@
 package com.e205.domain.member.service;
 
-import com.e205.command.bag.payload.MemberPayload;
-import com.e205.command.bag.query.FindMemberQuery;
-import com.e205.command.member.payload.MemberAuthPayload;
-import com.e205.command.member.query.FindMemberByEmailQuery;
-import com.e205.command.member.query.FindMembersByIdQuery;
-import com.e205.command.member.service.MemberQueryService;
+import com.e205.base.member.command.bag.payload.MemberPayload;
+import com.e205.base.member.command.bag.query.FindMemberQuery;
+import com.e205.base.member.command.member.payload.MemberAuthPayload;
+import com.e205.base.member.command.member.query.FindMemberByEmailQuery;
+import com.e205.base.member.command.member.query.FindMembersByIdQuery;
+import com.e205.base.member.command.member.service.MemberQueryService;
 import com.e205.domain.exception.MemberError;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;

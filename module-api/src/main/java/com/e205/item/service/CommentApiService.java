@@ -2,22 +2,21 @@ package com.e205.item.service;
 
 import static java.util.stream.Collectors.groupingBy;
 
-import com.e205.CommentType;
-import com.e205.command.CommentCreateCommand;
-import com.e205.command.bag.payload.MemberPayload;
-import com.e205.command.bag.query.FindMemberQuery;
-import com.e205.command.member.query.FindMembersByIdQuery;
-import com.e205.command.member.service.MemberQueryService;
+import com.e205.base.item.CommentType;
+import com.e205.base.item.command.CommentCreateCommand;
+import com.e205.base.member.command.bag.payload.MemberPayload;
+import com.e205.base.member.command.bag.query.FindMemberQuery;
+import com.e205.base.member.command.member.query.FindMembersByIdQuery;
+import com.e205.base.member.command.member.service.MemberQueryService;
 import com.e205.item.dto.CommentListResponse;
 import com.e205.item.dto.CommentQueryRequest;
 import com.e205.item.dto.CommentResponse;
-import com.e205.payload.CommentPayload;
-import com.e205.query.CommentQuery;
-import com.e205.service.CommentService;
+import com.e205.base.item.payload.CommentPayload;
+import com.e205.base.item.query.CommentQuery;
+import com.e205.base.item.service.CommentService;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

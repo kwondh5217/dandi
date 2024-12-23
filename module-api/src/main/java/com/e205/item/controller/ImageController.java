@@ -1,8 +1,8 @@
 package com.e205.item.controller;
 
-import com.e205.ImageType;
-import com.e205.command.ImageSaveCommand;
-import com.e205.service.ImageService;
+import com.e205.base.item.ImageType;
+import com.e205.base.item.command.ImageSaveCommand;
+import com.e205.base.item.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

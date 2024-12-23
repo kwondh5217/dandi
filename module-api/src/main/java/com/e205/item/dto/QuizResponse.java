@@ -1,6 +1,6 @@
 package com.e205.item.dto;
 
-import com.e205.payload.QuizPayload;
+import com.e205.base.item.payload.QuizPayload;
 import java.util.List;
 
 public record QuizResponse(

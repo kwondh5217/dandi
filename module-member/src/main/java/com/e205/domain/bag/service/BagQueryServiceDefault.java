@@ -1,12 +1,12 @@
 package com.e205.domain.bag.service;
 
-import com.e205.command.bag.payload.BagItemPayload;
-import com.e205.command.bag.payload.BagPayload;
-import com.e205.command.bag.query.ReadAllBagItemsQuery;
-import com.e205.command.bag.query.ReadAllBagsQuery;
-import com.e205.command.bag.query.ReadAllItemInfoQuery;
-import com.e205.command.bag.service.BagQueryService;
-import com.e205.command.item.payload.ItemPayload;
+import com.e205.base.member.command.bag.payload.BagItemPayload;
+import com.e205.base.member.command.bag.payload.BagPayload;
+import com.e205.base.member.command.bag.query.ReadAllBagItemsQuery;
+import com.e205.base.member.command.bag.query.ReadAllBagsQuery;
+import com.e205.base.member.command.bag.query.ReadAllItemInfoQuery;
+import com.e205.base.member.command.bag.service.BagQueryService;
+import com.e205.base.member.command.item.payload.ItemPayload;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;

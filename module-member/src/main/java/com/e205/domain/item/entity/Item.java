@@ -1,7 +1,6 @@
 package com.e205.domain.item.entity;
 
-import com.e205.command.item.payload.ItemPayload;
-import com.e205.common.audit.BaseTime;
+import com.e205.base.member.command.item.payload.ItemPayload;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

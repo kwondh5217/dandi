@@ -1,14 +1,14 @@
 package com.e205.service;
 
-import com.e205.CommentSaveCommand;
-import com.e205.ConfirmItemCommand;
-import com.e205.CreateNotificationCommand;
-import com.e205.DeleteNotificationsCommand;
-import com.e205.ItemCommandService;
-import com.e205.NotifiedMembersCommand;
-import com.e205.command.bag.payload.MemberPayload;
-import com.e205.command.member.query.FindMembersByIdQuery;
-import com.e205.command.member.service.MemberQueryService;
+import com.e205.base.noti.CommentSaveCommand;
+import com.e205.base.noti.ConfirmItemCommand;
+import com.e205.base.noti.CreateNotificationCommand;
+import com.e205.base.noti.DeleteNotificationsCommand;
+import com.e205.base.noti.ItemCommandService;
+import com.e205.base.noti.NotifiedMembersCommand;
+import com.e205.base.member.command.bag.payload.MemberPayload;
+import com.e205.base.member.command.member.query.FindMembersByIdQuery;
+import com.e205.base.member.command.member.service.MemberQueryService;
 import com.e205.entity.Notification;
 import com.e205.exception.GlobalException;
 import com.e205.repository.NotificationRepository;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 @Service
-public class NotiCommandService implements com.e205.NotiCommandService {
+public class NotiCommandService implements com.e205.base.noti.NotiCommandService {
 
   private final NotificationRepository notificationRepository;
   private final ItemCommandService itemCommandService;

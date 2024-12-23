@@ -1,9 +1,9 @@
 package com.e205.domain.member.service;
 
-import com.e205.command.member.command.CreateManagerCommand;
-import com.e205.command.member.payload.EmailStatus;
-import com.e205.command.member.payload.MemberStatus;
-import com.e205.command.member.service.MemberManagerService;
+import com.e205.base.member.command.member.command.CreateManagerCommand;
+import com.e205.base.member.command.member.payload.EmailStatus;
+import com.e205.base.member.command.member.payload.MemberStatus;
+import com.e205.base.member.command.member.service.MemberManagerService;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.member.entity.Member;

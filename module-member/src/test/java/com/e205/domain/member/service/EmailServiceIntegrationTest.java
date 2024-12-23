@@ -3,10 +3,10 @@ package com.e205.domain.member.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.e205.command.member.command.CheckVerificationNumberCommand;
-import com.e205.command.member.command.CreateEmailTokenCommand;
-import com.e205.command.member.command.CreateVerificationNumberCommand;
-import com.e205.command.member.command.SendVerificationEmailCommand;
+import com.e205.base.member.command.member.command.CheckVerificationNumberCommand;
+import com.e205.base.member.command.member.command.CreateEmailTokenCommand;
+import com.e205.base.member.command.member.command.CreateVerificationNumberCommand;
+import com.e205.base.member.command.member.command.SendVerificationEmailCommand;
 import com.e205.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

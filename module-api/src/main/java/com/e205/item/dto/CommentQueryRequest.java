@@ -1,7 +1,7 @@
 package com.e205.item.dto;
 
-import com.e205.CommentType;
-import com.e205.query.CommentListQuery;
+import com.e205.base.item.CommentType;
+import com.e205.base.item.query.CommentListQuery;
 import jakarta.validation.constraints.NotNull;
 
 public record CommentQueryRequest(

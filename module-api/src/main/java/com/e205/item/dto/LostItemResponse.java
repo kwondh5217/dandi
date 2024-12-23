@@ -1,6 +1,6 @@
 package com.e205.item.dto;
 
-import com.e205.payload.LostItemPayload;
+import com.e205.base.item.payload.LostItemPayload;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;

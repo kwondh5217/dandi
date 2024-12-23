@@ -1,10 +1,8 @@
 package com.e205.item.controller;
 
-import com.e205.CommentType;
+import com.e205.base.item.CommentType;
 import com.e205.item.dto.CommentResponse;
 import com.e205.item.service.CommentApiService;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

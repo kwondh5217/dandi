@@ -1,6 +1,6 @@
 package com.e205.item.controller;
 
-import com.e205.CommentType;
+import com.e205.base.item.CommentType;
 import com.e205.item.dto.CommentCreateRequest;
 import com.e205.item.dto.CommentListResponse;
 import com.e205.item.dto.CommentQueryRequest;
@@ -8,11 +8,7 @@ import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemResponse;
 import com.e205.item.service.CommentApiService;
 import com.e205.item.service.LostItemService;
-import com.e205.payload.CommentPayload;
-import com.e205.query.CommentListQuery;
-import com.e205.service.CommentService;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

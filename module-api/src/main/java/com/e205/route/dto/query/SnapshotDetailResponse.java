@@ -1,7 +1,7 @@
 package com.e205.route.dto.query;
 
-import com.e205.dto.Snapshot;
-import com.e205.payload.SnapshotPayload;
+import com.e205.base.route.dto.Snapshot;
+import com.e205.base.route.payload.SnapshotPayload;
 import lombok.Builder;
 
 @Builder
