@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.e205.FoundItemType;
+import com.e205.base.item.FoundItemType;
 import com.e205.auth.dto.MemberDetails;
 import com.e205.exception.ExceptionLoader;
 import com.e205.item.dto.FoundItemCreateRequest;
@@ -18,7 +18,7 @@ import com.e205.item.dto.FoundItemResponse;
 import com.e205.geo.dto.Point;
 import com.e205.item.service.CommentApiService;
 import com.e205.item.service.FoundItemService;
-import com.e205.service.CommentService;
+import com.e205.base.item.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,6 +1,6 @@
 package com.e205.route.dto.command;
 
-import com.e205.dto.Snapshot;
+import com.e205.base.route.dto.Snapshot;
 import jakarta.validation.constraints.NotNull;
 
 public record SnapshotUpdateRequest(

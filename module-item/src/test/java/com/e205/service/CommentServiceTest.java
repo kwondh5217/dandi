@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import com.e205.CommentType;
-import com.e205.NotiCommandService;
-import com.e205.command.CommentCreateCommand;
-import com.e205.query.CommentQuery;
+import com.e205.base.item.CommentType;
+import com.e205.base.noti.NotiCommandService;
+import com.e205.base.item.command.CommentCreateCommand;
+import com.e205.base.item.query.CommentQuery;
 import com.e205.repository.CommentRepository;
 import com.e205.repository.FoundItemQueryRepository;
 import com.e205.repository.LostItemRepository;

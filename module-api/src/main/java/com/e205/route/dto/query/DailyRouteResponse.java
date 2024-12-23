@@ -1,8 +1,8 @@
 package com.e205.route.dto.query;
 
-import com.e205.dto.TrackPoint;
+import com.e205.base.route.dto.TrackPoint;
 import com.e205.geo.dto.Point;
-import com.e205.payload.RoutesPayload;
+import com.e205.base.route.payload.RoutesPayload;
 import com.e205.route.dto.RouteSummary;
 import java.util.List;
 import java.util.stream.Collectors;

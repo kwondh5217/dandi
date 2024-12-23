@@ -1,10 +1,9 @@
 package com.e205.member.dto;
 
-import com.e205.command.member.command.ChangePasswordWithVerifNumber;
+import com.e205.base.member.command.member.command.ChangePasswordWithVerifNumber;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 
 public record PasswordResetRequest(
     @NotBlank(message = "인증번호는 공백일 수 없습니다.")

@@ -1,8 +1,8 @@
 package com.e205.member.controller;
 
-import com.e205.DeleteNotificationsCommand;
-import com.e205.QueryNotificationWithCursor;
-import com.e205.ConfirmItemCommand;
+import com.e205.base.noti.DeleteNotificationsCommand;
+import com.e205.base.noti.QueryNotificationWithCursor;
+import com.e205.base.noti.ConfirmItemCommand;
 import com.e205.dto.NotificationResponse;
 import com.e205.entity.Notification;
 import com.e205.service.NotiCommandService;

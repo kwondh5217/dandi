@@ -153,3 +153,4 @@ module-member/src/main/resources/application-secret.yml
 /module-api/logs
 /logs
 /module-api/src/main/resources/firebase
+/module-noti/src/main/resources/firebase/*.json

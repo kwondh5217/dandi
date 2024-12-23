@@ -1,12 +1,12 @@
 package com.e205.item.service;
 
-import com.e205.command.QuizSubmitCommand;
+import com.e205.base.item.command.QuizSubmitCommand;
 import com.e205.item.dto.QuizResponse;
 import com.e205.item.dto.QuizSubmitRequest;
-import com.e205.payload.QuizPayload;
-import com.e205.query.QuizQuery;
-import com.e205.service.QuizCommandService;
-import com.e205.service.QuizQueryService;
+import com.e205.base.item.payload.QuizPayload;
+import com.e205.base.item.query.QuizQuery;
+import com.e205.base.item.service.QuizCommandService;
+import com.e205.base.item.service.QuizQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

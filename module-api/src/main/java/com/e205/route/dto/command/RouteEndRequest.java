@@ -1,7 +1,7 @@
 package com.e205.route.dto.command;
 
-import com.e205.command.RouteEndCommand;
-import com.e205.dto.TrackPoint;
+import com.e205.base.route.command.RouteEndCommand;
+import com.e205.base.route.dto.TrackPoint;
 import com.e205.geo.dto.Point;
 import java.util.List;
 

@@ -1,10 +1,9 @@
 package com.e205.auth.jwt.service;
 
 import com.e205.auth.dto.MemberDetails;
-import com.e205.command.member.payload.MemberAuthPayload;
-import com.e205.command.member.payload.MemberStatus;
-import com.e205.command.member.query.FindMemberByEmailQuery;
-import com.e205.command.member.service.MemberQueryService;
+import com.e205.base.member.command.member.payload.MemberAuthPayload;
+import com.e205.base.member.command.member.query.FindMemberByEmailQuery;
+import com.e205.base.member.command.member.service.MemberQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

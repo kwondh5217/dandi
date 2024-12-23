@@ -1,10 +1,10 @@
 package com.e205.domain;
 
-import com.e205.dto.RoutePart;
-import com.e205.dto.Snapshot;
-import com.e205.dto.TrackPoint;
+import com.e205.base.route.dto.RoutePart;
+import com.e205.base.route.dto.Snapshot;
+import com.e205.base.route.dto.TrackPoint;
 import com.e205.log.LoggableEntity;
-import com.e205.payload.RoutePayload;
+import com.e205.base.route.payload.RoutePayload;
 import com.e205.util.GeometryUtils;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;

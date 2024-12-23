@@ -1,10 +1,10 @@
 package com.e205.domain.member.service;
 
-import com.e205.command.member.command.CheckVerificationNumberCommand;
-import com.e205.command.member.command.CreateEmailTokenCommand;
-import com.e205.command.member.command.CreateVerificationNumberCommand;
-import com.e205.command.member.command.SendVerificationEmailCommand;
-import com.e205.command.member.service.EmailCommandService;
+import com.e205.base.member.command.member.command.CheckVerificationNumberCommand;
+import com.e205.base.member.command.member.command.CreateEmailTokenCommand;
+import com.e205.base.member.command.member.command.CreateVerificationNumberCommand;
+import com.e205.base.member.command.member.command.SendVerificationEmailCommand;
+import com.e205.base.member.command.member.service.EmailCommandService;
 import com.e205.domain.exception.MemberError;
 import com.e205.domain.member.repository.MemberRepository;
 import jakarta.mail.internet.InternetAddress;

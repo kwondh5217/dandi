@@ -1,6 +1,6 @@
 package com.e205.item.dto;
 
-import com.e205.payload.QuizImagePayload;
+import com.e205.base.item.payload.QuizImagePayload;
 
 public record QuizOptionResponse(
     String image,

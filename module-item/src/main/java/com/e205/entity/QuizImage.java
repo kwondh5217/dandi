@@ -1,7 +1,7 @@
 package com.e205.entity;
 
 import com.e205.log.LoggableEntity;
-import com.e205.payload.QuizImagePayload;
+import com.e205.base.item.payload.QuizImagePayload;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;

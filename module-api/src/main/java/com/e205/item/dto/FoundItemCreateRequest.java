@@ -1,7 +1,7 @@
 package com.e205.item.dto;
 
-import com.e205.FoundItemType;
-import com.e205.command.FoundItemSaveCommand;
+import com.e205.base.item.FoundItemType;
+import com.e205.base.item.command.FoundItemSaveCommand;
 import com.e205.geo.dto.Point;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

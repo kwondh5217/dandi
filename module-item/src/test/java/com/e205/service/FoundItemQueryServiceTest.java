@@ -5,11 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import com.e205.base.item.service.FoundItemQueryService;
 import com.e205.entity.FoundItem;
 import com.e205.entity.Quiz;
 import com.e205.entity.QuizSolver;
-import com.e205.payload.FoundItemPayload;
-import com.e205.query.FoundItemQuery;
+import com.e205.base.item.payload.FoundItemPayload;
+import com.e205.base.item.query.FoundItemQuery;
 import com.e205.repository.FoundItemQueryRepository;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.QuizSolverRepository;

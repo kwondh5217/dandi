@@ -7,16 +7,12 @@ dependencies {
     implementation project(':module-common')
 
     implementation project(':module-item')
-    implementation project(':base-item')
 
     implementation project(':module-noti')
-    implementation project(':base-noti')
 
     implementation project(':module-member')
-    implementation project(':base-member')
 
     implementation project(':module-route')
-    implementation project(':base-route')
 
     // WEB
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -65,19 +61,6 @@ dependencies {
     testImplementation 'com.h2database:h2:2.3.232'
 }
 
-shadowJar {
-    archiveBaseName.set("event-agent")
-    archiveClassifier.set("all")
-    zip64 true
-    manifest {
-        attributes(
-                'Premain-Class': 'com.e205.byteBuddy.EventAgent',
-                'Can-Redefine-Classes': 'true',
-                'Can-Retransform-Classes': 'true'
-        )
-    }
-}
-
 tasks.named("jar").configure {
     archiveClassifier.set("all")
     from(shadowJar)
@@ -86,11 +69,8 @@ tasks.named("jar").configure {
 bootRun {
     enabled = true
     dependsOn shadowJar
-    jvmArgs = ["-javaagent:${projectDir}/build/libs/event-agent-0.0.1-SNAPSHOT-all.jar"]
 }
 
 test {
     useJUnitPlatform()
-//    dependsOn shadowJar
-//    jvmArgs = ["-javaagent:${projectDir}/build/libs/event-agent-0.0.1-SNAPSHOT-all.jar"]
 }

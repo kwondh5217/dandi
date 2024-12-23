@@ -6,10 +6,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.e205.CreateNotificationCommand;
-import com.e205.command.bag.payload.MemberPayload;
-import com.e205.command.member.payload.EmailStatus;
-import com.e205.command.member.payload.MemberStatus;
+import com.e205.base.noti.CreateNotificationCommand;
+import com.e205.base.member.command.bag.payload.MemberPayload;
+import com.e205.base.member.command.member.payload.EmailStatus;
+import com.e205.base.member.command.member.payload.MemberStatus;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

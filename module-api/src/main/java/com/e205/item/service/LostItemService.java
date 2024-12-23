@@ -1,16 +1,16 @@
 package com.e205.item.service;
 
-import com.e205.command.LostItemDeleteCommand;
-import com.e205.command.LostItemSaveCommand;
+import com.e205.base.item.command.LostItemDeleteCommand;
+import com.e205.base.item.command.LostItemSaveCommand;
 import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemListResponse;
 import com.e205.item.dto.LostItemResponse;
-import com.e205.payload.ItemImagePayload;
-import com.e205.payload.LostItemPayload;
-import com.e205.query.LostItemListQuery;
-import com.e205.query.LostItemQuery;
-import com.e205.service.LostItemCommandService;
-import com.e205.service.LostItemQueryService;
+import com.e205.base.item.payload.ItemImagePayload;
+import com.e205.base.item.payload.LostItemPayload;
+import com.e205.base.item.query.LostItemListQuery;
+import com.e205.base.item.query.LostItemQuery;
+import com.e205.base.item.service.LostItemCommandService;
+import com.e205.base.item.service.LostItemQueryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

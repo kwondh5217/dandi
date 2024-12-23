@@ -2,12 +2,12 @@ package com.e205.domain.member.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.e205.command.member.command.ChangePasswordWithVerifNumber;
-import com.e205.command.member.command.RegisterMemberCommand;
-import com.e205.command.member.command.MemberVerificationLinkCommand;
-import com.e205.command.member.command.VerifyEmailAndRegisterCommand;
-import com.e205.command.member.payload.EmailStatus;
-import com.e205.command.member.service.MemberCommandService;
+import com.e205.base.member.command.member.command.ChangePasswordWithVerifNumber;
+import com.e205.base.member.command.member.command.RegisterMemberCommand;
+import com.e205.base.member.command.member.command.MemberVerificationLinkCommand;
+import com.e205.base.member.command.member.command.VerifyEmailAndRegisterCommand;
+import com.e205.base.member.command.member.payload.EmailStatus;
+import com.e205.base.member.command.member.service.MemberCommandService;
 import com.e205.domain.bag.repository.BagRepository;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;

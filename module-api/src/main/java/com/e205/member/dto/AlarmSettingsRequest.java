@@ -1,6 +1,6 @@
 package com.e205.member.dto;
 
-import com.e205.command.member.command.ChangeAlarmSettingCommand;
+import com.e205.base.member.command.member.command.ChangeAlarmSettingCommand;
 
 public record AlarmSettingsRequest(
     boolean comment,

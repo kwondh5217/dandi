@@ -5,10 +5,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import com.e205.base.item.service.QuizQueryService;
 import com.e205.entity.FoundItem;
 import com.e205.entity.Quiz;
 import com.e205.entity.QuizSolver;
-import com.e205.query.QuizQuery;
+import com.e205.base.item.query.QuizQuery;
 import com.e205.repository.FoundItemQueryRepository;
 import com.e205.repository.QuizImageRepository;
 import com.e205.repository.QuizQueryRepository;

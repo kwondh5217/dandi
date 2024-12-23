@@ -17,7 +17,6 @@ import com.e205.item.dto.LostItemCreateRequest;
 import com.e205.item.dto.LostItemResponse;
 import com.e205.item.service.CommentApiService;
 import com.e205.item.service.LostItemService;
-import com.e205.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.UUID;

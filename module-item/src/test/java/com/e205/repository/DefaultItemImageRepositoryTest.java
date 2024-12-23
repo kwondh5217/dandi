@@ -4,7 +4,7 @@ import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockStatic;
 
-import com.e205.FoundItemType;
+import com.e205.base.item.FoundItemType;
 import com.e205.entity.FoundImage;
 import com.e205.entity.FoundItem;
 import com.e205.entity.LostImage;

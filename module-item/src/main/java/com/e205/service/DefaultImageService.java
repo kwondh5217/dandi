@@ -1,6 +1,7 @@
 package com.e205.service;
 
-import com.e205.command.ImageSaveCommand;
+import com.e205.base.item.command.ImageSaveCommand;
+import com.e205.base.item.service.ImageService;
 import com.e205.entity.FoundImage;
 import com.e205.entity.LostImage;
 import com.e205.exception.ItemError;

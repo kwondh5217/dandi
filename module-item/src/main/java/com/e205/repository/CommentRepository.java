@@ -2,7 +2,7 @@ package com.e205.repository;
 
 import com.e205.entity.FoundComment;
 import com.e205.entity.LostComment;
-import com.e205.query.CommentQuery;
+import com.e205.base.item.query.CommentQuery;
 import java.util.List;
 import java.util.Optional;
 

@@ -1,7 +1,6 @@
 package com.e205.domain.bag.entity;
 
-import com.e205.command.bag.payload.BagPayload;
-import com.e205.common.audit.BaseTime;
+import com.e205.base.member.command.bag.payload.BagPayload;
 import com.e205.log.LoggableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -8,8 +8,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.e205.command.LostItemGrantCommand;
-import com.e205.command.LostItemSaveCommand;
+import com.e205.base.item.command.LostItemGrantCommand;
+import com.e205.base.item.command.LostItemSaveCommand;
+import com.e205.base.item.service.LostItemCommandService;
 import com.e205.entity.LostImage;
 import com.e205.entity.LostItem;
 import com.e205.repository.ItemImageRepository;

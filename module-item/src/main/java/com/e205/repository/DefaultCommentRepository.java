@@ -3,12 +3,12 @@ package com.e205.repository;
 import static com.e205.entity.QFoundComment.foundComment;
 import static com.e205.entity.QLostComment.lostComment;
 
-import com.e205.CommentType;
+import com.e205.base.item.CommentType;
 import com.e205.entity.FoundComment;
 import com.e205.entity.LostComment;
 import com.e205.entity.QFoundComment;
 import com.e205.entity.QLostComment;
-import com.e205.query.CommentQuery;
+import com.e205.base.item.query.CommentQuery;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;

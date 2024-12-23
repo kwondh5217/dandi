@@ -1,15 +1,18 @@
 package com.e205.entity;
 
-import com.e205.command.LostItemSaveCommand;
+import com.e205.base.item.command.LostItemSaveCommand;
+import com.e205.config.NumberToSetConverter;
 import com.e205.log.LoggableEntity;
-import com.e205.payload.LostItemPayload;
+import com.e205.base.item.payload.LostItemPayload;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,6 +35,8 @@ public class LostItem implements LoggableEntity {
   private LocalDateTime lostAt;
   private LocalDateTime createdAt;
   private LocalDateTime endedAt;
+  @Convert(converter = NumberToSetConverter.class)
+  private Set<Integer> granted;
 
   @Builder
   public LostItem(Integer memberId, Integer startRouteId, Integer endRouteId,

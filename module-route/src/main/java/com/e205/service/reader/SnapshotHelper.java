@@ -1,13 +1,13 @@
 package com.e205.service.reader;
 
-import com.e205.command.bag.payload.BagItemPayload;
-import com.e205.command.bag.query.ReadAllBagItemsQuery;
-import com.e205.command.bag.query.ReadAllItemInfoQuery;
-import com.e205.command.bag.service.BagQueryService;
-import com.e205.command.item.payload.ItemPayload;
+import com.e205.base.member.command.bag.payload.BagItemPayload;
+import com.e205.base.member.command.bag.query.ReadAllBagItemsQuery;
+import com.e205.base.member.command.bag.query.ReadAllItemInfoQuery;
+import com.e205.base.member.command.bag.service.BagQueryService;
+import com.e205.base.member.command.item.payload.ItemPayload;
 import com.e205.domain.Route;
-import com.e205.dto.Snapshot;
-import com.e205.dto.SnapshotItem;
+import com.e205.base.route.dto.Snapshot;
+import com.e205.base.route.dto.SnapshotItem;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

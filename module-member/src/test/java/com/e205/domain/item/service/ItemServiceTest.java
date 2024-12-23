@@ -9,12 +9,12 @@ import static org.mockito.BDDMockito.spy;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.verify;
 
-import com.e205.command.bag.query.ReadAllItemQuery;
-import com.e205.command.item.command.CreateItemCommand;
-import com.e205.command.item.command.ItemOrderCommand;
-import com.e205.command.item.command.UpdateItemCommand;
-import com.e205.command.item.command.UpdateItemOrderCommand;
-import com.e205.command.item.payload.ItemPayload;
+import com.e205.base.member.command.bag.query.ReadAllItemQuery;
+import com.e205.base.member.command.item.command.CreateItemCommand;
+import com.e205.base.member.command.item.command.ItemOrderCommand;
+import com.e205.base.member.command.item.command.UpdateItemCommand;
+import com.e205.base.member.command.item.command.UpdateItemOrderCommand;
+import com.e205.base.member.command.item.payload.ItemPayload;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
 import com.e205.domain.item.entity.Item;

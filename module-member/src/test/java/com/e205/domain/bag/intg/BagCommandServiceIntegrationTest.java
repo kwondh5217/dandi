@@ -2,9 +2,9 @@ package com.e205.domain.bag.intg;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.e205.command.bag.command.BagDeleteCommand;
-import com.e205.command.bag.command.BagItemDeleteCommand;
-import com.e205.command.item.command.DeleteItemCommand;
+import com.e205.base.member.command.bag.command.BagDeleteCommand;
+import com.e205.base.member.command.bag.command.BagItemDeleteCommand;
+import com.e205.base.member.command.item.command.DeleteItemCommand;
 import com.e205.domain.bag.entity.Bag;
 import com.e205.domain.bag.entity.BagItem;
 import com.e205.domain.bag.repository.BagItemRepository;
@@ -13,22 +13,21 @@ import com.e205.domain.bag.service.BagCommandServiceDefault;
 import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.domain.item.service.ItemCommandServiceDefault;
-import com.e205.events.EventPublisher;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest
-//@Transactional
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class BagCommandServiceIntegrationTest {
 
   @MockBean
-  private EventPublisher eventPublisher;
+  private JavaMailSender mailSender;
 
   @Autowired
   private BagCommandServiceDefault bagCommandService;

@@ -1,7 +1,8 @@
 package com.e205.service;
 
-import com.e205.command.QuizMakeCommand;
-import com.e205.command.QuizSubmitCommand;
+import com.e205.base.item.command.QuizMakeCommand;
+import com.e205.base.item.command.QuizSubmitCommand;
+import com.e205.base.item.service.QuizCommandService;
 import com.e205.entity.FoundImage;
 import com.e205.entity.FoundItem;
 import com.e205.entity.Quiz;

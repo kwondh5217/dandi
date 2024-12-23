@@ -1,9 +1,9 @@
 package com.e205.cdc;
 
-import com.e205.NotificationInsertEvent;
-import com.e205.command.bag.payload.MemberPayload;
-import com.e205.command.bag.query.FindMemberQuery;
-import com.e205.command.member.service.MemberQueryService;
+import com.e205.base.noti.NotificationInsertEvent;
+import com.e205.base.member.command.bag.payload.MemberPayload;
+import com.e205.base.member.command.bag.query.FindMemberQuery;
+import com.e205.base.member.command.member.service.MemberQueryService;
 import com.e205.service.Notifier;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
