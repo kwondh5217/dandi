@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -15,9 +16,8 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class MySQLBinlogReader implements BinlogReader, ApplicationRunner {
+public class MySQLBinlogReader implements BinlogReader, ApplicationRunner, DisposableBean {
 
-  private final DataSourceProperties dataSourceProperties;
   private final BinlogPositionTracker tracker;
   private final BinaryLogClient client;
   private final ExecutorService executorService;
@@ -25,7 +25,6 @@ public class MySQLBinlogReader implements BinlogReader, ApplicationRunner {
 
   public MySQLBinlogReader(DataSourceProperties dataSourceProperties,
       BinlogPositionTracker tracker, CDCEventPublisher eventPublisher) {
-    this.dataSourceProperties = dataSourceProperties;
     this.tracker = tracker;
     this.eventPublisher = eventPublisher;
 
@@ -59,6 +58,11 @@ public class MySQLBinlogReader implements BinlogReader, ApplicationRunner {
     }
   }
 
+  @Override
+  public void destroy() throws Exception {
+    close();
+  }
+
   private void processEvent(Event event) {
     EventHeaderV4 header = event.getHeader();
     String currentBinlog = this.client.getBinlogFilename();
@@ -84,7 +88,7 @@ public class MySQLBinlogReader implements BinlogReader, ApplicationRunner {
     return new String[]{host, port, schema};
   }
 
-  public void close() {
+  private void close() {
     try {
       client.disconnect();
     } catch (IOException e) {

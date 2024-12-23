@@ -23,8 +23,6 @@ import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
-import com.e205.events.Event;
-import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +32,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -45,7 +44,7 @@ public class BagCommandServiceDefault implements BagCommandService {
   private final BagRepository bagRepository;
   private final BagItemRepository bagItemRepository;
   private final ItemRepository itemRepository;
-  private final EventPublisher eventPublisher;
+  private final ApplicationEventPublisher eventPublisher;
   private final MemberRepository memberRepository;
 
   @Override
@@ -127,7 +126,7 @@ public class BagCommandServiceDefault implements BagCommandService {
         .toList();
 
     bagItemRepository.saveAll(newBagItems);
-    eventPublisher.publishAtLeastOnce(new BagChangedEvent(memberId, targetBagId));
+    eventPublisher.publishEvent(new BagChangedEvent(memberId, targetBagId));
   }
 
   @Override
@@ -218,7 +217,7 @@ public class BagCommandServiceDefault implements BagCommandService {
         .orElseThrow(MemberError.BAG_NOT_FOUND::getGlobalException);
     bagItemRepository.deleteByBagIdAndItemId(command.bagId(), command.bagItemId());
     if(member.getBagId().equals(command.bagId())) {
-      eventPublisher.publishAtLeastOnce(new BagItemDeleteEvent(item.toPayload()));
+      eventPublisher.publishEvent(new BagItemDeleteEvent(item.toPayload()));
     }
   }
 
@@ -261,7 +260,7 @@ public class BagCommandServiceDefault implements BagCommandService {
     }
     bagItemRepository.saveAll(newBagItems);
     if (member.getBagId().equals(bagId)) {
-      eventPublisher.publishAtLeastOnce(new BagChangedEvent(memberId, bagId));
+      eventPublisher.publishEvent(new BagChangedEvent(memberId, bagId));
     }
   }
 
@@ -283,7 +282,7 @@ public class BagCommandServiceDefault implements BagCommandService {
 
     bagItemRepository.deleteAll(itemsToDelete);
     if (member.getBagId().equals(command.bagId())) {
-      eventPublisher.publishAtLeastOnce(new BagChangedEvent(member.getId(), command.bagId()));
+      eventPublisher.publishEvent(new BagChangedEvent(member.getId(), command.bagId()));
     }
   }
 }

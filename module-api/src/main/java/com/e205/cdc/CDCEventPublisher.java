@@ -1,13 +1,17 @@
 package com.e205.cdc;
 
-import com.e205.cdc.BinlogMappingUtils.NotificationInsertEvent;
+import com.e205.NotificationInsertEvent;
 import com.e205.event.FoundItemSaveEvent;
 import com.e205.event.LostItemSaveEvent;
+import com.e205.payload.FoundItemPayload;
+import com.e205.payload.LostItemPayload;
 import com.github.shyiko.mysql.binlog.event.Event;
 import com.github.shyiko.mysql.binlog.event.EventType;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +21,13 @@ public class CDCEventPublisher {
 
   private final TableMetadataCache tableMetadataCache;
   private final ApplicationEventPublisher eventPublisher;
+  private final ModelMapper modelMapper;
 
   public CDCEventPublisher(TableMetadataCache tableMetadataCache,
-      ApplicationEventPublisher eventPublisher) {
+      ApplicationEventPublisher eventPublisher, ModelMapper modelMapper) {
     this.tableMetadataCache = tableMetadataCache;
     this.eventPublisher = eventPublisher;
+    this.modelMapper = modelMapper;
   }
 
   public void saveTableInfo(Event event) {
@@ -30,44 +36,44 @@ public class CDCEventPublisher {
 
   public void processRowEvent(Event event, EventType eventType) {
     RowsEventData data = new RowsEventData(event);
-    String tableName = this.tableMetadataCache.getTableName(data.getTableId());
+    if(this.tableMetadataCache.isEnabled(data.getTableId())) {
+      String tableName = this.tableMetadataCache.getTableName(data.getTableId());
 
-    if ("BinlogPosition".equals(tableName)) {
-      return;
-    }
-
-    if(eventType == EventType.WRITE_ROWS || eventType == EventType.EXT_WRITE_ROWS) {
-      switch (tableName) {
-        case "Notification" :
-          publishNotificationInsertEvent(data, tableName);
-          break;
-        case "FoundItem" :
-          publishFoundItemSaveEvent(data, tableName);
-          break;
-        case "LostItem" :
-          publishLostItemSaveEvent(data, tableName);
-          break;
+      if(eventType == EventType.WRITE_ROWS || eventType == EventType.EXT_WRITE_ROWS) {
+        switch (tableName) {
+          case "Notification" :
+            publishNotificationInsertEvent(data, tableName);
+            break;
+          case "FoundItem" :
+            publishFoundItemSaveEvent(data, tableName);
+            break;
+          case "LostItem" :
+            publishLostItemSaveEvent(data, tableName);
+            break;
+        }
       }
     }
   }
 
   private void publishLostItemSaveEvent(RowsEventData data, String tableName) {
     Map<String, Object> rowList = getRowList(data, tableName);
-    LostItemSaveEvent lostItemSaveEvent = BinlogMappingUtils.mapToLostItemSaveEvent(rowList);
+    LostItemPayload lostItemPayload = this.modelMapper.map(rowList, LostItemPayload.class);
+    LostItemSaveEvent lostItemSaveEvent = new LostItemSaveEvent(lostItemPayload, LocalDateTime.now());
     this.eventPublisher.publishEvent(lostItemSaveEvent);
     log.info("Publishing LostItemSaveEvent: {}", lostItemSaveEvent);
 
   }
   private void publishFoundItemSaveEvent(RowsEventData data, String tableName) {
     Map<String, Object> rowList = getRowList(data, tableName);
-    FoundItemSaveEvent foundItemSaveEvent = BinlogMappingUtils.mapToFoundItemSaveEvent(rowList);
+    FoundItemPayload foundItemPayload = this.modelMapper.map(rowList, FoundItemPayload.class);
+    FoundItemSaveEvent foundItemSaveEvent = new FoundItemSaveEvent(foundItemPayload, LocalDateTime.now());
     this.eventPublisher.publishEvent(foundItemSaveEvent);
     log.info("Publishing FoundItemSaveEvent: {}", foundItemSaveEvent);
   }
 
   private void publishNotificationInsertEvent(RowsEventData data, String tableName) {
     Map<String, Object> rowList = getRowList(data, tableName);
-    NotificationInsertEvent notificationInsertEvent = BinlogMappingUtils.mapToNotificationEvent(rowList);
+    NotificationInsertEvent notificationInsertEvent = this.modelMapper.map(rowList, NotificationInsertEvent.class);
     this.eventPublisher.publishEvent(notificationInsertEvent);
     log.info("Publishing notification event {}", notificationInsertEvent);
   }

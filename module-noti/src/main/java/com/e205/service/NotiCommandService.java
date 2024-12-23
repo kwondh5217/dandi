@@ -6,12 +6,10 @@ import com.e205.CreateNotificationCommand;
 import com.e205.DeleteNotificationsCommand;
 import com.e205.ItemCommandService;
 import com.e205.NotifiedMembersCommand;
-import com.e205.NotifyOutboxEvent;
 import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.member.query.FindMembersByIdQuery;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.entity.Notification;
-import com.e205.events.EventPublisher;
 import com.e205.exception.GlobalException;
 import com.e205.repository.NotificationRepository;
 import com.e205.util.NotificationFactory;
@@ -29,7 +27,6 @@ public class NotiCommandService implements com.e205.NotiCommandService {
 
   private final NotificationRepository notificationRepository;
   private final ItemCommandService itemCommandService;
-  private final EventPublisher eventPublisher;
   private final MemberQueryService memberQueryService;
 
   public void createNotification(CreateNotificationCommand command) {
@@ -69,11 +66,6 @@ public class NotiCommandService implements com.e205.NotiCommandService {
         notification.setCreatedAt(LocalDateTime.now());
 
         this.notificationRepository.save(notification);
-
-        if (member.commentAlarm()) {
-          this.eventPublisher.publishAtLeastOnce(
-              new NotifyOutboxEvent(member.fcmCode(), command.type(), notification.getBody()));
-        }
       }
     }
   }

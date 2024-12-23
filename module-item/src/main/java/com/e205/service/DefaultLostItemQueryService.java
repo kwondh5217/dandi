@@ -15,8 +15,8 @@ import com.e205.repository.LostItemAuthRepository;
 import com.e205.repository.LostItemRepository;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +28,7 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
   private final LostItemAuthRepository lostItemAuthRepository;
   private final RouteQueryService routeQueryService;
   private final ItemImageRepository itemImageRepository;
-  private final EventPublisher itemEventPublisher;
+  private final ApplicationEventPublisher itemEventPublisher;
   private final LostItemRepository lostItemRepository;
 
   private static final int LOST_ITEM_COOL_TIME = 0;
@@ -54,7 +54,7 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
 
     if (!lostItemAuth.isRead()) {
       lostItemAuth.read();
-      itemEventPublisher.publishAtLeastOnce(new LostItemReadEvent(lostItem.getId(), LocalDateTime.now()));
+      itemEventPublisher.publishEvent(new LostItemReadEvent(lostItem.getId(), LocalDateTime.now()));
     }
     return lostItem.toPayload();
   }
@@ -86,7 +86,7 @@ public class DefaultLostItemQueryService implements LostItemQueryService {
   }
 
   private boolean isReadablePosition(Integer memberId, LostItem lostItem) {
-    MembersInRouteQuery query = new MembersInRouteQuery(lostItem.getStartRouteId(),
+    MembersInRouteQuery query = new MembersInRouteQuery(memberId, lostItem.getStartRouteId(),
         lostItem.getEndRouteId(), lostItem.getLostAt());
 
     List<Integer> memberList = routeQueryService.findUserIdsNearPath(query);

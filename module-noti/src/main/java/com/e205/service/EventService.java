@@ -16,10 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 
 @Slf4j
@@ -35,8 +32,8 @@ public class EventService {
   private final MemberQueryService memberQueryService;
   private final NotiCommandService notiCommandService;
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @Transactional
+  @EventListener
   public void handleRouteSavedEvent(RouteSavedEvent event) {
     final String fcm = this.memberQueryService.findMemberFcmById(event.memberId());
     Assert.state(fcm != null, "fcm must not be null");

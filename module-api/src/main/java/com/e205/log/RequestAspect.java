@@ -1,8 +1,7 @@
-package com.e205.byteBuddy;
+package com.e205.log;
 
 import com.e205.auth.dto.MemberDetails;
 import jakarta.servlet.http.HttpServletRequest;
-import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;

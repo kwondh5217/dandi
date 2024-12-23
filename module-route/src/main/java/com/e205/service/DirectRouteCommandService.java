@@ -16,6 +16,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class DirectRouteCommandService implements RouteCommandService {
 
-  private final EventPublisher eventPublisher;
+  private final ApplicationEventPublisher eventPublisher;
   private final RouteRepository routeRepository;
   private final SnapshotHelper snapshotHelper;
   private final GeometryUtils geometryUtils;
@@ -48,7 +49,7 @@ public class DirectRouteCommandService implements RouteCommandService {
 
     Route savedRoute = routeRepository.save(initialRoute);
     String payload = RouteEventPayload.toJson(getPayload(savedRoute, determinedSnapshot));
-    eventPublisher.publishAtLeastOnce(new RouteSavedEvent(memberId, payload));
+    eventPublisher.publishEvent(new RouteSavedEvent(memberId, payload));
   }
 
   private RouteEventPayload getPayload(Route savedRoute, String determinedSnapshot) {
