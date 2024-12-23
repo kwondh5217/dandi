@@ -1,6 +1,8 @@
 package com.e205.cdc;
 
-import com.e205.cdc.BinlogMappingUtils.NotificationInsertEvent;
+import com.e205.NotificationInsertEvent;
+import com.e205.command.bag.payload.MemberPayload;
+import com.e205.command.bag.query.FindMemberQuery;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.service.Notifier;
 import java.util.Map;
@@ -29,20 +31,27 @@ public class CDCEventListener {
 
   @EventListener
   public void handleNotificationInsertEvent(NotificationInsertEvent event) {
-    String memberFcmById = this.memberQueryService.findMemberFcmById(event.memberId());
-    try {
-      this.notifier.notify(memberFcmById, event.title(), event.body());
-    } catch (Exception e) {
-      ObjectRecord<String, Object> record = ObjectRecord.create(
-          NOTI_DLQ_STREAM,
-          Map.of(
-              "deviceToken", memberFcmById,
-              "title", event.title(),
-              "body", event.body()
-          )
-      );
-      log.warn("Failed event saved to DLQ: {}", event);
-      this.streamOperations.add(record);
+    MemberPayload member = this.memberQueryService.findMember(
+        new FindMemberQuery(event.getMemberId()));
+    String memberFcmById = member.fcmCode();
+
+    if("lostitem".equalsIgnoreCase(event.getType()) && member.lostItemAlarm()
+    || "founditem".equalsIgnoreCase(event.getType()) && member.foundItemAlarm()
+    || "comment".equalsIgnoreCase(event.getType()) && member.commentAlarm()) {
+      try {
+        this.notifier.notify(memberFcmById, event.getTitle(), event.getBody());
+      } catch (Exception e) {
+        ObjectRecord<String, Object> record = ObjectRecord.create(
+            NOTI_DLQ_STREAM,
+            Map.of(
+                "deviceToken", memberFcmById,
+                "title", event.getTitle(),
+                "body", event.getBody()
+            )
+        );
+        log.warn("Failed event saved to DLQ: {}", event);
+        this.streamOperations.add(record);
+      }
     }
   }
 }
