@@ -50,8 +50,8 @@ public class EventService {
     this.notificationProcessor.notify(fcm, event.senderId() + " ", event.type());
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @Transactional
+  @EventListener
   public void handleFoundItemSaveEvent(FoundItemSaveEvent event) {
     final List<Integer> userIdsNearPoint = this.routeQueryService.findUserIdsNearPoint(
         new MembersInPointQuery(
@@ -67,8 +67,8 @@ public class EventService {
         this.memberQueryService.findMembers(new FindMembersByIdQuery(userIdsNearPoint)));
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @Transactional
+  @EventListener
   public void handleLostItemSaveEvent(LostItemSaveEvent event) {
     final List<MemberPayload> memberPayloads = findMembersForNotification(
         event.saved().memberId(),
