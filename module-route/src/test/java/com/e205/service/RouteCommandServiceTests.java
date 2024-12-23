@@ -17,7 +17,6 @@ import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
 import com.e205.event.RouteSavedEvent;
-import com.e205.events.EventPublisher;
 import com.e205.exception.GlobalException;
 import com.e205.repository.RouteRepository;
 import com.e205.service.reader.SnapshotHelper;
@@ -36,6 +35,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -55,7 +55,7 @@ public class RouteCommandServiceTests {
   @Mock
   private BagQueryService bagQueryService;
   @Mock
-  private EventPublisher eventPublisher;
+  private ApplicationEventPublisher eventPublisher;
   @Mock
   private SnapshotHelper snapshotHelper;
   @Mock
@@ -90,7 +90,7 @@ public class RouteCommandServiceTests {
     // then
     verify(routeRepository).save(any(Route.class));
     ArgumentCaptor<RouteSavedEvent> eventCaptor = ArgumentCaptor.forClass(RouteSavedEvent.class);
-    verify(eventPublisher).publishAtLeastOnce(eventCaptor.capture());
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
     RouteSavedEvent publishedEvent = eventCaptor.getValue();
     assertThat(MEMBER_ID).isEqualTo(publishedEvent.memberId());
     assertThat(publishedEvent.payload()).isNotNull();

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class LostItemQueryServiceTests {
@@ -38,7 +39,7 @@ class LostItemQueryServiceTests {
   @Mock
   RouteQueryService routeQueryService;
   @Mock
-  EventPublisher eventPublisher;
+  ApplicationEventPublisher eventPublisher;
   @Mock
   ItemImageRepository imageRepository;
   @Mock
@@ -134,7 +135,7 @@ class LostItemQueryServiceTests {
     service.find(query);
 
     // then
-    verify(eventPublisher, times(1)).publishAtLeastOnce(any(LostItemReadEvent.class));
+    verify(eventPublisher, times(1)).publishEvent(any(LostItemReadEvent.class));
   }
 
   @DisplayName("이미 읽은 분실물 상세를 조회하면, 이벤트가 발행되지 않는다.")
@@ -150,7 +151,7 @@ class LostItemQueryServiceTests {
     service.find(query);
 
     // then
-    verify(eventPublisher, never()).publishAtLeastOnce(any(LostItemReadEvent.class));
+    verify(eventPublisher, never()).publishEvent(any(LostItemReadEvent.class));
   }
 
 //  private void setValidPosition(int expectMemberId) {

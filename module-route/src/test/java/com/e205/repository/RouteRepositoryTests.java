@@ -148,7 +148,7 @@ class RouteRepositoryTests {
     Integer endRouteId = route3.getId();
 
     // when
-    List<Route> routesInRange = routeRepository.findRoutesWithinRange(startRouteId, endRouteId);
+    List<Route> routesInRange = routeRepository.findRoutesWithinRange(MEMBER_ID_1, startRouteId, endRouteId);
 
     // then
     assertThat(routesInRange).hasSize(3);

@@ -19,7 +19,6 @@ import com.e205.domain.Route;
 import com.e205.dto.Snapshot;
 import com.e205.dto.SnapshotItem;
 import com.e205.event.RouteSavedEvent;
-import com.e205.events.EventPublisher;
 import com.e205.repository.RouteRepository;
 import com.e205.service.RouteCommandService;
 import com.e205.service.reader.SnapshotHelper;
@@ -32,12 +31,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class RouteBagEventServiceTest {
 
     @Mock
-    private EventPublisher eventPublisher;
+    private ApplicationEventPublisher eventPublisher;
 
     @Mock
     private RouteCommandService routeCommandService;
@@ -80,7 +80,7 @@ class RouteBagEventServiceTest {
         assertThat(commandCaptor.getValue().routeId()).isEqualTo(mockRoute.getId());
 
         // 이벤트 발행 검증
-        verify(eventPublisher, times(1)).publishAtLeastOnce(any(RouteSavedEvent.class));
+        verify(eventPublisher, times(1)).publishEvent(any(RouteSavedEvent.class));
     }
 
     @Test
@@ -110,7 +110,7 @@ class RouteBagEventServiceTest {
         assertThat(captor.getValue().snapshot()).isEqualTo(updatedSnapshot);
 
         // 이벤트 발행 검증
-        verify(eventPublisher, times(1)).publishAtLeastOnce(any(RouteSavedEvent.class));
+        verify(eventPublisher, times(1)).publishEvent(any(RouteSavedEvent.class));
     }
 
     @Test
@@ -168,7 +168,7 @@ class RouteBagEventServiceTest {
         verify(routeCommandService, times(1)).updateSnapshot(captor.capture());
 
         // 이벤트 발행 검증
-        verify(eventPublisher, times(1)).publishAtLeastOnce(any(RouteSavedEvent.class));
+        verify(eventPublisher, times(1)).publishEvent(any(RouteSavedEvent.class));
 
         // 아이템 변경(삭제, 추가) 후 Snapshot이 올바르게 업데이트되었는지 확인
         assertThat(captor.getValue().snapshot()).isEqualTo(updatedSnapshot);
@@ -194,7 +194,7 @@ class RouteBagEventServiceTest {
         verify(routeCommandService, never()).updateSnapshot(captor.capture());
 
         // 이벤트 발행 X 검증
-        verify(eventPublisher, never()).publishAtLeastOnce(any(RouteSavedEvent.class));
+        verify(eventPublisher, never()).publishEvent(any(RouteSavedEvent.class));
 
     }
 

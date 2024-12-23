@@ -16,7 +16,6 @@ import com.e205.command.member.payload.EmailStatus;
 import com.e205.command.member.payload.MemberStatus;
 import com.e205.command.member.service.MemberQueryService;
 import com.e205.entity.LostItemNotification;
-import com.e205.events.EventPublisher;
 import com.e205.repository.NotificationRepository;
 import java.util.List;
 import java.util.Optional;
@@ -30,18 +29,15 @@ class NotiCommandServiceTest {
   private ItemCommandService itemCommandService;
   private NotiCommandService notiCommandService;
   private MemberQueryService memberQueryService;
-  private EventPublisher eventPublisher;
 
   @BeforeEach
   void setUp() {
     this.repository = mock(NotificationRepository.class);
     this.itemCommandService = mock(ItemCommandService.class);
     this.memberQueryService = mock(MemberQueryService.class);
-    this.eventPublisher = mock(EventPublisher.class);
     this.notiCommandService = new NotiCommandService(
         repository,
         itemCommandService,
-        eventPublisher,
         memberQueryService
     );
   }
@@ -86,9 +82,6 @@ class NotiCommandServiceTest {
 
     // then
     verify(this.repository, times(senders.size())).save(any());
-
-    // Only two members have commentAlarm enabled
-    verify(this.eventPublisher, times(2)).publishAtLeastOnce(any());
   }
 
   private MemberPayload createMemberPayload(

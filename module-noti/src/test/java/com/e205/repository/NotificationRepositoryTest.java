@@ -66,14 +66,13 @@ class NotificationRepositoryTest {
   @Test
   void findByMemberIdWithCursor() {
     int memberId = 1;
-    int lastResourceId = 1;
     int limit = 3;
     Pageable pageable = PageRequest.of(0, limit);
     List<Class<? extends Notification>> classes = List.of(LostItemNotification.class,
         FoundItemNotification.class, CommentNotification.class, RouteNotification.class);
 
     List<Notification> notifications = this.notificationRepository.findByMemberIdWithCursor(
-        memberId, lastResourceId, classes, pageable);
+        memberId, classes, pageable);
 
     Assertions.assertAll(
         () -> assertThat(notifications).isNotEmpty(),
