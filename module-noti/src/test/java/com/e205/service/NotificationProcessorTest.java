@@ -1,6 +1,5 @@
 package com.e205.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -8,28 +7,26 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.e205.CreateNotificationCommand;
-import com.e205.NotifiedMembersCommand;
-import com.e205.NotifyOutboxEvent;
 import com.e205.command.bag.payload.MemberPayload;
 import com.e205.command.member.payload.EmailStatus;
 import com.e205.command.member.payload.MemberStatus;
-import com.e205.events.EventPublisher;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 class NotificationProcessorTest {
 
   private NotiCommandService notiCommandService;
   private Notifier notifier;
-  private EventPublisher eventPublisher;
+  private ApplicationEventPublisher eventPublisher;
   private NotificationProcessor notificationProcessor;
 
   @BeforeEach
   void setUp() {
     notiCommandService = mock(NotiCommandService.class);
     notifier = mock(Notifier.class);
-    eventPublisher = mock(EventPublisher.class);
+    eventPublisher = mock(ApplicationEventPublisher.class);
     notificationProcessor = new NotificationProcessor(notiCommandService, notifier, eventPublisher);
   }
 
@@ -43,16 +40,12 @@ class NotificationProcessorTest {
     );
 
     // when
-    List<NotifiedMembersCommand> notifiedMembers = notificationProcessor.processNotifications(
+    notificationProcessor.processNotifications(
         1, 4,"Test Description", "lostItemSaveEvent", memberPayloads);
 
     // then
     verify(notiCommandService, times(memberPayloads.size()))
         .createNotification(any(CreateNotificationCommand.class));
-
-    // Only two members have lostItemAlarm enabled
-    verify(eventPublisher, times(2)).publishAtLeastOnce(any(NotifyOutboxEvent.class));
-    assertThat(notifiedMembers).hasSize(memberPayloads.size());
   }
 
   @Test

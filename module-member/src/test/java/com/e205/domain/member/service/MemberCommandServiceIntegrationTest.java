@@ -97,7 +97,7 @@ class MemberCommandServiceIntegrationTest extends AbstractRedisTestContainer {
 
     // When
     memberCommandService.requestEmailVerification(
-        new MemberVerificationLinkCommand(userId, email));
+        new MemberVerificationLinkCommand(email));
 
     // Then
     String redisKey = "verifyEmail:" + email;

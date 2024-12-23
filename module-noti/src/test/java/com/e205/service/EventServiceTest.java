@@ -22,16 +22,13 @@ class EventServiceTest {
   private MemberQueryService memberQueryService;
   private NotificationProcessor notifier;
   private EventService eventService;
-  private NotiCommandService notiCommandService;
 
   @BeforeEach
   void setUp() {
     this.routeQueryService = mock(RouteQueryService.class);
     this.memberQueryService = mock(MemberQueryService.class);
     this.notifier = mock(NotificationProcessor.class);
-    this.notiCommandService = mock(NotiCommandService.class);
-    this.eventService = new EventService(routeQueryService, notifier, memberQueryService,
-        notiCommandService);
+    this.eventService = new EventService(routeQueryService, notifier, memberQueryService);
   }
 
   @Test

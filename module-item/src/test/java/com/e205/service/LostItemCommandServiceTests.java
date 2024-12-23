@@ -6,15 +6,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.e205.command.LostItemGrantCommand;
 import com.e205.command.LostItemSaveCommand;
 import com.e205.entity.LostImage;
 import com.e205.entity.LostItem;
-import com.e205.event.LostItemSaveEvent;
-import com.e205.events.EventPublisher;
 import com.e205.repository.ItemImageRepository;
 import com.e205.repository.LostItemAuthRepository;
 import com.e205.repository.LostItemRepository;
@@ -33,19 +30,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class LostItemCommandServiceTests {
 
   LostItemCommandService service;
-  EventPublisher eventPublisher;
   LostItemRepository repository;
   ItemImageRepository itemImageRepository;
   LostItemAuthRepository lostItemAuthRepository;
 
   @BeforeEach
   void setUp() {
-    eventPublisher = mock(EventPublisher.class);
     repository = mock(LostItemRepository.class);
     itemImageRepository = mock(ItemImageRepository.class);
     lostItemAuthRepository = mock(LostItemAuthRepository.class);
-    service = new DefaultLostItemCommandService(repository, eventPublisher,
-        itemImageRepository, lostItemAuthRepository);
+    service = new DefaultLostItemCommandService(repository, itemImageRepository, lostItemAuthRepository);
   }
 
   @DisplayName("분실물을 저장할 수 있다.")
@@ -97,42 +91,6 @@ class LostItemCommandServiceTests {
 
     // then
     assertThatThrownBy(expectThrow);
-  }
-
-  @DisplayName("분실물 등록에 성공하면 이벤트가 발행된다.")
-  @Test
-  void When_SaveSuccess_Then_PublishEvent() {
-    // given
-    given(itemImageRepository.findLostImageById(any())).willReturn(Optional.of(generateItem()));
-    var images = Stream.generate(this::generateImage).limit(3).toList();
-    var command = generateSaveCommand(images);
-
-    LostItem mockItem = mock(LostItem.class);
-    given(mockItem.getMemberId()).willReturn(1);
-    given(mockItem.getId()).willReturn(1);
-    given(repository.save(any(LostItem.class))).willReturn(mockItem);
-    given(repository.exists(any())).willReturn(true);
-
-    // when
-    service.save(command);
-
-    // then
-    verify(eventPublisher).publishAtLeastOnce(any(LostItemSaveEvent.class));
-  }
-
-  @DisplayName("분실물 등록에 실패하면 이벤트가 발행되지 않는다.")
-  @Test
-  void When_SaveFail_Then_NotPublishEvent() {
-    // given
-    var images = Stream.generate(this::generateImage).limit(5).toList();
-    var command = generateSaveCommand(images);
-
-    // when
-    ThrowingCallable expectThrow = () -> service.save(command);
-
-    // then
-    assertThatThrownBy(expectThrow);
-    verify(eventPublisher, times(0)).publishAtLeastOnce(any(LostItemSaveEvent.class));
   }
 
   @DisplayName("이미지가 없어도 분실물 등록에 성공한다.")
