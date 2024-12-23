@@ -1,8 +1,5 @@
 package com.e205.member.service;
 
-import com.e205.command.bag.command.BagItemDeleteCommand;
-import com.e205.command.bag.command.BagOrderCommand;
-import com.e205.command.bag.command.BagOrderUpdateCommand;
 import com.e205.command.item.command.CreateItemCommand;
 import com.e205.command.item.command.DeleteItemCommand;
 import com.e205.command.item.command.ItemOrderCommand;
@@ -12,14 +9,12 @@ import com.e205.command.item.payload.ItemPayload;
 import com.e205.command.item.query.ReadItemNotInBagQuery;
 import com.e205.command.item.service.ItemCommandService;
 import com.e205.command.item.service.ItemQueryService;
-import com.e205.domain.item.repository.ItemRepository;
 import com.e205.member.dto.ChangeItemInfo;
 import com.e205.member.dto.ChangeItemOrderRequest;
 import com.e205.member.dto.CreateItemRequest;
 import com.e205.member.dto.ItemResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.h2.mvstore.tx.TransactionStore.Change;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor

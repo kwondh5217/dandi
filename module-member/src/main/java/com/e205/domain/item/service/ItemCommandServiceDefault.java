@@ -18,7 +18,6 @@ import com.e205.domain.item.entity.Item;
 import com.e205.domain.item.repository.ItemRepository;
 import com.e205.domain.member.entity.Member;
 import com.e205.domain.member.repository.MemberRepository;
-import com.e205.events.EventPublisher;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,6 +25,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -37,7 +37,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
   private static final int MAX_BAG_ITEM_COUNT = 20;
   private final ItemRepository itemRepository;
   private final BagItemRepository bagItemRepository;
-  private final EventPublisher eventPublisher;
+  private final ApplicationEventPublisher eventPublisher;
   private final BagRepository bagRepository;
   private final MemberRepository memberRepository;
 
@@ -93,7 +93,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     bagItemRepository.save(bagItem);
 
     if(member.getBagId().equals(bagId)) {
-      eventPublisher.publishAtLeastOnce(new BagItemAddEvent(item.toPayload()));
+      eventPublisher.publishEvent(new BagItemAddEvent(item.toPayload()));
     }
   }
 
@@ -120,7 +120,7 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     item.updateColorKey(updateCommand.colorKey());
 
 
-    eventPublisher.publishAtLeastOnce(new BagItemChangedEvent(previousItemPayload, item.toPayload()));
+    eventPublisher.publishEvent(new BagItemChangedEvent(previousItemPayload, item.toPayload()));
   }
 
   @Override
@@ -152,6 +152,6 @@ public class ItemCommandServiceDefault implements ItemCommandService {
     bagItemRepository.deleteAll(bagItems);
 
     itemRepository.delete(item);
-    eventPublisher.publishAtLeastOnce(new BagItemDeleteEvent(item.toPayload()));
+    eventPublisher.publishEvent(new BagItemDeleteEvent(item.toPayload()));
   }
 }

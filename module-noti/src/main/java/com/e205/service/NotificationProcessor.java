@@ -4,13 +4,13 @@ import com.e205.CreateNotificationCommand;
 import com.e205.NotifiedMembersCommand;
 import com.e205.NotifyOutboxEvent;
 import com.e205.command.bag.payload.MemberPayload;
-import com.e205.events.EventPublisher;
 import com.e205.util.NotificationFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ public class NotificationProcessor {
   public static final String LOST_ITEM_SAVE_EVENT = "lostItem";
   private final NotiCommandService notiCommandService;
   private final Notifier notifier;
-  private final EventPublisher eventPublisher;
+  private final ApplicationEventPublisher eventPublisher;
 
   public void notify(final String fcm, final String title, final String body) {
     try {
@@ -61,7 +61,7 @@ public class NotificationProcessor {
         this.notiCommandService.createNotification(notification);
 
         if (shouldNotify(eventType, member)) {
-          this.eventPublisher.publishAtLeastOnce(new NotifyOutboxEvent(
+          this.eventPublisher.publishEvent(new NotifyOutboxEvent(
               member.fcmCode(), notification.getTitle(), eventBody)
           );
         }
