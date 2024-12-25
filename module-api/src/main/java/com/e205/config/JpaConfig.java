@@ -1,12 +1,17 @@
 package com.e205.config;
 
+import com.e205.log.CollectionListener;
 import com.e205.log.LogInterceptor;
 import com.e205.log.TransactionSynchronizationRegistryImpl;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Bean;
@@ -59,6 +64,18 @@ public class JpaConfig {
     jpaProperties.put(HIBERNATE_FORMAT_SQL_KEY, formatSql);
     jpaProperties.put(HIBERNATE_HBM2DDL_AUTO_KEY, ddlValue);
     emf.setJpaPropertyMap(jpaProperties);
+
+    emf.afterPropertiesSet();
+    EntityManagerFactory entityManagerFactory = emf.getObject();
+
+    if (entityManagerFactory != null) {
+      SessionFactoryImpl sessionFactory = entityManagerFactory.unwrap(SessionFactoryImpl.class);
+      EventListenerRegistry listenerRegistry = sessionFactory.getEventEngine().getListenerRegistry();
+      listenerRegistry.getEventListenerGroup(EventType.INIT_COLLECTION)
+          .appendListener(new CollectionListener());
+    } else {
+      log.error("EntityManagerFactory is null");
+    }
 
     return emf;
   }
