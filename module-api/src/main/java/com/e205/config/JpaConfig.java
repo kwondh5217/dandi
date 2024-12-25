@@ -1,12 +1,18 @@
 package com.e205.config;
 
+import com.e205.log.CollectionListener;
 import com.e205.log.LogInterceptor;
 import com.e205.log.TransactionSynchronizationRegistryImpl;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventEngine;
+import org.hibernate.event.spi.EventType;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Bean;
@@ -53,6 +59,13 @@ public class JpaConfig {
     emf.setJpaVendorAdapter(vendorAdapter);
     emf.setDataSource(dataSource);
     emf.setPackagesToScan(ENTITY_PACKAGE_TO_SCAN);
+
+    EntityManagerFactory nativeEntityManagerFactory = emf.getNativeEntityManagerFactory();
+    SessionFactoryImpl sessionFactory = nativeEntityManagerFactory.unwrap(SessionFactoryImpl.class);
+    EventEngine eventEngine = sessionFactory.getEventEngine();
+    EventListenerRegistry listenerRegistry = eventEngine.getListenerRegistry();
+    listenerRegistry.getEventListenerGroup(EventType.INIT_COLLECTION)
+        .appendListener(new CollectionListener());
 
     Map<String, Object> jpaProperties = new HashMap<>(jpaProperty.getProperties());
     jpaProperties.put(HIBERNATE_SESSION_FACTORY_INTERCEPTOR, logInterceptor());
