@@ -12,22 +12,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-@ConfigurationProperties(prefix = "enable")
 @Component
 public class TableMetadataCache {
 
   private final JdbcTemplate jdbcTemplate;
   private final Map<String, List<ColumnInfo>> tableColumnCache;
   private final Map<Long, String> tableIdToNameMap;
-  @Setter
-  @Getter
-  private Set<String> tables;
+  private Set<String> tables = Set.of("FountItem", "LostItem", "Notification");
 
   public TableMetadataCache(JdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
@@ -80,13 +74,11 @@ public class TableMetadataCache {
 
   public void saveTableInfo(Event event) {
     TableMapEventData data = event.getData();
-    if (tables.contains(data.getTable())){
-      tableIdToNameMap.put(data.getTableId(), data.getTable());
-    }
+    tableIdToNameMap.put(data.getTableId(), data.getTable());
   }
 
   public boolean isEnabled(long tableId) {
-    return tableIdToNameMap.containsKey(tableId);
+    return this.tables.contains(tableIdToNameMap.get(tableId));
   }
 
   public record ColumnInfo(String name, String type) {
