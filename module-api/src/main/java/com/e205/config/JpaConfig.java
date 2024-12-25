@@ -10,7 +10,6 @@ import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.event.service.spi.EventListenerRegistry;
-import org.hibernate.event.spi.EventEngine;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,18 +59,23 @@ public class JpaConfig {
     emf.setDataSource(dataSource);
     emf.setPackagesToScan(ENTITY_PACKAGE_TO_SCAN);
 
-    EntityManagerFactory nativeEntityManagerFactory = emf.getNativeEntityManagerFactory();
-    SessionFactoryImpl sessionFactory = nativeEntityManagerFactory.unwrap(SessionFactoryImpl.class);
-    EventEngine eventEngine = sessionFactory.getEventEngine();
-    EventListenerRegistry listenerRegistry = eventEngine.getListenerRegistry();
-    listenerRegistry.getEventListenerGroup(EventType.INIT_COLLECTION)
-        .appendListener(new CollectionListener());
-
     Map<String, Object> jpaProperties = new HashMap<>(jpaProperty.getProperties());
     jpaProperties.put(HIBERNATE_SESSION_FACTORY_INTERCEPTOR, logInterceptor());
     jpaProperties.put(HIBERNATE_FORMAT_SQL_KEY, formatSql);
     jpaProperties.put(HIBERNATE_HBM2DDL_AUTO_KEY, ddlValue);
     emf.setJpaPropertyMap(jpaProperties);
+
+    emf.afterPropertiesSet();
+    EntityManagerFactory entityManagerFactory = emf.getObject();
+
+    if (entityManagerFactory != null) {
+      SessionFactoryImpl sessionFactory = entityManagerFactory.unwrap(SessionFactoryImpl.class);
+      EventListenerRegistry listenerRegistry = sessionFactory.getEventEngine().getListenerRegistry();
+      listenerRegistry.getEventListenerGroup(EventType.INIT_COLLECTION)
+          .appendListener(new CollectionListener());
+    } else {
+      log.error("EntityManagerFactory is null");
+    }
 
     return emf;
   }
