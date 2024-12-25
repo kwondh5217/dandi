@@ -3,43 +3,49 @@ package com.e205.cdc;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class BinlogPositionTracker {
 
-  public static final int ID = 1;
-  private final BinlogPositionRepository positionRepository;
+  private final RedisTemplate<String, Object> redisTemplate;
   private final JdbcTemplate jdbcTemplate;
+  private final String BINLOG_POSITION = "binlog_position";
 
-  @Transactional
   @PostConstruct
-  public void init() {
-    positionRepository.findById(ID).orElseGet(this::initBinlogPosition);
+  public void onApplicationEvent() {
+    Object o = this.redisTemplate.opsForValue().get(BINLOG_POSITION);
+    if (o == null) {
+      initBinlogPosition();
+    }
   }
 
-  @Transactional(readOnly = true)
   public BinlogPosition loadPosition() {
-    return positionRepository.findDefaultBinlogPosition()
-        .orElseGet(this::initBinlogPosition);
+    Object o = this.redisTemplate.opsForValue().get(BINLOG_POSITION);
+    if (o == null) {
+      throw new IllegalStateException("Binlog position does not exist");
+    }
+    String s = (String) o;
+    String[] split = s.split(":");
+
+    return new BinlogPosition(split[0], Long.parseLong(split[1]));
   }
 
-  @Transactional
   public void updatePosition(String currentBinlogFile, long currentPosition) {
-    String sql = "UPDATE BinlogPosition SET binlogFileName = ?, binlogPosition = ? WHERE id = ?";
-    jdbcTemplate.update(sql, currentBinlogFile, currentPosition, ID);
+    String position = currentBinlogFile + ":" + currentPosition;
+    redisTemplate.opsForValue().set(BINLOG_POSITION, position);
   }
 
-  @Transactional
   protected BinlogPosition initBinlogPosition() {
     String latestBinlogFile = getLatestBinlogFile();
-    BinlogPosition newPosition = new BinlogPosition();
-    newPosition.setBinlogFileName(latestBinlogFile);
-    newPosition.setBinlogPosition(4L);
-    return positionRepository.save(newPosition);
+    this.redisTemplate.opsForValue().set(BINLOG_POSITION, latestBinlogFile + ":4" );
+    return new BinlogPosition(latestBinlogFile, 4L);
   }
 
   @Transactional(readOnly = true)
