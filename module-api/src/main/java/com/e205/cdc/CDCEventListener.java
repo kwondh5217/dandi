@@ -44,6 +44,7 @@ public class CDCEventListener {
         ObjectRecord<String, Object> record = ObjectRecord.create(
             NOTI_DLQ_STREAM,
             Map.of(
+                "id", event.getId(),
                 "deviceToken", memberFcmById,
                 "title", event.getTitle(),
                 "body", event.getBody()

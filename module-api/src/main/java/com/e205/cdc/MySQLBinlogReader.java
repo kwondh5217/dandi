@@ -9,14 +9,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class MySQLBinlogReader implements BinlogReader, ApplicationRunner, DisposableBean {
+public class MySQLBinlogReader implements ApplicationListener<ApplicationReadyEvent>, DisposableBean {
 
   private final BinlogPositionTracker tracker;
   private final BinaryLogClient client;
@@ -44,11 +44,10 @@ public class MySQLBinlogReader implements BinlogReader, ApplicationRunner, Dispo
   }
 
   @Override
-  public void run(ApplicationArguments args) {
+  public void onApplicationEvent(ApplicationReadyEvent event) {
     this.executorService.submit(this::start);
   }
 
-  @Override
   public void start() {
     this.client.registerEventListener(this::processEvent);
     try {
@@ -66,16 +65,17 @@ public class MySQLBinlogReader implements BinlogReader, ApplicationRunner, Dispo
   private void processEvent(Event event) {
     EventHeaderV4 header = event.getHeader();
     String currentBinlog = this.client.getBinlogFilename();
-    long currentPosition = header.getPosition();
+    long currentPosition = this.client.getBinlogPosition();
     EventType eventType = header.getEventType();
     this.tracker.updatePosition(currentBinlog, currentPosition);
 
-    switch (eventType) {
-      case TABLE_MAP -> this.eventPublisher.saveTableInfo(event);
-      case WRITE_ROWS, EXT_WRITE_ROWS,
-           UPDATE_ROWS, EXT_UPDATE_ROWS,
-           DELETE_ROWS, EXT_DELETE_ROWS ->
-          this.eventPublisher.processRowEvent(event, eventType);
+    try {
+      switch (eventType) {
+        case TABLE_MAP -> this.eventPublisher.saveTableInfo(event);
+        case EXT_WRITE_ROWS, EXT_UPDATE_ROWS, EXT_DELETE_ROWS -> this.eventPublisher.processRowEvent(event, eventType);
+      }
+    } catch (Exception e) {
+      log.error("Failed to process event: {}", eventType, e);
     }
   }
 
@@ -94,6 +94,8 @@ public class MySQLBinlogReader implements BinlogReader, ApplicationRunner, Dispo
     } catch (IOException e) {
       log.error("Error disconnecting from Binlog server", e);
       throw new RuntimeException("Failed to disconnect from MySQL Binlog", e);
+    } finally {
+      this.executorService.shutdown();
     }
   }
 }
