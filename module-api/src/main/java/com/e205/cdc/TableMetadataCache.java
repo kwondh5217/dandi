@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class TableMetadataCache {
 
   private final JdbcTemplate jdbcTemplate;
-  private final Map<String, List<ColumnInfo>> tableColumnCache;
+  private final Map<String, List<String>> tableColumnCache;
   private final Map<Long, String> tableIdToNameMap;
   private Set<String> tables = Set.of("FountItem", "LostItem", "Notification");
 
@@ -31,31 +31,30 @@ public class TableMetadataCache {
 
   @PostConstruct
   public void init() throws SQLException {
-    try (Connection connection = jdbcTemplate.getDataSource().getConnection();
-        ResultSet resultSet = connection.getMetaData()
-            .getTables(null, null, "%", new String[]{"TABLE"})) {
-
+    try (Connection connection = jdbcTemplate.getDataSource().getConnection()) {
+      ResultSet resultSet = connection.getMetaData()
+          .getTables(null, null, "%", new String[]{"TABLE"});
       while (resultSet.next()) {
         String tableName = resultSet.getString("TABLE_NAME");
-        if(!tables.contains(tableName)) {
+
+        if (!tables.contains(tableName)) {
           continue;
         }
 
-        try (ResultSet columns = connection.getMetaData().getColumns(null, null, tableName, "%")) {
-          List<ColumnInfo> columnInfos = new ArrayList<>();
-          while (columns.next()) {
-            String columnName = columns.getString("COLUMN_NAME");
-            String columnType = columns.getString("TYPE_NAME");
-
-            columnInfos.add(new ColumnInfo(columnName, columnType));
-          }
-          tableColumnCache.put(tableName, columnInfos);
+        ResultSet columns = connection.getMetaData()
+            .getColumns(null, null, tableName, "%");
+        List<String> columnInfos = new ArrayList<>();
+        while (columns.next()) {
+          String columnName = columns.getString("COLUMN_NAME");
+          columnInfos.add(columnName);
         }
+        tableColumnCache.put(tableName, columnInfos);
       }
     }
   }
-  public ColumnInfo getColumnInfo(String tableName, int index) {
-    List<ColumnInfo> columnInfos = tableColumnCache.get(tableName);
+
+  public String getColumnInfo(String tableName, int index) {
+    List<String> columnInfos = tableColumnCache.get(tableName);
 
     if (columnInfos.size() <= index) {
       throw new ArrayIndexOutOfBoundsException(index);
@@ -79,9 +78,5 @@ public class TableMetadataCache {
 
   public boolean isEnabled(long tableId) {
     return this.tables.contains(tableIdToNameMap.get(tableId));
-  }
-
-  public record ColumnInfo(String name, String type) {
-
   }
 }
