@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class NotificationInsertEvent {
+  private Integer id;
   private Integer memberId;
   private String title;
   private String body;
