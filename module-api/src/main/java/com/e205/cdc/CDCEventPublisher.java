@@ -5,13 +5,15 @@ import com.e205.base.item.event.FoundItemSaveEvent;
 import com.e205.base.item.event.LostItemSaveEvent;
 import com.e205.base.item.payload.FoundItemPayload;
 import com.e205.base.item.payload.LostItemPayload;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.shyiko.mysql.binlog.event.Event;
 import com.github.shyiko.mysql.binlog.event.EventType;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -21,13 +23,16 @@ public class CDCEventPublisher {
 
   private final TableMetadataCache tableMetadataCache;
   private final ApplicationEventPublisher eventPublisher;
-  private final ModelMapper modelMapper;
+  private final ObjectMapper objectMapper;
 
   public CDCEventPublisher(TableMetadataCache tableMetadataCache,
-      ApplicationEventPublisher eventPublisher, ModelMapper modelMapper) {
+      ApplicationEventPublisher eventPublisher) {
     this.tableMetadataCache = tableMetadataCache;
     this.eventPublisher = eventPublisher;
-    this.modelMapper = modelMapper;
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+    this.objectMapper = objectMapper;
   }
 
   public void saveTableInfo(Event event) {
@@ -57,7 +62,7 @@ public class CDCEventPublisher {
 
   private void publishLostItemSaveEvent(RowsEventData data, String tableName) {
     Map<String, Object> rowList = getRowList(data, tableName);
-    LostItemPayload lostItemPayload = this.modelMapper.map(rowList, LostItemPayload.class);
+    LostItemPayload lostItemPayload = this.objectMapper.convertValue(rowList, LostItemPayload.class);
     LostItemSaveEvent lostItemSaveEvent = new LostItemSaveEvent(lostItemPayload, LocalDateTime.now());
     this.eventPublisher.publishEvent(lostItemSaveEvent);
     log.info("Publishing LostItemSaveEvent: {}", lostItemSaveEvent);
@@ -65,7 +70,7 @@ public class CDCEventPublisher {
   }
   private void publishFoundItemSaveEvent(RowsEventData data, String tableName) {
     Map<String, Object> rowList = getRowList(data, tableName);
-    FoundItemPayload foundItemPayload = this.modelMapper.map(rowList, FoundItemPayload.class);
+    FoundItemPayload foundItemPayload = this.objectMapper.convertValue(rowList, FoundItemPayload.class);
     FoundItemSaveEvent foundItemSaveEvent = new FoundItemSaveEvent(foundItemPayload, LocalDateTime.now());
     this.eventPublisher.publishEvent(foundItemSaveEvent);
     log.info("Publishing FoundItemSaveEvent: {}", foundItemSaveEvent);
@@ -73,7 +78,7 @@ public class CDCEventPublisher {
 
   private void publishNotificationInsertEvent(RowsEventData data, String tableName) {
     Map<String, Object> rowList = getRowList(data, tableName);
-    NotificationInsertEvent notificationInsertEvent = this.modelMapper.map(rowList, NotificationInsertEvent.class);
+    NotificationInsertEvent notificationInsertEvent = this.objectMapper.convertValue(rowList, NotificationInsertEvent.class);
     this.eventPublisher.publishEvent(notificationInsertEvent);
     log.info("Publishing notification event {}", notificationInsertEvent);
   }
@@ -106,7 +111,7 @@ public class CDCEventPublisher {
   private Map<String, Object> mapRowData(Serializable[] rowValues, String tableName) {
     Map<String, Object> row = new HashMap<>();
     for (int i = 0; i < rowValues.length; i++) {
-      String columnName = this.tableMetadataCache.getColumnInfo(tableName, i).name();
+      String columnName = this.tableMetadataCache.getColumnInfo(tableName, i);
       row.put(columnName, rowValues[i]);
     }
     return row;
