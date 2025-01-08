@@ -32,36 +32,28 @@ public class GeometryUtils {
 
 
   public LineString getLineString(List<TrackPoint> points) {
-    if (points.size() > LIMIT_SEQUENTIAL) {
-      return geoFactory.createLineString(points.parallelStream()
-          .map(point -> new Coordinate(point.lon(), point.lat()))
-          .toArray(Coordinate[]::new)
-      );
-    } else {
-      return geoFactory.createLineString(points.stream()
-          .map(point -> new Coordinate(point.lon(), point.lat()))
-          .toArray(Coordinate[]::new)
-      );
-    }
+    Stream<TrackPoint> pointStream = points.size() > LIMIT_SEQUENTIAL
+        ? points.parallelStream()
+        : points.stream();
+
+    return geoFactory.createLineString(pointStream
+        .map(point -> new Coordinate(point.lon(), point.lat()))
+        .toArray(Coordinate[]::new)
+    );
   }
 
   public List<TrackPoint> getPoints(LineString lineString) {
-    if (lineString.getCoordinates().length > LIMIT_SEQUENTIAL) {
-      return Stream.of(lineString.getCoordinates())
-          .parallel()
-          .map(coordinate -> TrackPoint.builder()
-              .lat(coordinate.getY())
-              .lon(coordinate.getX())
-              .build())
-          .collect(Collectors.toList());
-    } else {
-      return Stream.of(lineString.getCoordinates())
-          .map(coordinate -> TrackPoint.builder()
-              .lat(coordinate.getY())
-              .lon(coordinate.getX())
-              .build())
-          .collect(Collectors.toList());
-    }
+    Coordinate[] coordinatesArray = lineString.getCoordinates();
+    Stream<Coordinate> coordinatesStream = coordinatesArray.length > LIMIT_SEQUENTIAL
+        ? Stream.of(coordinatesArray).parallel()
+        : Stream.of(coordinatesArray);
+
+    return coordinatesStream
+        .map(coordinate -> TrackPoint.builder()
+            .lat(coordinate.getY())
+            .lon(coordinate.getX())
+            .build())
+        .collect(Collectors.toList());
   }
 
   public boolean isWithinDistance(Geometry point1, Geometry point2) {
